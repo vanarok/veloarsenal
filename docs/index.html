@@ -692,7 +692,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     // Утеплённая зимняя куртка в мороз заменяет и мембрану, и утеплённый жилет
     if (ids.shell.includes("frostShell") && has("winterJacket")) ids.shell = ids.shell.filter(n => n !== "warmVest");
     // Нет зимних тайтсов при +5° и ниже — обычные тайтсы и брюки поверх (их можно снять в помещении)
-    if (ids.legs[0] === "winterTights" && e <= 5 && !ids.legOver.length && !findItem(NEEDS.winterTights, new Set())) ids.legOver = ["overpants"];
+    if (ids.legs[0] === "winterTights" && e <= 5 && !ids.legOver.length && !findItem(NEEDS.winterTights, new Set()) && findItem(NEEDS.tights, new Set())) ids.legOver = ["overpants"];
     const used = new Set(), o = {};
     SLOTS.forEach(s => { o[s.id] = ids[s.id].map(nid => resolve(nid, used)).filter(Boolean); });
     return o;
