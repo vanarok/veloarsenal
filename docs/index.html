@@ -209,7 +209,7 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
 .hint { color: var(--muted); font-size: 12px; margin: 0 0 8px; padding: 6px 8px; border: 1px dashed var(--gold-dim); border-radius: 4px; }
 .quest.sub .mark { border-color: var(--r-common); }
 .inv-form { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
-.inv-form input, .inv-form select, .io textarea, .io select, .city-panel input {
+.inv-form input, .inv-form select, .city-panel input {
   font: 12px var(--font-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 5px 7px; min-width: 0; width: 100%;
 }
 .inv-form .wide { grid-column: 1 / -1; }
@@ -224,7 +224,6 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
 .ib:hover { color: var(--fg); border-color: var(--line); }
 .io { display: grid; gap: 6px; margin-top: 4px; }
 .io-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.io textarea { min-height: 70px; font-family: var(--font-mono); font-size: 11px; resize: vertical; }
 .io-file { position: relative; overflow: hidden; }
 .io-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .io-msg { color: var(--muted); font-size: 12px; min-height: 1em; }
@@ -339,16 +338,10 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
         <div class="io">
           <div class="io-row">
             <button type="button" class="btn" id="ioDownload">Скачать файл</button>
-            <button type="button" class="btn" id="ioCopy">Скопировать</button>
-          </div>
-          <div class="io-row">
-            <select id="ioMode" aria-label="Как загрузить" style="width:auto"><option value="merge">Добавить к моим</option><option value="replace">Заменить мои</option></select>
             <label class="btn io-file">Загрузить файл<input type="file" id="ioFile" accept="application/json,.json"></label>
-            <button type="button" class="btn" id="ioPaste">Загрузить из поля</button>
           </div>
-          <textarea id="ioText" aria-label="Список вещей в JSON" placeholder="Сюда можно вставить список вещей (JSON)"></textarea>
           <div class="io-msg" id="ioMsg" aria-live="polite"></div>
-          <p class="src">Вещи хранятся только в этом браузере или приложении и никуда не отправляются.</p>
+          <p class="src">Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.</p>
         </div>
       </div>
       <div class="tabpanel" role="tabpanel" id="p-tips" aria-labelledby="tab-tips" hidden>
@@ -664,7 +657,7 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
     const missing = all.filter(x => x.s === "missing");
     const subs = all.filter(x => x.sub && x.s !== "missing");
     const q = (cls, title, note) => '<div class="quest' + cls + '"><span class="mark" aria-hidden="true"></span><div><div class="qt">' + title + '</div><div class="qn">' + note + '</div></div></div>';
-    let html = inv.length ? "" : '<p class="hint">Добавьте свои вещи во вкладке «Вещи» — подбор сам подставит их по типу и материалу. Или загрузите готовый список через «Перенос».</p>';
+    let html = inv.length ? "" : '<p class="hint">Добавьте свои вещи во вкладке «Вещи» — подбор сам подставит их по типу и материалу. Или загрузите файл со списком через «Перенос».</p>';
     html += missing.map(x => q("", esc(x.n), '<button type="button" class="lnk" data-add="' + x.nid + '">+ Добавить свою</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : ''))).join("");
     html += subs.map(x => q(" sub", esc(x.n), "Вместо «" + esc(x.sub.n.toLowerCase()) + "»")).join("");
     $("p-quests").innerHTML = html || '<p class="empty-note">Для этой погоды всё уже в инвентаре.</p>';
@@ -752,7 +745,7 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
         '<div class="inv-txt"><div class="inv-n">' + esc(it.name) + '</div><div class="inv-m">' + esc(TYPES[it.slot][it.type]) + " · " + esc(MATS[it.mat] || "") + '</div></div>' +
         '<button type="button" class="ib" data-edit="' + it.id + '" aria-label="Изменить">✎</button><button type="button" class="ib" data-del="' + it.id + '" aria-label="Удалить">✕</button></div>').join("") + '</div>';
     }).join("");
-    $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Добавьте вещь выше или загрузите список в «Переносе».</p>';
+    $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Добавьте вещь выше или загрузите файл в «Переносе».</p>';
     $("invCount").textContent = inv.length ? String(inv.length) : "";
     $("invList").querySelectorAll("[data-edit]").forEach(b => b.onclick = () => startEdit(b.dataset.edit));
     $("invList").querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
@@ -775,15 +768,15 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
 
   // Перенос: файл или текст. Данные никуда не отправляются
   const invJSON = () => JSON.stringify({ app: "veloarsenal", version: 1, items: inv.map(({ id, ...rest }) => rest) }, null, 2);
-  function importData(text, mode) {
+  function importData(text) {
     let data;
     try { data = JSON.parse(text); } catch (err) { $("ioMsg").textContent = "Не получилось прочитать: это не JSON."; return; }
     const items = (Array.isArray(data) ? data : data && data.items) || [];
     const ok = items.filter(it => it && typeof it.name === "string" && TYPES[it.slot] && TYPES[it.slot][it.type] && it.status !== "wanted")
       .map(it => ({ id: newId(), name: it.name.slice(0, 120), slot: it.slot, type: it.type, mat: MATS[it.mat] ? it.mat : "other", note: String(it.note || "").slice(0, 300), link: /^https?:\/\//i.test(it.link || "") ? it.link : "" }));
     if (!ok.length) { $("ioMsg").textContent = "Подходящих вещей в файле не нашлось."; return; }
-    if (mode === "replace") inv = ok;
-    else { const key = (x) => x.slot + "|" + x.type + "|" + x.name.toLowerCase(); const have = new Set(inv.map(key)); inv = inv.concat(ok.filter(x => !have.has(key(x)))); }
+    if (inv.length && !confirm("Заменить ваши вещи (" + inv.length + ") списком из файла (" + ok.length + ")?")) { $("ioMsg").textContent = ""; return; }
+    inv = ok;
     saveInv(); renderInv(); render();
     $("ioMsg").textContent = "Загружено вещей: " + ok.length + (items.length > ok.length ? ", пропущено: " + (items.length - ok.length) : "") + ".";
   }
@@ -795,17 +788,11 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     $("ioMsg").textContent = "Файл сохранён в «Загрузки».";
   });
-  $("ioCopy").addEventListener("click", async () => {
-    $("ioText").value = invJSON();
-    try { await navigator.clipboard.writeText($("ioText").value); $("ioMsg").textContent = "Скопировано в буфер обмена."; }
-    catch (err) { $("ioText").select(); $("ioMsg").textContent = "Текст в поле ниже — скопируйте его ⌘C."; }
-  });
   $("ioFile").addEventListener("change", async (ev) => {
     const f = ev.target.files && ev.target.files[0];
-    if (f) importData(await f.text(), $("ioMode").value);
+    if (f) importData(f.text ? await f.text() : await new Promise((ok, fail) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = fail; r.readAsText(f); }));
     ev.target.value = "";
   });
-  $("ioPaste").addEventListener("click", () => importData($("ioText").value, $("ioMode").value));
 
   // Гайд: одна строка таблицы за раз, по умолчанию — под текущую погоду
   const GUIDE = [
