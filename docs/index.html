@@ -202,6 +202,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .modal .inv-form { margin: 0; }
 .sec-h { font: 600 13px var(--font-cond); letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
 .sec-h:first-child { margin-top: 2px; }
+#cafeSec > .sec-h, #hdSec > .sec-h { margin-top: 16px; }
 .quest { padding: 7px 0; border-bottom: 1px solid var(--rule); }
 .quest .qt { font-weight: 500; }
 .quest.miss .qt { color: var(--signal); }
@@ -1299,6 +1300,38 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   overlayScroll(pageEl, "y");
   overlayScroll($("wHours"), "x");
   document.querySelectorAll(".page, .main, .col, .center").forEach(el => overlayScroll(el, "y"));
+
+  // Автообновление сайта: сверяем код этой страницы с тем, что сейчас лежит на сервере.
+  // Вышла новая версия — перезагружаемся в обход кэша; данные в браузере сохраняются
+  (function autoUpdate() {
+    if (!/^https?:$/.test(location.protocol)) return;
+    const me = document.scripts[document.scripts.length - 1];
+    const hash = (str) => { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+    const mine = hash(me.textContent);
+    const busy = () => !$("addDlg").hidden || document.body.classList.contains("cond-open");
+    let pending = null;
+    async function check() {
+      if (document.hidden) return;
+      try {
+        const r = await fetch(location.pathname + "?v=" + Date.now(), { cache: "no-store" });
+        if (!r.ok) return;
+        const html = await r.text();
+        const scripts = html.match(/<script>([\s\S]*?)<\/script>/g);
+        if (!scripts) return;
+        const fresh = hash(scripts[scripts.length - 1].replace(/^<script>/, "").replace(/<\/script>$/, ""));
+        if (fresh === mine) return;
+        // Защита от бесконечной перезагрузки, если сервер ещё отдаёт старую версию
+        try { if (sessionStorage.getItem("veloarsenal.reloadedFor") === fresh) return; sessionStorage.setItem("veloarsenal.reloadedFor", fresh); } catch (err) { /* ignore */ }
+        pending = fresh;
+        if (!busy()) location.replace(location.pathname + "?v=" + fresh + location.hash);
+      } catch (err) { /* нет связи — проверим позже */ }
+    }
+    setTimeout(check, 1500);
+    setInterval(check, 30 * 60 * 1000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
+    // Ждали, пока закроют окно — обновляемся сразу после
+    setInterval(() => { if (pending && !busy()) location.replace(location.pathname + "?v=" + pending + location.hash); }, 2000);
+  })();
 
   resetForm();
   renderInv();
