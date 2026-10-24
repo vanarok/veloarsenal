@@ -436,12 +436,14 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
   <section class="page" id="p-tips" aria-labelledby="h-tips" hidden>
     <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-tips">Советы на эту погоду</h2></div>
-        <div class="sec-h" id="hdHead">В гору и перед спуском</div>
-        <div class="hd" id="hd"></div>
         <div class="sec-h">Главное на эту погоду</div>
-        <ul class="rules" id="rules"></ul>
-        <div class="sec-h">Что снять в помещении</div>
-        <div class="cafe" id="cafe"></div>
+    <ul class="rules" id="rules"></ul>
+    <div class="sec-h" id="hdUpH">В гору</div>
+    <ul class="rules" id="hdUp"></ul>
+    <div class="sec-h" id="hdDownH">Перед спуском</div>
+    <ul class="rules" id="hdDown"></ul>
+    <div class="sec-h">Что снять в помещении</div>
+    <div class="cafe" id="cafe"></div>
     <p class="more"><button type="button" class="lnk" data-go="guide">Что надеть при другой температуре →</button></p>
   </section>
 
@@ -855,8 +857,10 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     const cafe = all.filter(x => x.cafe && x.s !== "missing");
     $("cafe").innerHTML = cafe.length ? cafe.map(x => short(x)).join(", ") : '<span class="empty-note">Снимать нечего</span>';
     const li = (k) => all.filter(x => x[k]).map(x => "<li><b>" + short(x) + ":</b> " + esc(x[k]) + "</li>").join("");
-    $("hdHead").textContent = hilly() ? "В гору и перед спуском" : "Если будет горка";
-    $("hd").innerHTML = '<div><h4>В гору</h4><ul>' + (li("up") || "<li>Ничего менять не нужно</li>") + '</ul></div><div><h4>Перед спуском</h4><ul>' + (li("down") || "<li>Ничего менять не нужно</li>") + '</ul></div>';
+    $("hdUpH").textContent = hilly() ? "В гору" : "Если будет подъём";
+    $("hdDownH").textContent = hilly() ? "Перед спуском" : "Если будет спуск";
+    $("hdUp").innerHTML = li("up") || "<li>Ничего менять не нужно</li>";
+    $("hdDown").innerHTML = li("down") || "<li>Ничего менять не нужно</li>";
     renderGuide(e);
 
     bindSlots();
