@@ -150,6 +150,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .slot.empty .iname { color: var(--muted); font-weight: 400; }
 .iname.need { color: var(--signal); }
 .need-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; }
+.need-row + .need-row, .need-row + .iname, .iname + .need-row { margin-top: 6px; }
 .add-btn { font-size: 14px; color: var(--signal); background: transparent; border: 1px solid var(--signal); border-radius: 3px; padding: 1px 8px; cursor: pointer; }
 .add-btn:hover { background: var(--signal); color: var(--signal-ink); }
 .add-btn.quiet { color: var(--ink-2); border-color: var(--rule-strong); }
@@ -549,7 +550,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     shoesCool:    { slot: "shoes", n: "Закрытая обувь под бахилы", types: ["trail", "winterCycling", "cycling", "sneakers"], r: "uncommon", basic: true, note: "Сетка на кроссовках продувается — сверху бахилы" },
     shoesWinter:  { slot: "shoes", n: "Зимние ботинки", types: ["winterCycling", "winterBoots"], r: "legendary", warm: 2, wind: 2, note: "На размер больше обычного, чтобы влезли толстые носки и не давило. Тёплые ботинки греют лучше туфель с бахилами", find: "зимние велоботинки", alts: ["shoesCool"] },
     overshoes:    { slot: "overshoe", n: "Велобахилы", types: ["wind", "warm", "toe"], r: "epic", warm: 1, wind: 3, find: "велобахилы" },
-    lights:       { slot: "vis", n: "Фонари спереди и сзади", types: ["lights"], r: "common", basic: true, note: "Обязательно после заката" },
+    lights:       { slot: "vis", n: "Фонари спереди и сзади", types: ["lights"], r: "common", note: "Обязательно после заката", find: "велофонарь передний и задний" },
     reflVest:     { slot: "vis", n: "Светоотражающий жилет", types: ["reflVest", "reflBands"], r: "uncommon", note: "Поверх всего", find: "светоотражающий жилет" }
   };
 
