@@ -402,7 +402,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         <div class="hd" id="hd"></div>
         <div class="sec-h">Правила этой температуры</div>
         <ul class="rules" id="rules"></ul>
-        <div class="sec-h">В кафе снять сразу</div>
+        <div class="sec-h">В помещении снять сразу</div>
         <div class="cafe" id="cafe"></div>
     <p class="more"><button type="button" class="lnk" data-go="guide">Что надеть при другой температуре →</button></p>
   </section>
@@ -483,7 +483,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     capWind:      { slot: "head", n: "Шапочка под шлем с ветрозащитой", types: ["helmetCap", "thin"], r: "rare", warm: 1, wind: 1, cafe: true, note: "Закрывает уши от ветра", find: "велошапочка под шлем ветрозащитная" },
     balaclava:    { slot: "head", n: "Балаклава", types: ["balaclava"], r: "epic", warm: 2, wind: 1, cafe: true, up: "сдвинуть с носа", down: "на нос", find: "балаклава тонкая под шлем", alts: ["capWind"] },
     neck:         { slot: "face", n: "Снуд на шее", types: ["snood", "scarf", "balaclava"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, down: "поднять на подбородок", find: "снуд бафф меринос" },
-    nose:         { slot: "face", n: "Снуд на подбородок и нос", types: ["snood", "balaclava", "scarf"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, note: "В кафе снять, чтобы просох. Вплотную под очки не натягивать — запотеют", up: "спустить на шею", down: "натянуть на нос", find: "снуд бафф меринос" },
+    nose:         { slot: "face", n: "Снуд на подбородок и нос", types: ["snood", "balaclava", "scarf"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, note: "В помещении снять, чтобы просох. Вплотную под очки не натягивать — запотеют", up: "спустить на шею", down: "натянуть на нос", find: "снуд бафф меринос" },
     under:        { slot: "face", n: "Тонкий снуд под балаклаву", types: ["snood"], mats: ["merino", "synthetic"], r: "uncommon", warm: 1, optional: true },
     glasses:      { slot: "eyes", n: "Спортивные очки", types: ["glasses", "sealed"], r: "rare", wind: 1, note: "Вечером — прозрачные линзы", down: "обязательно: на 40 км/ч слезятся глаза", find: "велоочки прозрачная линза" },
     glassesSeal:  { slot: "eyes", n: "Очки с уплотнителем", types: ["sealed", "goggles"], r: "epic", wind: 2, note: "Поролон закрывает щель — холодный воздух не задувает сбоку, глаза не слезятся", down: "обязательно", find: "спортивные очки с уплотнителем прозрачная линза", alts: ["glasses"] },
@@ -589,7 +589,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     const ids = pick(e, dark, rain);
     // Без балаклавы лицо закрывает снуд на нос
     if (ids.head[0] === "balaclava" && !findItem(NEEDS.balaclava, new Set())) ids.face = ["nose"];
-    // Нет зимних тайтсов при +5° и ниже — обычные тайтсы и брюки поверх (их можно снять в кафе)
+    // Нет зимних тайтсов при +5° и ниже — обычные тайтсы и брюки поверх (их можно снять в помещении)
     if (ids.legs[0] === "winterTights" && e <= 5 && !ids.legOver.length && !findItem(NEEDS.winterTights, new Set())) ids.legOver = ["overpants"];
     const used = new Set(), o = {};
     SLOTS.forEach(s => { o[s.id] = ids[s.id].map(nid => resolve(nid, used)).filter(Boolean); });
