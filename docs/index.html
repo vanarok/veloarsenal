@@ -191,6 +191,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .io-file { position: relative; overflow: hidden; }
 .io-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .io-msg { color: var(--ink-2); font-size: 15px; min-height: 1em; }
+.tip { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 4px; border: 1px solid var(--muted); border-radius: 50%; font: 600 11px/1 var(--font); text-transform: none; letter-spacing: 0; color: var(--muted); cursor: help; vertical-align: 1px; }
+.tip:hover, .tip:focus-visible { color: var(--ink); border-color: var(--ink); }
 .src { font-size: 14px; color: var(--muted); margin: 10px 0 0; }
 
 /* Гайд */
@@ -333,14 +335,13 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
           <div class="inv-actions"><button type="submit" class="btn pri" id="fSave">Добавить</button><button type="button" class="btn" id="fCancel" hidden>Отмена</button></div>
         </form>
         <div id="invList"></div>
-        <div class="sec-h">Перенос</div>
+        <div class="sec-h">Перенос <span class="tip" tabindex="0" title="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются." aria-label="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.">i</span></div>
         <div class="io">
           <div class="io-row">
             <button type="button" class="btn" id="ioDownload">Скачать файл</button>
             <label class="btn io-file">Загрузить файл<input type="file" id="ioFile" accept="application/json,.json"></label>
           </div>
           <div class="io-msg" id="ioMsg" aria-live="polite"></div>
-          <p class="src">Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.</p>
         </div>
       </div>
       <div class="tabpanel" role="tabpanel" id="p-tips" aria-labelledby="tab-tips" hidden>
