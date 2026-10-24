@@ -258,8 +258,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .body-hint { margin: 0; color: var(--ink-2); font-size: 14px; }
 .insp-alts { margin: 2px 0 0; padding-left: 18px; font-size: 14px; color: var(--ink-2); }
 .insp-alts li { margin: 2px 0; }
-.share-msg { font-size: 14px; color: var(--ink-2); text-align: center; max-width: 220px; overflow-wrap: anywhere; }
-.share-msg:empty { display: none; }
+.toast { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 50; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; width: max-content; max-width: calc(100vw - 32px); padding: 10px 8px 10px 14px; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 4px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); font-size: 15px; }
+.toast input { flex: 1 1 260px; min-width: 0; padding: 5px 8px; background: var(--paper); border: 1px solid var(--rule-strong); border-radius: 3px; color: var(--ink); font-size: 14px; }
 .shared-bar { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; max-width: calc(100vw - 32px); padding: 10px 14px; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 4px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); font-size: 15px; }
 .shared-act { display: flex; gap: 8px; }
 .body-sum { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin: 0 0 12px; color: var(--ink-2); font-size: 15px; }
@@ -446,7 +446,6 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
           <button type="button" class="lnk m-only" data-go="tips">Советы на эту погоду</button>
           <button type="button" class="lnk all-items" id="goInv">Все мои вещи <span class="cnt" id="invCount"></span></button>
           <button type="button" class="lnk" id="shareBtn">Поделиться сборкой</button>
-          <div class="share-msg" id="shareMsg" aria-live="polite"></div>
         </div>
 
       </div>
@@ -509,6 +508,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         </form>
     </div>
   </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toastTxt"></span><input id="toastUrl" readonly hidden aria-label="Ссылка"><button type="button" class="ib" id="toastClose" aria-label="Закрыть">✕</button></div>
 
   <div class="shared-bar" id="sharedBar" role="status" hidden>
     <span id="sharedTxt">Вы смотрите чужую сборку</span>
@@ -1445,8 +1446,20 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   // Поделиться сборкой: вещи и условия (без мерок) сохраняются на dpaste.com, ссылка короткая — #k=<id>
   const SITE = "https://vanarok.github.io/veloarsenal/";
   const kitSummary = () => "Моя сборка в Велоарсенале: " + place.name + ", " + fmt(state.t) + ", одеваемся на " + fmt(curE);
+  // Всплывашка внизу: короткие сообщения прячутся сами, ссылка без буфера обмена висит до закрытия
+  let toastT = null;
+  function toast(text, url, stay) {
+    $("toastTxt").textContent = text;
+    $("toastUrl").hidden = !url;
+    if (url) $("toastUrl").value = url;
+    $("toast").hidden = false;
+    clearTimeout(toastT);
+    if (!stay) toastT = setTimeout(() => { $("toast").hidden = true; }, 3500);
+    if (url) { $("toastUrl").focus(); $("toastUrl").select(); }
+  }
+  $("toastClose").addEventListener("click", () => { clearTimeout(toastT); $("toast").hidden = true; });
   $("shareBtn").addEventListener("click", async () => {
-    const msg = $("shareMsg");
+    const msg = { set textContent(t) { if (t) toast(t, null, true); else $("toast").hidden = true; } };
     msg.textContent = "Создаю ссылку…";
     const kit = { v: 1, place, t: state.t, wind: state.wind, rain: state.rain, dark: state.dark, cruise: state.cruise, vmax: state.vmax, items: inv.map(({ id, ...rest }) => rest) };
     let url;
@@ -1461,7 +1474,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     }
     let copied = false;
     try { await navigator.clipboard.writeText(url); copied = true; } catch (err) { /* без буфера обмена */ }
-    msg.textContent = (copied ? "Ссылка скопирована: " : "Ссылка: ") + url.replace(/^https:\/\//, "");
+    if (copied) toast("Ссылка скопирована", null, false);
+    else toast("Скопируйте ссылку:", url, true);
   });
   async function openShared(id) {
     let kit;
