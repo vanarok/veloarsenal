@@ -476,30 +476,30 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
   // Типы вещей в каждом слоте: из них пользователь выбирает при добавлении своей вещи
   const TYPES = {
-    head:     { thin: "Тонкая шапка", helmetCap: "Шапочка под шлем (ветрозащита)", balaclava: "Балаклава" },
-    face:     { snood: "Снуд / бафф", scarf: "Шарф", balaclava: "Балаклава" },
+    head:     { thin: "Тонкая шапка", helmetCap: "Шапочка под шлем (ветрозащита)", earband: "Повязка на уши", cycCap: "Велокепка с козырьком", balaclava: "Балаклава" },
+    face:     { snood: "Снуд / бафф", mask: "Ветрозащитная маска", scarf: "Шарф", balaclava: "Балаклава" },
     eyes:     { glasses: "Спортивные очки", sealed: "Очки с уплотнителем", goggles: "Маска" },
     base:     { tee: "Футболка", longsleeve: "Лонгслив / термобельё", sleeves: "Нарукавники" },
-    mid:      { grid: "Сеточный флис (Power Grid)", jersey: "Термоджерси", fleece: "Флиска", sweater: "Свитер / кофта" },
-    shell:    { windVest: "Ветрожилет", windJacket: "Ветровка", softshell: "Софтшелл / тёплая велокуртка", membrane: "Мембранная куртка", warmVest: "Утеплённый жилет" },
-    hands:    { mesh: "Летние / сетчатые", thin: "Тонкие длиннопалые", insulated: "Утеплённые", lobster: "Лобстеры", muffs: "Муфты на руль" },
-    legs:     { shorts: "Велошорты", tights: "Тайтсы без утепления", winterTights: "Зимние тайтсы" },
-    legOver:  { overpants: "Ветрозащитные брюки / самосбросы", warmPants: "Утеплённые брюки" },
-    socks:    { regular: "Обычные", thinWool: "Тонкие шерстяные", thickWool: "Толстые шерстяные" },
-    overshoe: { wind: "Ветрозащитные бахилы", warm: "Утеплённые бахилы" },
-    vis:      { lights: "Фонари", reflVest: "Светоотражающий жилет" }
+    mid:      { grid: "Сеточный флис (Power Grid)", jersey: "Термоджерси", fleece: "Флиска", sweater: "Свитер / кофта", puffy: "Лёгкий пуховик / синтепон" },
+    shell:    { windVest: "Ветрожилет", windJacket: "Ветровка", softshell: "Софтшелл / тёплая велокуртка", membrane: "Мембранная куртка", winterJacket: "Утеплённая зимняя куртка", warmVest: "Утеплённый жилет" },
+    hands:    { mesh: "Летние / сетчатые", liner: "Перчатки-подкладка", thin: "Тонкие длиннопалые", insulated: "Утеплённые", lobster: "Лобстеры", mittens: "Варежки", muffs: "Муфты на руль" },
+    legs:     { shorts: "Велошорты", knickers: "Бриджи 3/4", tights: "Тайтсы без утепления", winterTights: "Зимние тайтсы" },
+    legOver:  { overpants: "Ветрозащитные брюки / самосбросы", warmPants: "Утеплённые брюки", legWarmers: "Велогетры / наколенники" },
+    socks:    { regular: "Обычные", thinWool: "Тонкие шерстяные", thickWool: "Толстые шерстяные", waterproof: "Непромокаемые" },
+    overshoe: { toe: "Носочки на туфли", wind: "Ветрозащитные бахилы", warm: "Утеплённые бахилы" },
+    vis:      { lights: "Фонари", reflVest: "Светоотражающий жилет", reflBands: "Светоотражающие браслеты / полосы" }
   };
-  const MATS = { merino: "Меринос", wool: "Шерсть", synthetic: "Синтетика", fleece: "Флис", softshell: "Софтшелл", membrane: "Мембрана", nylon: "Нейлон / ветрозащита", neoprene: "Неопрен", cotton: "Хлопок", other: "Другое" };
+  const MATS = { merino: "Меринос", wool: "Шерсть", synthetic: "Синтетика", fleece: "Флис", softshell: "Софтшелл", membrane: "Мембрана", nylon: "Нейлон / ветрозащита", down: "Пух", insulation: "Синтетический утеплитель", neoprene: "Неопрен", leather: "Кожа", cotton: "Хлопок", other: "Другое" };
 
   // Что нужно надеть: каталог потребностей. Своя вещь подставляется по слоту и типу,
   // среди подходящих — сначала та, что уже есть, потом по предпочтительному материалу
   const NEEDS = {
-    capThin:      { slot: "head", n: "Тонкая шапка под шлем", types: ["thin", "helmetCap"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, find: "тонкая шапка под велошлем" },
-    capWind:      { slot: "head", n: "Шапочка под шлем с ветрозащитой", types: ["helmetCap", "thin"], r: "rare", warm: 1, wind: 1, cafe: true, note: "Закрывает уши от ветра", find: "велошапочка под шлем ветрозащитная" },
+    capThin:      { slot: "head", n: "Тонкая шапка под шлем", types: ["thin", "helmetCap", "earband", "cycCap"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, find: "тонкая шапка под велошлем" },
+    capWind:      { slot: "head", n: "Шапочка под шлем с ветрозащитой", types: ["helmetCap", "thin", "earband"], r: "rare", warm: 1, wind: 1, cafe: true, note: "Закрывает уши от ветра", find: "велошапочка под шлем ветрозащитная" },
     balaclava:    { slot: "head", n: "Балаклава", types: ["balaclava"], r: "epic", warm: 2, wind: 1, cafe: true, up: "сдвинуть с носа", down: "на нос", find: "балаклава тонкая под шлем", alts: ["capWind"] },
-    neck:         { slot: "face", n: "Снуд на шее", types: ["snood", "scarf", "balaclava"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, down: "поднять на подбородок", find: "снуд бафф меринос" },
-    nose:         { slot: "face", n: "Снуд на подбородок и нос", types: ["snood", "balaclava", "scarf"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, note: "В помещении снять, чтобы просох. Вплотную под очки не натягивать — запотеют", up: "спустить на шею", down: "натянуть на нос", find: "снуд бафф меринос" },
-    under:        { slot: "face", n: "Тонкий снуд под балаклаву", types: ["snood"], mats: ["merino", "synthetic"], r: "uncommon", warm: 1, optional: true },
+    neck:         { slot: "face", n: "Снуд на шее", types: ["snood", "scarf", "balaclava", "mask"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, down: "поднять на подбородок", find: "снуд бафф меринос" },
+    nose:         { slot: "face", n: "Снуд на подбородок и нос", types: ["snood", "mask", "balaclava", "scarf"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, note: "В помещении снять, чтобы просох. Вплотную под очки не натягивать — запотеют", up: "спустить на шею", down: "натянуть на нос", find: "снуд бафф меринос" },
+    under:        { slot: "face", n: "Тонкий снуд под балаклаву", types: ["snood", "mask"], mats: ["merino", "synthetic"], r: "uncommon", warm: 1, optional: true },
     glasses:      { slot: "eyes", n: "Спортивные очки", types: ["glasses", "sealed"], r: "rare", wind: 1, note: "Вечером — прозрачные линзы", down: "обязательно: на 40 км/ч слезятся глаза", find: "велоочки прозрачная линза" },
     glassesSeal:  { slot: "eyes", n: "Очки с уплотнителем", types: ["sealed", "goggles"], r: "epic", wind: 2, note: "Поролон закрывает щель — холодный воздух не задувает сбоку, глаза не слезятся", down: "обязательно", find: "спортивные очки с уплотнителем прозрачная линза", alts: ["glasses"] },
     tee:          { slot: "base", n: "Футболка", types: ["tee"], mats: ["merino", "synthetic"], avoid: ["cotton"], r: "uncommon", warm: 1, find: "велофутболка", alts: ["longsleeve"] },
@@ -507,24 +507,27 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     longsleeve:   { slot: "base", n: "Термобельё с длинным рукавом", types: ["longsleeve"], mats: ["merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 2, note: "Заправить в велоштаны, лямки поверх", find: "лонгслив меринос термобелье" },
     teeUnder:     { slot: "base", n: "Футболка под термобельё", types: ["tee"], mats: ["merino", "wool", "synthetic"], avoid: ["cotton"], r: "uncommon", warm: 1, note: "Второй слой на корпус в мороз", optional: true },
     mid:          { slot: "mid", n: "Средний слой: сеточный флис или термоджерси", types: ["grid", "jersey", "fleece", "sweater"], mats: ["fleece", "merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 3, cafe: true, up: "ворот расстегнуть", down: "ворот застегнуть", note: "Облегающий лучше: под ветровкой не выпирает. Флис ветер не держит — сверху нужна ветрозащита с рукавами", find: "Polartec Power Grid кофта" },
+    puffyMid:     { slot: "mid", n: "Лёгкий пуховик под куртку", types: ["puffy"], mats: ["down", "insulation"], r: "legendary", warm: 3, cafe: true, up: "расстегнуть", down: "застегнуть", note: "Только в сильный мороз — на подъёме в нём жарко", optional: true },
     windVest:     { slot: "shell", n: "Ветрожилет", types: ["windVest"], r: "rare", wind: 2, sleeves: false, cafe: true, up: "расстегнуть", down: "застегнуть", note: "Не греет, только режет ветер на груди", find: "велосипедный ветрожилет", alts: ["windJacket"] },
     windJacket:   { slot: "shell", n: "Ветровка", types: ["windJacket", "softshell"], r: "rare", wind: 3, cafe: true, up: "молния до середины груди", down: "застегнуть до горла", note: "Тонкая ветровка не греет — тепло дают слои под ней. Зябко на спуске при 0…+5° — сверху ветрожилет", find: "веловетровка мужская", alts: ["membrane"] },
+    frostShell:   { slot: "shell", n: "Зимняя куртка или мембрана", types: ["winterJacket", "membrane", "softshell"], r: "legendary", warm: 2, wind: 3, cafe: true, up: "молнию открыть до груди", down: "застегнуть до горла", note: "Утеплённая зимняя куртка заменяет мембрану и утеплённый жилет", find: "утепленная велокуртка зимняя" },
     membrane:     { slot: "shell", n: "Мембранная куртка", types: ["membrane", "softshell"], r: "epic", warm: 1, wind: 3, cafe: true, up: "молнию открыть до груди", down: "застегнуть до горла", note: "На подъёме под мембраной сыро — проветривайте", find: "мембранная велокуртка", alts: ["windJacket"] },
     warmVest:     { slot: "shell", n: "Утеплённый жилет", types: ["warmVest"], r: "epic", warm: 1, wind: 2, sleeves: false, cafe: true, up: "расстегнуть", down: "застегнуть", note: "В мороз — под куртку или поверх неё", find: "утеплённый веложилет", alts: ["windVest"] },
     gMesh:        { slot: "hands", n: "Летние перчатки", types: ["mesh", "thin"], r: "uncommon", find: "велоперчатки летние" },
-    gThin:        { slot: "hands", n: "Тонкие длиннопалые перчатки", types: ["thin", "insulated"], r: "uncommon", warm: 1, find: "велоперчатки длинный палец" },
+    gThin:        { slot: "hands", n: "Тонкие длиннопалые перчатки", types: ["thin", "liner", "insulated"], r: "uncommon", warm: 1, find: "велоперчатки длинный палец" },
     gWarm:        { slot: "hands", n: "Утеплённые велоперчатки", types: ["insulated"], r: "epic", warm: 2, wind: 2, up: "манжет расстегнуть", down: "манжет затянуть", note: "Обычно комфортны примерно до +2…+4 °C", find: "велоперчатки утепленные ветрозащитные", alts: ["gLobster"] },
-    gLobster:     { slot: "hands", n: "Лобстеры", types: ["lobster", "muffs"], r: "legendary", warm: 3, wind: 3, note: "Тормоза и шифтеры — двумя пальцами. Сильный мороз — тонкая перчатка внутрь", find: "лобстеры перчатки беговые лыжи", alts: ["gWarm"] },
-    shorts:       { slot: "legs", n: "Велошорты", types: ["shorts"], r: "uncommon", find: "велошорты с памперсом", alts: ["tights"] },
-    tights:       { slot: "legs", n: "Велотайтсы без утепления", types: ["tights", "winterTights"], r: "uncommon", warm: 1, find: "велоштаны с памперсом" },
+    gLobster:     { slot: "hands", n: "Лобстеры", types: ["lobster", "mittens", "muffs"], r: "legendary", warm: 3, wind: 3, note: "Тормоза и шифтеры — двумя пальцами. Сильный мороз — тонкая перчатка внутрь", find: "лобстеры перчатки беговые лыжи", alts: ["gWarm"] },
+    shorts:       { slot: "legs", n: "Велошорты", types: ["shorts", "knickers"], r: "uncommon", find: "велошорты с памперсом", alts: ["tights"] },
+    tights:       { slot: "legs", n: "Велотайтсы без утепления", types: ["tights", "knickers", "winterTights"], r: "uncommon", warm: 1, find: "велоштаны с памперсом" },
     winterTights: { slot: "legs", n: "Зимние велотайтсы", types: ["winterTights"], r: "legendary", warm: 3, wind: 2, note: "Флис внутри, ветрозащитный перед", find: "велоштаны утепленные с памперсом", alts: ["tights"] },
+    legWarm:      { slot: "legOver", n: "Велогетры", types: ["legWarmers"], r: "uncommon", warm: 1, note: "С шортами вместо тайтсов. Жарко — спустите к щиколотке", optional: true },
     overpants:    { slot: "legOver", n: "Ветрозащитные брюки поверх", types: ["overpants", "warmPants"], r: "epic", warm: 2, wind: 3, cafe: true, up: "боковые молнии сверху приоткрыть", down: "молнии закрыть", note: "Самосбросы снимаются, не разуваясь", find: "самосбросы брюки ветрозащитные" },
     socksReg:     { slot: "socks", n: "Обычные спортивные носки", types: ["regular", "thinWool"], r: "common", basic: true },
-    socksThin:    { slot: "socks", n: "Тонкие шерстяные носки", types: ["thinWool", "thickWool"], mats: ["merino", "wool"], r: "rare", warm: 1, note: "Под штанину, без голой полоски на щиколотке", find: "носки меринос тонкие" },
-    socksThick:   { slot: "socks", n: "Толстые шерстяные носки", types: ["thickWool"], mats: ["merino", "wool"], r: "epic", warm: 2, note: "Обувь не должна давить — иначе стопы мёрзнут сильнее", find: "носки меринос теплые", alts: ["socksThin"] },
-    overshoes:    { slot: "overshoe", n: "Велобахилы", types: ["wind", "warm"], r: "epic", warm: 1, wind: 3, find: "велобахилы" },
+    socksThin:    { slot: "socks", n: "Тонкие шерстяные носки", types: ["thinWool", "waterproof", "thickWool"], mats: ["merino", "wool"], r: "rare", warm: 1, note: "Под штанину, без голой полоски на щиколотке", find: "носки меринос тонкие" },
+    socksThick:   { slot: "socks", n: "Толстые шерстяные носки", types: ["thickWool", "waterproof"], mats: ["merino", "wool"], r: "epic", warm: 2, note: "Обувь не должна давить — иначе стопы мёрзнут сильнее", find: "носки меринос теплые", alts: ["socksThin"] },
+    overshoes:    { slot: "overshoe", n: "Велобахилы", types: ["wind", "warm", "toe"], r: "epic", warm: 1, wind: 3, find: "велобахилы" },
     lights:       { slot: "vis", n: "Фонари спереди и сзади", types: ["lights"], r: "common", basic: true, note: "Обязательно после заката" },
-    reflVest:     { slot: "vis", n: "Светоотражающий жилет", types: ["reflVest"], r: "uncommon", note: "Поверх всего", find: "светоотражающий жилет" }
+    reflVest:     { slot: "vis", n: "Светоотражающий жилет", types: ["reflVest", "reflBands"], r: "uncommon", note: "Поверх всего", find: "светоотражающий жилет" }
   };
 
   const SLOTS = [
@@ -548,8 +551,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     o.face = e > 15 ? [] : e > 5 ? ["neck"] : e > 0 ? ["nose"] : ["under"];
     o.eyes = [e > 2 ? "glasses" : "glassesSeal"];
     o.base = e > 20 ? ["tee"] : e > 12 ? ["tee", "sleeves"] : e > -5 ? ["longsleeve"] : ["teeUnder", "longsleeve"];
-    o.mid = e > 12 ? [] : ["mid"];
-    o.shell = rain ? (e > 0 ? ["membrane"] : ["membrane", "warmVest"]) : e > 16 ? [] : e > 12 ? ["windVest"] : e > 0 ? ["windJacket"] : ["membrane", "warmVest"];
+    o.mid = e > 12 ? [] : e > -5 ? ["mid"] : ["mid", "puffyMid"];
+    o.shell = e > 0 ? (rain ? ["membrane"] : e > 16 ? [] : e > 12 ? ["windVest"] : ["windJacket"]) : ["frostShell", "warmVest"];
     o.hands = e > 15 ? ["gMesh"] : e > 8 ? ["gThin"] : e > 2 ? ["gWarm"] : ["gLobster"];
     // Ноги теплеют вместе с погодой: шорты → тайтсы → зимние тайтсы → зимние + брюки поверх
     o.legs = e > 18 ? ["shorts"] : e > 10 ? ["tights"] : ["winterTights"];
@@ -604,6 +607,11 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     const ids = pick(e, dark, rain);
     // Без балаклавы лицо закрывает снуд на нос
     if (ids.head[0] === "balaclava" && !findItem(NEEDS.balaclava, new Set())) ids.face = ["nose"];
+    // Нет тайтсов, но есть шорты и велогетры — их и надеваем в прохладу
+    const has = (type) => inv.some(it => it.type === type);
+    if (ids.legs[0] === "tights" && !findItem(NEEDS.tights, new Set()) && has("shorts") && has("legWarmers")) { ids.legs = ["shorts"]; ids.legOver = ["legWarm"].concat(ids.legOver); }
+    // Утеплённая зимняя куртка в мороз заменяет и мембрану, и утеплённый жилет
+    if (ids.shell.includes("frostShell") && has("winterJacket")) ids.shell = ids.shell.filter(n => n !== "warmVest");
     // Нет зимних тайтсов при +5° и ниже — обычные тайтсы и брюки поверх (их можно снять в помещении)
     if (ids.legs[0] === "winterTights" && e <= 5 && !ids.legOver.length && !findItem(NEEDS.winterTights, new Set())) ids.legOver = ["overpants"];
     const used = new Set(), o = {};
