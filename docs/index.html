@@ -149,7 +149,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .iname { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .slot.empty .iname { color: var(--muted); font-weight: 400; }
 .iname.need { color: var(--signal); }
-.need-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; }
+.need-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 10px; min-width: 0; }
+.need-row .add-btn { margin-top: 1px; white-space: nowrap; }
 .need-row + .need-row, .need-row + .iname, .iname + .need-row { margin-top: 6px; }
 .add-btn { font-size: 14px; color: var(--signal); background: transparent; border: 1px solid var(--signal); border-radius: 3px; padding: 1px 8px; cursor: pointer; }
 .add-btn:hover { background: var(--signal); color: var(--signal-ink); }
