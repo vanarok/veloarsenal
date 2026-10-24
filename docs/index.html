@@ -63,7 +63,8 @@ body {
 /* Окно приложения: страница не прокручивается, прокручиваются колонки и вкладки */
 html, body { height: 100%; }
 body { overflow: hidden; }
-.app { height: 100%; margin: 0 auto; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 18px; }
+/* Ширина как у окна приложения (974 px минус отступы), на сайте по центру */
+.app { max-width: 942px; height: 100%; margin: 0 auto; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 18px; }
 button, input, select { font: inherit; color: inherit; }
 button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, .slot:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
 a { color: var(--ink); text-decoration-color: var(--rule-strong); text-underline-offset: 2px; }
