@@ -366,7 +366,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       <div class="m-only m-cond-h"><span>Другая погода или скорость</span><button type="button" class="ib" id="condClose" aria-label="Закрыть">✕</button></div>
       <div class="temp-big" id="tempBig">+10°</div>
       <div class="sliders">
-        <div class="sl-row"><label for="temp">Воздух</label><input type="range" id="temp" min="-10" max="25" step="1" value="10"><output id="tempOut" for="temp"></output></div>
+        <div class="sl-row"><label for="temp">Воздух</label><input type="range" id="temp" min="-10" max="30" step="1" value="10"><output id="tempOut" for="temp"></output></div>
         <div class="sl-row"><label for="wind">Ветер</label><input type="range" id="wind" min="0" max="15" step="0.5" value="0"><output id="windOut" for="wind">0 м/с</output></div>
         <div class="eff"><span id="effText"></span> <button type="button" class="lnk" id="goTips">Советы на эту погоду</button></div>
       </div>
@@ -920,6 +920,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   function rules(e, hill) {
     const r = [];
     if (hill) r.push("<b>Одевайтесь так, чтобы не замёрзнуть на спуске.</b> В гору заранее расстегнитесь, чтобы не вспотеть: влажная одежда на спуске сильно холодит.");
+    if (e > 25) r.push("<b>Жарко:</b> возьмите воду, днём защитите кожу от солнца кремом или нарукавниками.");
     if (e > 16) r.push("<b>Куртка не нужна:</b> на ходу тело греется само.");
     else if (e > 12) r.push("<b>Хватит жилета:</b> он закрывает грудь от ветра, а руки и спина не потеют.");
     else if (e > 5) r.push("<b>Нужна куртка с рукавами.</b> Кофту, флиску и термоджерси ветер продувает насквозь, и мёрзнут плечи и руки.");
@@ -1106,7 +1107,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
   // Гайд: одна строка таблицы за раз, по умолчанию — под текущую погоду
   const GUIDE = [
-    { k: "+20…+25", lo: 20, hi: 99, body: "футболка или велоджерси", legs: "велошорты или шорты", hands: "короткие перчатки или без них", feet: "обычные носки", head: "очки от солнца" },
+    { k: "+25…+30", lo: 25, hi: 99, body: "лёгкая футболка или велоджерси, по желанию тонкие нарукавники от солнца", legs: "велошорты или шорты", hands: "короткие перчатки или без них", feet: "тонкие носки", head: "очки от солнца, кепка под шлем от солнца, крем от загара" },
+    { k: "+20…+25", lo: 20, hi: 25, body: "футболка или велоджерси", legs: "велошорты или шорты", hands: "короткие перчатки или без них", feet: "обычные носки", head: "очки от солнца" },
     { k: "+15…+20", lo: 15, hi: 20, body: "футболка или велоджерси, на старте жилет", legs: "велошорты", hands: "короткие перчатки", feet: "обычные носки", head: "ничего" },
     { k: "+10…+15", lo: 10, hi: 15, body: "лонгслив или велоджерси с длинным рукавом (или футболка с нарукавниками), сверху жилет", legs: "шорты с гетрами или тонкие велоштаны", hands: "тонкие перчатки с пальцами", feet: "обычные носки", head: "снуд на шее" },
     { k: "0…+10", lo: 0, hi: 10, body: "термобельё, термоджерси и куртка от ветра. С утеплённой велокурткой термоджерси не нужна", legs: "велоштаны с начёсом", hands: "перчатки, которые не продувает", feet: "шерстяные носки и бахилы", head: "шапочка под шлем и снуд" },
@@ -1215,7 +1217,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   const WET = (c) => c >= 51;
   let weather = null;
   function applyWeather(t, w, code) {
-    state.t = Math.max(-10, Math.min(25, Math.round(t)));
+    state.t = Math.max(-10, Math.min(30, Math.round(t)));
     state.wind = Math.max(0, Math.min(15, r1(w)));
     state.rain = WET(code);
     render();
