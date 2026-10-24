@@ -1463,11 +1463,18 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     msg.textContent = "Создаю ссылку…";
     const kit = { v: 1, place, t: state.t, wind: state.wind, rain: state.rain, dark: state.dark, cruise: state.cruise, vmax: state.vmax, items: inv.map(({ id, ...rest }) => rest) };
     let url;
-    try {
-      const r = await fetch("https://dpaste.com/api/v2/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ content: JSON.stringify(kit), syntax: "json", expiry_days: "365", title: "veloarsenal" }) });
+    // Те же вещи — та же ссылка: новая создаётся, только если список вещей изменился (или прошёл почти год)
+    const body = JSON.stringify(kit);
+    let last = null;
+    try { last = JSON.parse(localStorage.getItem("veloarsenal.share") || "null"); } catch (err) { last = null; }
+    const key = JSON.stringify(kit.items);
+    if (last && last.key === key && Date.now() - last.at < 350 * 864e5) url = SITE + "#k=" + last.id;
+    else try {
+      const r = await fetch("https://dpaste.com/api/v2/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ content: body, syntax: "json", expiry_days: "365", title: "veloarsenal" }) });
       const id = r.ok && (await r.text()).trim().split("/").pop();
       if (!id || !/^[A-Za-z0-9]+$/.test(id)) throw new Error("bad id");
       url = SITE + "#k=" + id;
+      try { localStorage.setItem("veloarsenal.share", JSON.stringify({ key, id, at: Date.now() })); } catch (err) { /* без запоминания */ }
     } catch (err) { msg.textContent = "Не получилось создать ссылку. Проверьте интернет и попробуйте ещё раз."; return; }
     if (navigator.share && matchMedia && matchMedia("(pointer: coarse)").matches) {
       try { await navigator.share({ title: "Велоарсенал", text: kitSummary(), url }); msg.textContent = ""; return; } catch (err) { /* отменили — покажем ссылку */ }
