@@ -157,6 +157,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .add-btn.quiet { color: var(--ink-2); border-color: var(--rule-strong); }
 .add-btn.quiet:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .iname.sub { color: var(--ink-2); }
+.iname.assumed { color: var(--muted); font-weight: 400; }
 
 .center { display: grid; align-content: start; gap: 14px; min-width: 0; min-height: 0; overflow-y: auto; }
 /* Силуэт во всю ширину колонки; легенда лежит поверх свободного места слева от головы */
@@ -740,7 +741,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       : list.map(x => x.s === "missing"
         ? '<div class="need-row"><span class="iname need">' + esc(x.n) + '</span><button type="button" class="add-btn" data-add="' + x.nid + '">Добавить</button></div>'
         : x.s === "wardrobe"
-        ? '<div class="need-row"><span class="iname">' + esc(x.n) + '</span><button type="button" class="add-btn quiet" data-add="' + x.nid + '">Добавить</button></div>'
+        ? '<div class="need-row"><span class="iname assumed" title="Подойдёт любая — добавьте свою, если хотите">' + esc(x.n) + '</span><button type="button" class="add-btn quiet" data-add="' + x.nid + '">Добавить</button></div>'
         : '<div class="iname' + (x.sub ? " sub" : "") + '">' + esc(x.n) + '</div>').join("");
     return '<div class="slot' + (empty ? " empty" : "") + (state.sel === slot.id ? " sel" : "") + '" data-slot="' + slot.id + '" tabindex="0" role="button" title="' + esc(title) + '">' +
       '<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + ICONS[slot.id] + '</svg></span>' +
