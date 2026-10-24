@@ -130,7 +130,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .main, .page { grid-row: 2; grid-column: 1; }
 .main { position: relative; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 220px minmax(0, 1fr); gap: 0 28px; align-items: stretch; }
 .col { display: grid; align-content: start; min-width: 0; min-height: 0; overflow-y: auto; border-top: 1px solid var(--ink); }
-.slot { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; align-items: start; padding: 10px 4px 10px 2px; border-bottom: 1px solid var(--rule); cursor: pointer; }
+.slot { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; align-items: start; padding: 10px 8px 10px 12px; border-bottom: 1px solid var(--rule); cursor: pointer; }
 .slot:hover, .slot.hl { background: var(--sheet); }
 .slot.sel { box-shadow: inset 3px 0 0 var(--ink); background: var(--sheet); }
 .ico { color: var(--ink-2); padding-top: 2px; }
@@ -154,7 +154,10 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .fig-legend { position: absolute; left: 0; top: 4px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; pointer-events: none; color: var(--muted); }
 .fig-legend i { display: inline-block; width: 12px; height: 12px; border: 1px solid var(--ink-2); vertical-align: -1px; margin-right: 4px; }
 
-.inspector { border-top: 1px solid var(--ink); padding-top: 8px; min-height: 90px; }
+/* Описание: на компьютере — карточка у выбранного слота, на телефоне — раскрытие в строке */
+.card { position: absolute; z-index: 30; width: 320px; max-width: calc(100% - 16px); background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 4px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.12); padding: 12px 34px 12px 14px; }
+.card-x { position: absolute; top: 6px; right: 6px; }
+.slot-detail { grid-column: 1 / -1; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--rule); cursor: auto; }
 .insp-item + .insp-item { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rule); }
 .insp-name { font-weight: 600; }
 .insp-name.need { color: var(--signal); }
@@ -267,7 +270,6 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .wx { grid-template-columns: minmax(0, 1fr); }
   .main { grid-template-columns: minmax(0, 1fr); overflow: visible; }
   .center { grid-column: 1; grid-row: auto; grid-template-columns: 110px minmax(0, 1fr); align-items: start; margin: 16px 0; }
-  .center .inspector { border-top: 0; padding-top: 0; }
   .fig-legend { position: static; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 10px; margin-top: 6px; }
   .col + .col { border-top: 0; }
   .page { overflow: visible; }
@@ -344,9 +346,9 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         </div>
 
       </div>
-      <div class="inspector" id="inspector" aria-live="polite"></div>
     </div>
     <div class="col" id="colRight"></div>
+    <div class="card" id="inspector" role="dialog" aria-label="Описание вещи" hidden></div>
 
   </section>
 
@@ -610,7 +612,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       '<div style="min-width:0"><div class="slabel">' + slot.label + '</div>' + lines + '</div></div>';
   }
 
-  function inspect(sid) {
+  function inspectHTML(sid) {
     const slot = SLOTS.find(s => s.id === sid) || SLOTS[0];
     const list = eq[slot.id] || [];
     const body = list.length ? list.map(x => {
@@ -623,10 +625,53 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         (x.s === "missing" ? '<div class="insp-note"><button type="button" class="lnk" data-add="' + x.nid + '">Добавить свою</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : '') + '</div>' : '') +
         '</div>';
     }).join("") : '<div class="insp-note">' + esc(HINT[slot.id] || "При этой температуре не нужно") + '</div>';
-    $("inspector").innerHTML = '<div class="slabel">' + slot.label + '</div>' + body;
-    bindAdd($("inspector"));
-    $("inspector").querySelectorAll("[data-edit-item]").forEach(b => b.onclick = () => startEdit(b.dataset.editItem));
+    return body;
   }
+
+  // Описание выбранного слота: карточка рядом со слотом или раскрытие в строке на телефоне
+  let cardOpen = false;
+  const phone = window.matchMedia ? window.matchMedia("(max-width: 760px)") : { matches: false };
+  function bindDetail(root) {
+    bindAdd(root);
+    root.querySelectorAll("[data-edit-item]").forEach(b => b.onclick = () => startEdit(b.dataset.editItem));
+  }
+  function showCard() {
+    const card = $("inspector");
+    document.querySelectorAll(".slot-detail").forEach(d => d.remove());
+    const slotEl = document.querySelector('.slot[data-slot="' + state.sel + '"]');
+    if (!cardOpen || !slotEl) { card.hidden = true; return; }
+    if (phone.matches) {
+      card.hidden = true;
+      const d = document.createElement("div");
+      d.className = "slot-detail";
+      d.innerHTML = inspectHTML(state.sel);
+      slotEl.appendChild(d);
+      bindDetail(d);
+      return;
+    }
+    const label = (SLOTS.find(s => s.id === state.sel) || SLOTS[0]).label;
+    card.innerHTML = '<button type="button" class="ib card-x" id="cardClose" aria-label="Закрыть">✕</button><div class="slabel">' + label + '</div>' + inspectHTML(state.sel);
+    card.hidden = false;
+    $("cardClose").onclick = () => { cardOpen = false; showCard(); };
+    bindDetail(card);
+    placeCard();
+  }
+  function placeCard() {
+    const card = $("inspector");
+    const slotEl = document.querySelector('.slot[data-slot="' + state.sel + '"]');
+    if (card.hidden || !slotEl) return;
+    const main = document.querySelector(".main"), m = main.getBoundingClientRect(), r = slotEl.getBoundingClientRect();
+    const left = slotEl.closest("#colLeft") ? r.right - m.left + 10 : r.left - m.left - card.offsetWidth - 10;
+    const maxTop = main.scrollTop + main.clientHeight - card.offsetHeight - 8;
+    const top = Math.max(main.scrollTop + 4, Math.min(r.top - m.top + main.scrollTop, maxTop));
+    card.style.left = Math.max(4, left) + "px";
+    card.style.top = top + "px";
+  }
+  window.addEventListener("resize", () => showCard());
+  document.querySelectorAll(".main, .col").forEach(el => el.addEventListener("scroll", placeCard, { passive: true }));
+  document.addEventListener("click", (ev) => {
+    if (cardOpen && !ev.target.closest("#inspector, .slot, #figure, .modal-bg")) { cardOpen = false; showCard(); }
+  });
 
   function zoneSlot(z) {
     if (z === "torso") return eq.shell.length ? "shell" : eq.mid.length ? "mid" : "base";
@@ -677,8 +722,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     $("hd").innerHTML = '<div><h4>На подъёме</h4><ul>' + (li("up") || "<li>Ничего не трогать</li>") + '</ul></div><div><h4>Перед спуском</h4><ul>' + (li("down") || "<li>Ничего не трогать</li>") + '</ul></div>';
     renderGuide(e);
 
-    inspect(state.sel);
     bindSlots();
+    showCard();
     save();
   }
 
@@ -712,16 +757,20 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   function highlight(sid, on) {
     document.querySelectorAll('.slot[data-slot="' + sid + '"]').forEach(s => s.classList.toggle("hl", on));
     document.querySelectorAll("#figure .part").forEach(p => { if (p.dataset.target === sid) p.classList.toggle("hl", on); });
-    if (on) inspect(sid); else inspect(state.sel);
   }
-  function select(sid) { state.sel = sid; render(); }
+  // Повторный клик по выбранному слоту закрывает описание
+  function select(sid) {
+    if (state.sel === sid && cardOpen) cardOpen = false;
+    else { state.sel = sid; cardOpen = true; }
+    render();
+  }
   function bindSlots() {
     document.querySelectorAll(".slot").forEach(s => {
       const sid = s.dataset.slot;
       s.onmouseenter = () => highlight(sid, true);
       s.onmouseleave = () => highlight(sid, false);
-      s.onclick = () => select(sid);
-      s.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(sid); } };
+      s.onclick = (ev) => { if (!ev.target.closest(".slot-detail")) select(sid); };
+      s.onkeydown = (ev) => { if (ev.target === s && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); select(sid); } };
     });
   }
   document.querySelectorAll("#figure .part").forEach(p => {
@@ -873,6 +922,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   document.addEventListener("keydown", (ev) => {
     if (ev.key !== "Escape") return;
     if (!$("addDlg").hidden) closeAdd();
+    else if (cardOpen) { cardOpen = false; showCard(); }
     else if (state.tab !== "main" && $("cityPanel").hidden) showView("main");
   });
 
