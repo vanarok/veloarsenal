@@ -565,7 +565,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   // среди подходящих — сначала та, что уже есть, потом по предпочтительному материалу
   const NEEDS = {
     helmet:       { slot: "helmet", n: "Велошлем", types: ["road", "mtb", "urban", "winter"], r: "rare", note: "Сидит ровно, ремешок под подбородком с зазором в палец", find: "велошлем" },
-    helmetWinter: { slot: "helmet", n: "Зимний шлем", types: ["winter", "urban", "mtb", "road"], r: "epic", warm: 1, wind: 1, note: "Через вентиляцию обычного шлема в мороз дует. Наденьте под него шапочку или балаклаву", find: "велошлем зимний" },
+    helmetWinter: { slot: "helmet", n: "Велошлем, под него балаклава", types: ["winter", "urban", "mtb", "road"], r: "rare", warm: 1, wind: 1, note: "Обычный шлем, под ним балаклава или тёплая шапочка. Если дует через вентиляцию, наденьте сверху чехол на шлем", find: "чехол на велошлем ветрозащитный" },
     capThin:      { slot: "head", n: "Тонкая шапка под шлем", types: ["thin", "helmetCap", "earband", "cycCap"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, find: "тонкая шапка под велошлем" },
     capWind:      { slot: "head", n: "Шапочка под шлем с ветрозащитой", types: ["helmetCap", "thin", "earband"], r: "rare", warm: 1, wind: 1, cafe: true, note: "Закрывает уши от ветра", find: "велошапочка под шлем ветрозащитная" },
     balaclava:    { slot: "head", n: "Балаклава", types: ["balaclava"], r: "epic", warm: 2, wind: 1, cafe: true, up: "опустите с носа", down: "поднимите на нос", find: "балаклава тонкая под шлем", alts: ["capWind"] },
