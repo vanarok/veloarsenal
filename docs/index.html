@@ -647,7 +647,10 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       have.add(key(old));
       saveInv();
     });
-    const add = def.filter(it => TYPES[it.slot] && TYPES[it.slot][it.type] && !known.has(key(it)) && !have.has(key(it)) && !(firstRun && filled.has(it.slot)));
+    // Вещь с пометкой remove убирается из списка по имени
+    const gone = new Set(def.filter(it => it.remove).map(it => String(it.name).toLowerCase()));
+    if (gone.size && inv.some(x => gone.has(String(x.name).toLowerCase()))) { inv = inv.filter(x => !gone.has(String(x.name).toLowerCase())); saveInv(); }
+    const add = def.filter(it => !it.remove && TYPES[it.slot] && TYPES[it.slot][it.type] && !known.has(key(it)) && !have.has(key(it)) && !(firstRun && filled.has(it.slot)));
     if (add.length) { inv = inv.concat(add.map(({ status, replaces, ...it }) => ({ mat: "other", ...it, id: newId() }))); saveInv(); }
     try { localStorage.setItem("veloarsenal.defaultsSeen", JSON.stringify([...new Set([...known, ...def.map(key)])])); } catch (err) { /* ignore */ }
   })();
