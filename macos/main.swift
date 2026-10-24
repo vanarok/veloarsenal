@@ -19,14 +19,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         web.uiDelegate = self
         if #available(macOS 13.3, *) { web.isInspectable = true }
 
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1440, height: 900),
-                          styleMask: [.titled, .closable, .miniaturizable, .resizable],
+        // Размер окна подобран вручную и зафиксирован; положение на экране запоминается
+        let size = NSSize(width: 974, height: 776)
+        window = NSWindow(contentRect: NSRect(origin: .zero, size: size),
+                          styleMask: [.titled, .closable, .miniaturizable],
                           backing: .buffered, defer: false)
         window.title = "Велоарсенал"
-        window.minSize = NSSize(width: 900, height: 600)
         window.contentView = web
         window.center()
         window.setFrameAutosaveName("VeloarsenalMain")
+        let f = window.frame
+        window.setFrame(NSRect(x: f.minX, y: f.maxY - size.height, width: size.width, height: size.height), display: true)
         window.makeKeyAndOrderFront(nil)
 
         let url = Bundle.main.url(forResource: "index", withExtension: "html")!
