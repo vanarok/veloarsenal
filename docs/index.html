@@ -256,6 +256,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .body-form input { width: 100%; min-width: 0; padding: 6px 8px; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 3px; color: var(--ink); font-size: 15px; }
 .body-form .bf-u { color: var(--muted); font-size: 14px; white-space: nowrap; }
 .body-hint { margin: 0; color: var(--ink-2); font-size: 14px; }
+.insp-alts { margin: 2px 0 0; padding-left: 18px; font-size: 14px; color: var(--ink-2); }
+.insp-alts li { margin: 2px 0; }
 .share-msg { font-size: 14px; color: var(--ink-2); text-align: center; max-width: 220px; overflow-wrap: anywhere; }
 .share-msg:empty { display: none; }
 .shared-bar { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; max-width: calc(100vw - 32px); padding: 10px 14px; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 4px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); font-size: 15px; }
@@ -806,6 +808,14 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       '<div style="min-width:0"><div class="slabel">' + slot.label + '</div>' + lines + '</div></div>';
   }
 
+  // Что ещё подойдёт: типы вещей для этой потребности и запасные варианты, каждый можно добавить
+  function altsHTML(want) {
+    const types = want.types.map(t => TYPES[want.slot][t]).filter(Boolean);
+    const alts = (want.alts || []).map(a => NEEDS[a] ? '<li>' + esc(NEEDS[a].n) + ' <button type="button" class="lnk" data-add="' + a + '">Добавить</button></li>' : '').join("");
+    return (types.length > 1 ? '<div class="insp-note">Подойдёт: ' + esc(types.join(", ").toLowerCase()) + '</div>' : '') +
+      (alts ? '<div class="insp-note">Если нет, можно заменить:</div><ul class="insp-alts">' + alts + '</ul>' : '');
+  }
+
   function inspectHTML(sid) {
     const slot = SLOTS.find(s => s.id === sid) || SLOTS[0];
     const list = eq[slot.id] || [];
@@ -817,6 +827,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         (x.up || x.down ? '<div class="insp-hd">' + (x.up ? '<b>↑</b> ' + esc(x.up) : '') + (x.up && x.down ? ' · ' : '') + (x.down ? '<b>↓</b> ' + esc(x.down) : '') + '</div>' : '') +
         (x.it ? '<div class="insp-note"><button type="button" class="lnk" data-edit-item="' + x.it.id + '">Изменить</button>' + (x.link ? ' · <a href="' + esc(x.link) + '" target="_blank" rel="noopener">Ссылка на вещь</a>' : '') + '</div>' : '') +
         (x.s === "missing" || x.s === "wardrobe" ? '<div class="insp-note"><button type="button" class="lnk" data-add="' + x.nid + '">Добавить</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : '') + '</div>' : '') +
+        (x.s === "missing" ? altsHTML(x.want) : '') +
         '</div>';
     }).join("") : '<div class="insp-note">' + esc(HINT[slot.id] || "При этой температуре не нужно") + '</div>';
     return body;
