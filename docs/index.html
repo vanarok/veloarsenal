@@ -68,6 +68,10 @@ a:hover { text-decoration-color: var(--ink); }
 
 /* Шапка: условия поездки */
 .bar { display: grid; grid-template-columns: auto auto minmax(220px, 1fr) auto; gap: 10px 28px; align-items: center; padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+.brand-cell { display: grid; justify-items: start; gap: 4px; }
+.nav-btn { font-size: 15px; color: var(--ink); background: none; border: 0; border-bottom: 1px solid var(--rule-strong); padding: 0 0 1px; cursor: pointer; }
+.nav-btn:hover { border-bottom-color: var(--ink); }
+.nav-btn .cnt { color: var(--muted); }
 .brand { font: 600 18px var(--font-cond); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
 .temp-big { font: 500 54px/1 var(--font-cond); letter-spacing: -0.02em; min-width: 3.2ch; text-align: right; }
 .sliders { display: grid; gap: 4px; min-width: 0; }
@@ -118,7 +122,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .pop-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
 
 /* Основной лист */
-.main { position: relative; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 200px minmax(0, 1fr) minmax(340px, 1.25fr); gap: 0 28px; align-items: stretch; }
+.main, .page { grid-row: 2; grid-column: 1; }
+.main { position: relative; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 220px minmax(0, 1fr); gap: 0 28px; align-items: stretch; }
 .col { display: grid; align-content: start; min-width: 0; min-height: 0; overflow-y: auto; border-top: 1px solid var(--ink); }
 .slot { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; align-items: start; padding: 10px 4px 10px 2px; border-bottom: 1px solid var(--rule); cursor: pointer; }
 .slot:hover, .slot.hl { background: var(--sheet); }
@@ -150,14 +155,21 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .insp-hd { font-size: 15px; margin-top: 4px; color: var(--ink-2); }
 .insp-hd b { color: var(--ink); }
 
-/* Правая колонка: вкладки */
-.tabs { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; min-height: 0; border-top: 1px solid var(--ink); }
-.tablist { display: flex; gap: 18px; border-bottom: 1px solid var(--rule); overflow-x: auto; }
-.tab { font-size: 16px; color: var(--muted); background: transparent; border: 0; border-bottom: 2px solid transparent; padding: 8px 0 7px; cursor: pointer; white-space: nowrap; }
-.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
-.tab .badge { font-size: 14px; color: var(--muted); margin-left: 4px; font-weight: 400; }
-.tab .badge.alert { color: var(--signal); font-weight: 600; }
-.tabpanel { padding: 10px 2px 4px; overflow-y: auto; min-height: 0; }
+/* Отдельные экраны: «Не хватает», «Мои вещи», «Советы», таблица */
+.page { position: relative; min-height: 0; overflow-y: auto; }
+.page > * { max-width: 860px; }
+.page-h { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; border-top: 1px solid var(--ink); padding: 10px 0 8px; margin-bottom: 6px; }
+.page-h h2 { margin: 0; font: 600 24px var(--font-cond); }
+.page-h .btn.pri { margin-left: auto; }
+.back { font-size: 15px; color: var(--ink-2); background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.back:hover { color: var(--ink); }
+.more { margin: 18px 0 0; }
+.miss-btn { justify-self: center; font-size: 15px; color: var(--signal); background: transparent; border: 1px solid var(--signal); border-radius: 3px; padding: 5px 12px; cursor: pointer; }
+.miss-btn:hover { background: var(--signal); color: var(--signal-ink); }
+.modal-bg { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / 0.3); }
+.modal { width: min(520px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 4px; padding: 16px 18px; box-shadow: 0 12px 40px rgb(0 0 0 / 0.18); }
+.modal h2 { margin: 0 0 12px; font: 600 22px var(--font-cond); }
+.modal .inv-form { margin: 0; }
 .sec-h { font: 600 13px var(--font-cond); letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
 .sec-h:first-child { margin-top: 2px; }
 .quest { padding: 7px 0; border-bottom: 1px solid var(--rule); }
@@ -212,9 +224,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .gprin b { color: var(--ink); font-weight: 600; }
 
 /* Полосы прокрутки поверх содержимого: место не занимают, видны только при прокрутке и наведении */
-html, .main, .col, .center, .tabpanel, .hours { scrollbar-width: none; }
-html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .center::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar { display: none; }
-.tabs { position: relative; }
+html, .main, .col, .center, .page, .hours { scrollbar-width: none; }
+html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .center::-webkit-scrollbar, .page::-webkit-scrollbar, .hours::-webkit-scrollbar { display: none; }
 .ovs-bar { position: absolute; z-index: 15; opacity: 0; transition: opacity .3s; pointer-events: none; }
 .ovs-bar.on, .ovs-bar:hover { opacity: 1; }
 .ovs-page { position: fixed; top: 0; right: 0; height: 100vh; }
@@ -232,9 +243,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .sliders { grid-column: 1 / -1; grid-row: 2; }
   /* Вкладки уходят вниз — прокручивается вся рабочая область целиком */
   .main { grid-template-columns: minmax(0, 1fr) 180px minmax(0, 1fr); grid-auto-rows: max-content; overflow-y: auto; align-items: start; }
-  .col, .center, .tabs { min-height: auto; overflow: visible; }
-  .tabs { grid-column: 1 / -1; margin-top: 22px; }
-  .tabpanel { overflow: visible; }
+  .col, .center { min-height: auto; overflow: visible; }
 }
 @media (max-width: 760px) {
   /* Телефон: обычная прокрутка страницы, всё в одну колонку */
@@ -242,7 +251,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   body { overflow: auto; padding: 14px 16px; }
   .app { height: auto; gap: 14px; }
   .bar { grid-template-columns: auto minmax(0, 1fr); gap: 10px 14px; }
-  .brand { grid-column: 1 / -1; grid-row: 1; }
+  .brand-cell { grid-column: 1 / -1; grid-row: 1; grid-template-columns: auto auto; align-items: baseline; justify-content: space-between; width: 100%; }
   .temp-big { grid-column: 1; grid-row: 2; font-size: 44px; text-align: left; }
   .toggles { grid-column: 2; grid-row: 2; justify-content: flex-end; }
   .sliders { grid-column: 1 / -1; grid-row: 3; }
@@ -251,7 +260,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .center { grid-column: 1; grid-row: auto; grid-template-columns: 110px minmax(0, 1fr); align-items: start; margin: 16px 0; }
   .center .inspector { border-top: 0; padding-top: 0; }
   .col + .col { border-top: 0; }
-  .tabs { grid-column: 1; }
+  .page { overflow: visible; }
   .hd { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .iname { white-space: normal; }
   .inv-form { grid-template-columns: minmax(0, 1fr); }
@@ -265,12 +274,15 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
 <div class="app">
   <section class="bar" aria-label="Условия поездки">
-    <div class="brand">Велоарсенал</div>
+    <div class="brand-cell">
+      <div class="brand">Велоарсенал</div>
+      <button type="button" class="nav-btn" id="goInv">Мои вещи <span class="cnt" id="invCount"></span></button>
+    </div>
     <div class="temp-big" id="tempBig">+10°</div>
     <div class="sliders">
       <div class="sl-row"><label for="temp">Воздух</label><input type="range" id="temp" min="-10" max="25" step="1" value="10"><output id="tempOut" for="temp"></output></div>
       <div class="sl-row"><label for="wind">Ветер</label><input type="range" id="wind" min="0" max="15" step="0.5" value="0"><output id="windOut" for="wind">0 м/с</output></div>
-      <div class="eff" id="effText"></div>
+      <div class="eff"><span id="effText"></span> <button type="button" class="lnk" id="goTips">Советы на эту погоду</button></div>
     </div>
     <div class="toggles">
       <div class="speed" role="group" aria-label="Скорость">
@@ -314,32 +326,24 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
           <path class="part" data-zone="feet" d="M64 390 h28 l2 22 h-40 q-2 -14 10 -22 z"/>
           <path class="part" data-zone="feet" d="M108 390 h28 q12 8 10 22 h-40 z"/>
         </svg>
+        <button type="button" class="miss-btn" id="goMissing" hidden>Не хватает: <span id="qBadge"></span></button>
         <div class="fig-legend" aria-hidden="true"><span><i style="background:var(--layer-1)"></i>лёгкое</span><span><i style="background:var(--layer-2)"></i>тёплое</span><span><i style="background:var(--layer-3)"></i>зимнее</span></div>
       </div>
       <div class="inspector" id="inspector" aria-live="polite"></div>
     </div>
     <div class="col" id="colRight"></div>
 
-    <div class="tabs">
-      <div class="tablist" role="tablist" aria-label="Подробности">
-        <button type="button" class="tab" role="tab" id="tab-quests" aria-controls="p-quests" aria-selected="true">Не хватает<span class="badge alert" id="qBadge" hidden></span></button>
-        <button type="button" class="tab" role="tab" id="tab-inv" aria-controls="p-inv" aria-selected="false">Мои вещи<span class="badge" id="invCount"></span></button>
-        <button type="button" class="tab" role="tab" id="tab-tips" aria-controls="p-tips" aria-selected="false">Советы</button>
-        <button type="button" class="tab" role="tab" id="tab-guide" aria-controls="p-guide" aria-selected="false">Гайд</button>
-      </div>
-      <div class="tabpanel" role="tabpanel" id="p-quests" aria-labelledby="tab-quests"></div>
-      <div class="tabpanel" role="tabpanel" id="p-inv" aria-labelledby="tab-inv" hidden>
-        <form class="inv-form" id="invForm" autocomplete="off">
-          <input class="wide" id="fName" placeholder="Название, например «Флиска Helly Hansen»" aria-label="Название" maxlength="120" required>
-          <label>Куда<select id="fSlot"></select></label>
-          <label>Тип<select id="fType"></select></label>
-          <label class="wide">Материал<select id="fMat"></select></label>
-          <input class="wide" id="fNote" placeholder="Заметка: размер, как носить" aria-label="Заметка" maxlength="300">
-          <input class="wide" id="fLink" placeholder="Ссылка на вещь (необязательно)" aria-label="Ссылка" type="url">
-          <div class="inv-actions"><button type="submit" class="btn pri" id="fSave">Добавить</button><button type="button" class="btn" id="fCancel" hidden>Отмена</button></div>
-        </form>
-        <div id="invList"></div>
-        <div class="sec-h">Перенос <span class="tip" tabindex="0" title="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются." aria-label="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.">i</span></div>
+  </section>
+
+  <section class="page" id="p-quests" aria-labelledby="h-quests" hidden>
+    <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-quests">Не хватает</h2></div>
+    <div id="questsBody"></div>
+  </section>
+
+  <section class="page" id="p-inv" aria-labelledby="h-inv" hidden>
+    <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-inv">Мои вещи</h2><button type="button" class="btn pri" id="addBtn">Добавить вещь</button></div>
+    <div id="invList"></div>
+    <div class="sec-h">Перенос <span class="tip" tabindex="0" title="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются." aria-label="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.">i</span></div>
         <div class="io">
           <div class="io-row">
             <button type="button" class="btn" id="ioDownload">Скачать файл</button>
@@ -347,16 +351,21 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
           </div>
           <div class="io-msg" id="ioMsg" aria-live="polite"></div>
         </div>
-      </div>
-      <div class="tabpanel" role="tabpanel" id="p-tips" aria-labelledby="tab-tips" hidden>
+  </section>
+
+  <section class="page" id="p-tips" aria-labelledby="h-tips" hidden>
+    <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-tips">Советы на эту погоду</h2></div>
         <div class="sec-h" id="hdHead">Подъём → спуск</div>
         <div class="hd" id="hd"></div>
         <div class="sec-h">Правила этой температуры</div>
         <ul class="rules" id="rules"></ul>
         <div class="sec-h">В кафе снять сразу</div>
         <div class="cafe" id="cafe"></div>
-      </div>
-      <div class="tabpanel" role="tabpanel" id="p-guide" aria-labelledby="tab-guide" hidden>
+    <p class="more"><button type="button" class="lnk" data-go="guide">Что надеть при другой температуре →</button></p>
+  </section>
+
+  <section class="page" id="p-guide" aria-labelledby="h-guide" hidden>
+    <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-guide">Что надеть по температуре</h2></div>
         <div class="gchips" role="group" aria-label="Диапазон температуры" id="gChips"></div>
         <dl class="gcard" id="gCard"></dl>
         <div class="sec-h">Принципы</div>
@@ -369,9 +378,22 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
           <li><b>Мороз:</b> лобстеры или муфты на руль</li>
         </ul>
         <p class="src">Усреднено по <a href="https://www.britishcycling.org.uk/knowledge/article/izn20150127-Cycling-Winter-Clothing-Guide-0" target="_blank" rel="noopener">British Cycling</a>, <a href="https://www.cyclinguk.org/cycle/wear-cycling-winter-cold" target="_blank" rel="noopener">Cycling UK</a>, <a href="https://45nrth.com/blogs/blog/what-to-wear-winter-cycling-at-10%C2%BA-0%C2%BAf" target="_blank" rel="noopener">45NRTH</a>, <a href="https://join.cc/cycling-tips/cycling-what-to-wear-temperature-guide" target="_blank" rel="noopener">Join.cc</a>, <a href="https://www.roadbikerider.com/what-to-wear-in-various-weather/" target="_blank" rel="noopener">RoadBikeRider</a>. Таблица — для спортивного темпа.</p>
-      </div>
-    </div>
   </section>
+
+  <div class="modal-bg" id="addDlg" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+      <h2 id="addTitle">Добавить вещь</h2>
+        <form class="inv-form" id="invForm" autocomplete="off">
+          <input class="wide" id="fName" placeholder="Название, например «Флиска Helly Hansen»" aria-label="Название" maxlength="120" required>
+          <label>Куда<select id="fSlot"></select></label>
+          <label>Тип<select id="fType"></select></label>
+          <label class="wide">Материал<select id="fMat"></select></label>
+          <input class="wide" id="fNote" placeholder="Заметка: размер, как носить" aria-label="Заметка" maxlength="300">
+          <input class="wide" id="fLink" placeholder="Ссылка на вещь (необязательно)" aria-label="Ссылка" type="url">
+          <div class="inv-actions"><button type="submit" class="btn pri" id="fSave">Добавить</button><button type="button" class="btn" id="fCancel">Отмена</button></div>
+        </form>
+    </div>
+  </div>
 </div>
 
 <!-- VA_DEFAULT_INVENTORY -->
@@ -535,6 +557,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   const fmt = (t) => (t > 0 ? "+" : t < 0 ? "−" : "") + Math.abs(t) + "°";
   const r1 = (x) => Math.round(x * 2) / 2;
   const ms = (x) => String(r1(x)).replace(".", ",");
+  const plural = (n, one, few, many) => { const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many; };
   const ozon = (q) => "https://www.ozon.ru/search/?text=" + encodeURIComponent(q);
 
   const state = { t: 10, cruise: 15, vmax: 40, dark: true, wind: 0, rain: false, tab: "quests", sel: "shell" };
@@ -650,10 +673,10 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     let html = inv.length ? "" : '<p class="hint">Добавьте свои вещи во вкладке «Мои вещи» — подбор сам подставит их по типу и материалу. Или загрузите файл со списком через «Перенос».</p>';
     html += missing.map(x => q(" miss", esc(x.n), '<button type="button" class="lnk" data-add="' + x.nid + '">Добавить свою</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : ''))).join("");
     if (subs.length) html += '<div class="sec-h">Заменено тем, что есть</div>' + subs.map(x => q("", esc(x.n), "вместо «" + esc(x.sub.n.toLowerCase()) + "»")).join("");
-    $("p-quests").innerHTML = html || '<p class="empty-note">Для этой погоды всё есть.</p>';
-    $("qBadge").hidden = !missing.length;
-    $("qBadge").textContent = missing.length;
-    bindAdd($("p-quests"));
+    $("questsBody").innerHTML = html || '<p class="empty-note">Для этой погоды всё есть.</p>';
+    $("goMissing").hidden = !missing.length;
+    $("qBadge").textContent = missing.length + " " + plural(missing.length, "вещь", "вещи", "вещей");
+    bindAdd($("questsBody"));
   }
 
   function rules(e, hill) {
@@ -702,16 +725,28 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     fillTypes();
     fill($("fMat"), MATS, "synthetic");
     $("fSave").textContent = "Добавить";
-    $("fCancel").hidden = true;
+    $("addTitle").textContent = "Добавить вещь";
   }
+  let lastFocus = null;
+  function openAdd() {
+    lastFocus = document.activeElement;
+    $("addDlg").hidden = false;
+    $("fName").focus();
+  }
+  function closeAdd() {
+    $("addDlg").hidden = true;
+    resetForm();
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  $("addBtn").addEventListener("click", () => { resetForm(); openAdd(); });
+  $("addDlg").addEventListener("click", (ev) => { if (ev.target === $("addDlg")) closeAdd(); });
   function startAdd(nid) {
     const need = NEEDS[nid];
     resetForm();
     $("fSlot").value = need.slot;
     fillTypes(need.types[0]);
     if (need.mats) $("fMat").value = need.mats[0];
-    showTab("inv");
-    $("fName").focus();
+    openAdd();
   }
   function startEdit(id) {
     const it = inv.find(x => x.id === id);
@@ -722,8 +757,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     $("fMat").value = it.mat;
     $("fNote").value = it.note || ""; $("fLink").value = it.link || "";
     $("fSave").textContent = "Сохранить";
-    $("fCancel").hidden = false;
-    $("fName").focus();
+    $("addTitle").textContent = "Изменить вещь";
+    openAdd();
   }
   function bindAdd(root) { root.querySelectorAll("[data-add]").forEach(b => b.onclick = () => startAdd(b.dataset.add)); }
   function renderInv() {
@@ -735,7 +770,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         '<div class="inv-txt"><div class="inv-n">' + esc(it.name) + '</div><div class="inv-m">' + esc(TYPES[it.slot][it.type]) + " · " + esc(MATS[it.mat] || "") + '</div></div>' +
         '<button type="button" class="ib" data-edit="' + it.id + '" aria-label="Изменить">✎</button><button type="button" class="ib" data-del="' + it.id + '" aria-label="Удалить">✕</button></div>').join("") + '</div>';
     }).join("");
-    $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Добавьте вещь выше или загрузите файл ниже, в «Переносе».</p>';
+    $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Нажмите «Добавить вещь» или загрузите файл ниже, в «Переносе».</p>';
     $("invCount").textContent = inv.length ? String(inv.length) : "";
     $("invList").querySelectorAll("[data-edit]").forEach(b => b.onclick = () => startEdit(b.dataset.edit));
     $("invList").querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
@@ -744,7 +779,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     });
   }
   $("fSlot").addEventListener("change", () => fillTypes());
-  $("fCancel").addEventListener("click", resetForm);
+  $("fCancel").addEventListener("click", closeAdd);
   $("invForm").addEventListener("submit", (ev) => {
     ev.preventDefault();
     const name = $("fName").value.trim();
@@ -753,7 +788,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     if (data.link && !/^https?:\/\//i.test(data.link)) data.link = "";
     if (editId) inv = inv.map(x => x.id === editId ? { ...x, ...data } : x);
     else inv.push({ id: newId(), ...data });
-    saveInv(); resetForm(); renderInv(); render();
+    saveInv(); closeAdd(); renderInv(); render();
   });
 
   // Перенос: файл или текст. Данные никуда не отправляются
@@ -804,14 +839,26 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       .map(([a, b]) => "<dt>" + a + "</dt><dd>" + b + "</dd>").join("");
   }
 
-  // Вкладки
-  const TABS = ["quests", "inv", "tips", "guide"];
-  function showTab(name) {
+  // Экраны: экипировка и отдельные страницы, которые открываются кнопками
+  const VIEWS = ["main", "quests", "inv", "tips", "guide"];
+  function showView(name) {
+    if (!VIEWS.includes(name)) name = "main";
     state.tab = name;
-    TABS.forEach(t => { $("tab-" + t).setAttribute("aria-selected", String(t === name)); $("p-" + t).hidden = t !== name; });
+    document.querySelector(".main").hidden = name !== "main";
+    VIEWS.slice(1).forEach(v => { $("p-" + v).hidden = v !== name; });
+    if (name !== "main") $("p-" + name).scrollTop = 0;
     save();
   }
-  TABS.forEach(t => $("tab-" + t).addEventListener("click", () => showTab(t)));
+  $("goInv").addEventListener("click", () => showView("inv"));
+  $("goTips").addEventListener("click", () => showView("tips"));
+  $("goMissing").addEventListener("click", () => showView("quests"));
+  document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => showView("main")));
+  document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => showView(b.dataset.go)));
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key !== "Escape") return;
+    if (!$("addDlg").hidden) closeAdd();
+    else if (state.tab !== "main" && $("cityPanel").hidden) showView("main");
+  });
 
   // Город: по умолчанию Бишкек; можно найти по названию или определить по местоположению
   const PLACE_KEY = "veloarsenal.place";
@@ -1007,11 +1054,11 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   }
   overlayScroll(pageEl, "y");
   overlayScroll($("wHours"), "x");
-  document.querySelectorAll(".tabpanel, .main, .col, .center").forEach(el => overlayScroll(el, "y"));
+  document.querySelectorAll(".page, .main, .col, .center").forEach(el => overlayScroll(el, "y"));
 
   resetForm();
   renderInv();
-  showTab(TABS.includes(state.tab) ? state.tab : "quests");
+  showView("main");
   if (!SLOTS.some(s => s.id === state.sel)) state.sel = "shell";
   render();
 })();
