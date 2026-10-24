@@ -101,7 +101,9 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .hour .t { font: 500 19px var(--font-cond); }
 .hour .w { color: var(--muted); font-size: 13px; }
 .hour.wet .t { color: var(--rain); }
-.wx-upd { color: var(--muted); font-size: 14px; }
+.w-apply { display: inline-grid; justify-items: start; text-align: left; line-height: 1.3; }
+.wx-upd { display: block; color: var(--muted); font-size: 13px; }
+.w-apply:hover .wx-upd { color: inherit; opacity: 0.75; }
 
 /* Город: всплывающее окно у названия */
 .city-btn { font: 600 16px var(--font); color: var(--ink); background: transparent; border: 0; border-bottom: 1px dashed var(--ink-2); padding: 0 0 1px; cursor: pointer; }
@@ -891,8 +893,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       '<span>ощущ. <b>' + fmt(Math.round(c.feels)) + '</b></span>' +
       '<span>ветер <b>' + ms(c.wind) + '</b>, порывы <b>' + Math.round(c.gust) + '</b> м/с</span>' +
       '<span><b>' + (WMO[c.code] || "—") + '</b></span>' +
-      '<button type="button" class="w-apply" id="wApply">Одеться на сейчас</button>' +
-      '<span class="wx-upd">' + when.toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + (old ? " · устарело" : "") + '</span>';
+      '<button type="button" class="w-apply" id="wApply">Одеться на сейчас<span class="wx-upd">прогноз от ' + when.toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + (old ? " · устарел" : "") + '</span></button>';
     $("cityBtn").onclick = () => toggleCity($("cityPanel").hidden);
     $("wApply").onclick = () => { lastManual = 0; applyWeather(c.t, c.wind, c.code); };
     $("wHours").innerHTML = (weather.hours || []).map((h, i) =>
