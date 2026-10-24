@@ -276,6 +276,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .cond { display: none; }
   .cond-open .cond { display: grid; gap: 14px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; max-height: 88vh; overflow-y: auto; background: var(--sheet); border-radius: 12px 12px 0 0; box-shadow: 0 -8px 30px rgb(0 0 0 / 0.18); padding: 14px 16px 26px; }
   .cond-open .cond-bg { display: block; position: fixed; inset: 0; z-index: 44; background: rgb(0 0 0 / 0.3); }
+  .cond-open .cond { grid-template-columns: minmax(0, 1fr); }
+  .cond > * { grid-column: 1 !important; grid-row: auto !important; }
   .m-cond-h { display: flex !important; align-items: center; justify-content: space-between; font: 600 14px var(--font-cond); letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
   .cond .temp-big { font-size: 40px; text-align: left; }
   .cond .toggles { justify-content: flex-start; }
