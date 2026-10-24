@@ -28,7 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         if #available(macOS 13.3, *) { web.isInspectable = true }
 
         // Размер окна подобран вручную и зафиксирован; положение на экране запоминается
-        let size = NSSize(width: 974, height: 826)
+        let size = NSSize(width: 974, height: 856)
         window = NSWindow(contentRect: NSRect(origin: .zero, size: size),
                           styleMask: [.titled, .closable, .miniaturizable],
                           backing: .buffered, defer: false)
