@@ -256,6 +256,10 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .body-form input { width: 100%; min-width: 0; padding: 6px 8px; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 3px; color: var(--ink); font-size: 15px; }
 .body-form .bf-u { color: var(--muted); font-size: 14px; white-space: nowrap; }
 .body-hint { margin: 0; color: var(--ink-2); font-size: 14px; }
+.share-msg { font-size: 14px; color: var(--ink-2); text-align: center; max-width: 220px; overflow-wrap: anywhere; }
+.share-msg:empty { display: none; }
+.shared-bar { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; max-width: calc(100vw - 32px); padding: 10px 14px; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 4px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); font-size: 15px; }
+.shared-act { display: flex; gap: 8px; }
 .body-sum { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin: 0 0 12px; color: var(--ink-2); font-size: 15px; }
 .modal .body-form { margin-top: 8px; }
 .io-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -439,6 +443,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
           <button type="button" class="miss-btn" id="goMissing" hidden>Не хватает: <span id="qBadge"></span></button>
           <button type="button" class="lnk m-only" data-go="tips">Советы на эту погоду</button>
           <button type="button" class="lnk all-items" id="goInv">Все мои вещи <span class="cnt" id="invCount"></span></button>
+          <button type="button" class="lnk" id="shareBtn">Поделиться сборкой</button>
+          <div class="share-msg" id="shareMsg" aria-live="polite"></div>
         </div>
 
       </div>
@@ -500,6 +506,11 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
           <div class="inv-actions"><button type="submit" class="btn pri" id="fSave">Добавить</button><button type="button" class="btn" id="fCancel">Отмена</button></div>
         </form>
     </div>
+  </div>
+
+  <div class="shared-bar" id="sharedBar" role="status" hidden>
+    <span id="sharedTxt">Вы смотрите чужую сборку</span>
+    <span class="shared-act"><button type="button" class="btn pri" id="sharedSave">Сохранить себе</button><button type="button" class="btn" id="sharedExit">Вернуть мои</button></span>
   </div>
 
   <div class="modal-bg" id="bodyDlg" hidden>
@@ -659,7 +670,9 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   } catch (err) { inv = Array.isArray(window.VA_DEFAULT_INVENTORY) ? window.VA_DEFAULT_INVENTORY : []; }
   inv = (Array.isArray(inv) ? inv : []).filter(it => it && TYPES[it.slot] && TYPES[it.slot][it.type] && it.status !== "wanted").map(({ status, ...it }) => ({ mat: "other", ...it, id: it.id || newId() }));
   function newId() { return "i" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-  const saveInv = () => { try { localStorage.setItem(INV_KEY, JSON.stringify(inv)); } catch (err) { /* только в памяти */ } };
+  // Чужая сборка по ссылке открывается только для просмотра и ничего не сохраняет, пока не нажать «Сохранить себе»
+  let viewOnly = false;
+  const saveInv = () => { if (viewOnly) return; try { localStorage.setItem(INV_KEY, JSON.stringify(inv)); } catch (err) { /* только в памяти */ } };
   // Стартовый список из сборки: новые вещи дописываются один раз, удалённые вручную не возвращаются
   (function mergeDefaults() {
     const def = Array.isArray(window.VA_DEFAULT_INVENTORY) ? window.VA_DEFAULT_INVENTORY : [];
@@ -771,7 +784,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   // 15/15 км/ч → +3°, 15/40 км/ч → −3°
   const speedOffset = () => Math.max(-8, Math.min(4, Math.round(3 - 0.24 * (state.vmax - state.cruise) - 0.12 * Math.max(0, state.cruise - 15))));
   const hilly = () => state.vmax - state.cruise >= 10;
-  const save = () => { try { localStorage.setItem("veloarsenal", JSON.stringify(state)); } catch (err) { /* ignore */ } };
+  const save = () => { if (viewOnly) return; try { localStorage.setItem("veloarsenal", JSON.stringify(state)); } catch (err) { /* ignore */ } };
 
   const windPenalty = (w) => Math.min(5, Math.max(0, Math.round((w - 2) * 0.6)));
   let eq = {};
@@ -1169,7 +1182,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   try { const p = JSON.parse(localStorage.getItem(PLACE_KEY) || "null"); if (p && isFinite(p.lat) && isFinite(p.lon)) place = p; } catch (err) { /* по умолчанию */ }
   function setPlace(p) {
     place = { name: String(p.name || "Моё место").slice(0, 60), lat: Math.round(p.lat * 100) / 100, lon: Math.round(p.lon * 100) / 100 };
-    try { localStorage.setItem(PLACE_KEY, JSON.stringify(place)); } catch (err) { /* в памяти */ }
+    if (!viewOnly) try { localStorage.setItem(PLACE_KEY, JSON.stringify(place)); } catch (err) { /* в памяти */ }
     $("cityPanel").hidden = true;
     weather = null; renderWeather(); lastManual = 0; loadWeather();
   }
@@ -1418,6 +1431,57 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   $("bodyDone").addEventListener("click", closeBody);
   $("bodyDlg").addEventListener("click", (ev) => { if (ev.target === $("bodyDlg")) closeBody(); });
   $("fBodyEdit").addEventListener("click", () => { $("addDlg").hidden = true; openBody(() => { $("addDlg").hidden = false; fillTypes($("fType").value, $("fMat").value); }); });
+  // Поделиться сборкой: вещи и условия (без мерок) сохраняются на dpaste.com, ссылка короткая — #k=<id>
+  const SITE = "https://vanarok.github.io/veloarsenal/";
+  const kitSummary = () => "Моя сборка в Велоарсенале: " + place.name + ", " + fmt(state.t) + ", одеваемся на " + fmt(curE);
+  $("shareBtn").addEventListener("click", async () => {
+    const msg = $("shareMsg");
+    msg.textContent = "Создаю ссылку…";
+    const kit = { v: 1, place, t: state.t, wind: state.wind, rain: state.rain, dark: state.dark, cruise: state.cruise, vmax: state.vmax, items: inv.map(({ id, ...rest }) => rest) };
+    let url;
+    try {
+      const r = await fetch("https://dpaste.com/api/v2/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ content: JSON.stringify(kit), syntax: "json", expiry_days: "365", title: "veloarsenal" }) });
+      const id = r.ok && (await r.text()).trim().split("/").pop();
+      if (!id || !/^[A-Za-z0-9]+$/.test(id)) throw new Error("bad id");
+      url = SITE + "#k=" + id;
+    } catch (err) { msg.textContent = "Не получилось создать ссылку. Проверьте интернет и попробуйте ещё раз."; return; }
+    if (navigator.share && matchMedia && matchMedia("(pointer: coarse)").matches) {
+      try { await navigator.share({ title: "Велоарсенал", text: kitSummary(), url }); msg.textContent = ""; return; } catch (err) { /* отменили — покажем ссылку */ }
+    }
+    let copied = false;
+    try { await navigator.clipboard.writeText(url); copied = true; } catch (err) { /* без буфера обмена */ }
+    msg.textContent = (copied ? "Ссылка скопирована: " : "Ссылка: ") + url.replace(/^https:\/\//, "");
+  });
+  async function openShared(id) {
+    let kit;
+    try {
+      const r = await fetch("https://dpaste.com/" + id + ".txt");
+      kit = r.ok && JSON.parse(await r.text());
+    } catch (err) { kit = null; }
+    if (!kit || !Array.isArray(kit.items)) { $("sharedTxt").textContent = "Сборка по ссылке не найдена: возможно, ссылка устарела"; $("sharedSave").hidden = true; $("sharedBar").hidden = false; return; }
+    viewOnly = true;
+    inv = kit.items.filter(it => it && typeof it.name === "string" && TYPES[it.slot] && TYPES[it.slot][it.type]).map(it => ({ id: newId(), name: it.name.slice(0, 120), slot: it.slot, type: it.type, mat: MATS[it.mat] ? it.mat : "other", note: String(it.note || "").slice(0, 300), link: /^https?:\/\//i.test(it.link || "") ? it.link : "" }));
+    ["t", "wind", "cruise", "vmax"].forEach(k => { if (isFinite(kit[k])) state[k] = Number(kit[k]); });
+    state.rain = !!kit.rain; state.dark = !!kit.dark;
+    lastManual = Date.now() + 1e12;
+    if (kit.place && isFinite(kit.place.lat) && isFinite(kit.place.lon)) { place = { name: String(kit.place.name || "").slice(0, 60), lat: kit.place.lat, lon: kit.place.lon }; weather = null; renderWeather(); loadWeather(); }
+    $("sharedTxt").textContent = "Чужая сборка: " + inv.length + " " + plural(inv.length, "вещь", "вещи", "вещей") + ", " + place.name + ", " + fmt(state.t);
+    $("sharedBar").hidden = false;
+    renderInv(); render();
+  }
+  $("sharedSave").addEventListener("click", () => {
+    let mine = [];
+    try { mine = JSON.parse(localStorage.getItem(INV_KEY) || "[]") || []; } catch (err) { mine = []; }
+    if (mine.length && !confirm("Заменить ваши вещи (" + mine.length + ") этой сборкой (" + inv.length + ")?")) return;
+    viewOnly = false; saveInv(); save();
+    try { localStorage.setItem(PLACE_KEY, JSON.stringify(place)); } catch (err) { /* в памяти */ }
+    history.replaceState(null, "", location.pathname + location.search);
+    $("sharedBar").hidden = true;
+  });
+  $("sharedExit").addEventListener("click", () => { location.replace(location.pathname + location.search); });
+  const shared = (location.hash.match(/^#k=([A-Za-z0-9]{4,20})$/) || [])[1];
+  if (shared) openShared(shared);
+
   showView("main");
   if (!SLOTS.some(s => s.id === state.sel)) state.sel = "shell";
   render();
