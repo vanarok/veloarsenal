@@ -243,11 +243,11 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .src { font-size: 14px; color: var(--muted); margin: 10px 0 0; }
 
 /* Гайд */
-.gchips { display: flex; flex-wrap: wrap; gap: 0; margin-bottom: 10px; border: 1px solid var(--rule-strong); border-radius: 3px; width: fit-content; max-width: 100%; }
-.gchip { font-size: 14px; color: var(--ink-2); background: transparent; border: 0; border-left: 1px solid var(--rule-strong); padding: 5px 8px; cursor: pointer; }
-.gchip:first-child { border-left: 0; }
-.gchip[aria-pressed="true"] { color: var(--paper); background: var(--ink); }
-.gchip.now:not([aria-pressed="true"]) { color: var(--ink); font-weight: 600; }
+.gchips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.gchip { font-size: 14px; color: var(--ink-2); background: transparent; border: 1px solid var(--rule-strong); border-radius: 3px; padding: 5px 10px; cursor: pointer; }
+.gchip:hover { border-color: var(--ink); }
+.gchip[aria-pressed="true"] { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.gchip.now:not([aria-pressed="true"]) { color: var(--ink); font-weight: 600; border-color: var(--ink); }
 .gcard { display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: 6px 12px; margin: 0; font-size: 15px; }
 .gcard dt { font: 600 13px var(--font-cond); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
 .gcard dd { margin: 0; }
