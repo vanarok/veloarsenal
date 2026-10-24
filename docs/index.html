@@ -354,8 +354,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       </div>
       <div class="toggles">
         <div class="speed" role="group" aria-label="Скорость">
-          <label>Скорость <input id="spdCruise" type="number" min="5" max="60" step="1" inputmode="numeric" aria-label="Обычная скорость, км/ч"></label>
-          <label>до <input id="spdMax" type="number" min="5" max="90" step="1" inputmode="numeric" aria-label="Максимальная скорость на спусках, км/ч"> км/ч</label>
+          <label>Скорость <input id="spdCruise" type="number" min="15" max="60" step="1" inputmode="numeric" aria-label="Обычная скорость, км/ч"></label>
+          <label>до <input id="spdMax" type="number" min="15" max="61" step="1" inputmode="numeric" aria-label="Максимальная скорость на спусках, км/ч"> км/ч</label>
         </div>
         <button type="button" class="tg flag" id="dark" aria-pressed="true">Темно</button>
         <button type="button" class="tg flag" id="rain" aria-pressed="false">Осадки</button>
@@ -720,8 +720,10 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     }
   } catch (err) { /* без сохранения */ }
   const clampSpeed = (v, lo, hi, def) => { v = Math.round(Number(v)); return isFinite(v) && v > 0 ? Math.max(lo, Math.min(hi, v)) : def; };
-  state.cruise = clampSpeed(state.cruise, 5, 60, 15);
-  state.vmax = Math.max(state.cruise, clampSpeed(state.vmax, 5, 90, 40));
+  // Реальные пределы: ниже 15 км/ч расчёт не меняется; максимум — пока поправка не упрётся в −8°
+  const maxFor = (c) => c + Math.ceil((11 - 0.12 * Math.max(0, c - 15)) / 0.24);
+  state.cruise = clampSpeed(state.cruise, 15, 60, 15);
+  state.vmax = Math.max(state.cruise, clampSpeed(state.vmax, 15, maxFor(state.cruise), 40));
   // Поправка к температуре воздуха: педали греют на обычной скорости, спуски холодят.
   // 15/15 км/ч → +3°, 15/40 км/ч → −3°
   const speedOffset = () => Math.max(-8, Math.min(4, Math.round(3 - 0.24 * (state.vmax - state.cruise) - 0.12 * Math.max(0, state.cruise - 15))));
@@ -831,6 +833,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     $("windOut").textContent = ms(state.wind) + " м/с";
     $("kitHead").innerHTML = "Одеваемся на <b>" + fmt(e) + "</b>";
     $("effText").innerHTML = state.cruise + (hilly() ? ", спуски до " + state.vmax : "") + " км/ч " + (so ? (so > 0 ? "+" : "−") + Math.abs(so) + "°" : "±0°") + (wa ? ", ветер −" + wa + "°" : "") + " → одеваемся на <b>" + fmt(e) + "</b>";
+    $("spdMax").min = state.cruise;
+    $("spdMax").max = maxFor(state.cruise);
     if (document.activeElement !== $("spdCruise")) $("spdCruise").value = state.cruise;
     if (document.activeElement !== $("spdMax")) $("spdMax").value = state.vmax;
     $("dark").setAttribute("aria-pressed", String(state.dark));
@@ -1216,8 +1220,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   $("temp").addEventListener("input", (ev) => { lastManual = Date.now(); state.t = Number(ev.target.value); render(); });
   $("wind").addEventListener("input", (ev) => { lastManual = Date.now(); state.wind = Number(ev.target.value); render(); });
   // Скорости сохраняются сразу при вводе
-  $("spdCruise").addEventListener("input", (ev) => { const v = clampSpeed(ev.target.value, 5, 60, 0); if (v) { state.cruise = v; state.vmax = Math.max(state.vmax, v); render(); } });
-  $("spdMax").addEventListener("input", (ev) => { const v = clampSpeed(ev.target.value, 5, 90, 0); if (v && v >= state.cruise) { state.vmax = v; render(); } });
+  $("spdCruise").addEventListener("input", (ev) => { const v = clampSpeed(ev.target.value, 15, 60, 0); if (v) { state.cruise = v; state.vmax = Math.min(maxFor(v), Math.max(state.vmax, v)); render(); } });
+  $("spdMax").addEventListener("input", (ev) => { const v = clampSpeed(ev.target.value, 15, maxFor(state.cruise), 0); if (v && v >= state.cruise) { state.vmax = v; render(); } });
   ["spdCruise", "spdMax"].forEach(id => $(id).addEventListener("blur", () => render()));
   $("dark").addEventListener("click", () => { state.dark = !state.dark; render(); });
   $("rain").addEventListener("click", () => { state.rain = !state.rain; render(); });
