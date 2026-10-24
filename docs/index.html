@@ -189,7 +189,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .page > * { max-width: 860px; }
 /* Списки вещей тянутся на всю ширину; текстовые страницы остаются узкими для чтения */
 #p-inv > *, #p-quests > * { max-width: none; }
-.page-h { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; border-top: 1px solid var(--ink); padding: 10px 0 8px; margin-bottom: 6px; }
+.page-h { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding: 0 0 8px; margin-bottom: 6px; }
 .page-h h2 { margin: 0; font: 600 24px var(--font-cond); }
 .page-h .btn.pri { margin-left: auto; }
 .ph-act { display: flex; align-items: center; gap: 8px; margin-left: auto; }
@@ -343,7 +343,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .iname { white-space: normal; }
   .slot { padding: 12px 6px 12px 10px; }
 
-  .page-h { position: sticky; top: 0; z-index: 5; background: var(--paper); display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; }
+  .page-h { position: sticky; top: 0; z-index: 5; background: var(--paper); border-top: 1px solid var(--ink); padding-top: 10px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; }
   .page-h .back { grid-column: 1 / -1; justify-self: start; }
   .page-h .btn.pri { margin-left: 0; }
   .btn.plus-btn { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; line-height: 0; }
