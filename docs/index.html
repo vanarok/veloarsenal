@@ -423,7 +423,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   <section class="page" id="p-inv" aria-labelledby="h-inv" hidden>
     <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-inv">Мои вещи</h2><button type="button" class="btn pri plus-btn" id="addBtn" title="Добавить вещь" aria-label="Добавить вещь"><svg class="plus-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="plus-txt">Добавить вещь</span></button></div>
     <div id="invList"></div>
-    <div class="sec-h">Перенос <span class="tip" tabindex="0" title="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются." aria-label="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.">i</span></div>
+    <div class="sec-h">Выгрузка <span class="tip" tabindex="0" title="Импорт заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются." aria-label="Импорт заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.">i</span></div>
         <div class="io">
           <div class="io-row">
             <button type="button" class="btn" id="ioDownload">Экспорт в файл</button>
@@ -997,7 +997,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     saveInv(); closeAdd(); renderInv(); render();
   });
 
-  // Перенос: файл или текст. Данные никуда не отправляются
+  // Выгрузка: экспорт и импорт файлом. Данные никуда не отправляются
   const invJSON = () => JSON.stringify({ app: "veloarsenal", version: 1, items: inv.map(({ id, ...rest }) => rest) }, null, 2);
   function importData(text) {
     let data;
