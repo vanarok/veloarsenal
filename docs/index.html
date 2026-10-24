@@ -152,6 +152,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .need-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; }
 .add-btn { font-size: 14px; color: var(--signal); background: transparent; border: 1px solid var(--signal); border-radius: 3px; padding: 1px 8px; cursor: pointer; }
 .add-btn:hover { background: var(--signal); color: var(--signal-ink); }
+.add-btn.quiet { color: var(--ink-2); border-color: var(--rule-strong); }
+.add-btn.quiet:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .iname.sub { color: var(--ink-2); }
 
 .center { display: grid; align-content: start; gap: 14px; min-width: 0; min-height: 0; overflow-y: auto; }
@@ -700,6 +702,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       ? '<div class="iname">' + esc(HINT[slot.id] || "Не нужно") + '</div>'
       : list.map(x => x.s === "missing"
         ? '<div class="need-row"><span class="iname need">' + esc(x.n) + '</span><button type="button" class="add-btn" data-add="' + x.nid + '">Добавить</button></div>'
+        : x.s === "wardrobe"
+        ? '<div class="need-row"><span class="iname">' + esc(x.n) + '</span><button type="button" class="add-btn quiet" data-add="' + x.nid + '">Добавить</button></div>'
         : '<div class="iname' + (x.sub ? " sub" : "") + '">' + esc(x.n) + '</div>').join("");
     return '<div class="slot' + (empty ? " empty" : "") + (state.sel === slot.id ? " sel" : "") + '" data-slot="' + slot.id + '" tabindex="0" role="button" title="' + esc(title) + '">' +
       '<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + ICONS[slot.id] + '</svg></span>' +
@@ -716,7 +720,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         x.notes.map(t => '<div class="insp-note">' + esc(t) + '</div>').join("") +
         (x.up || x.down ? '<div class="insp-hd">' + (x.up ? '<b>↑</b> ' + esc(x.up) : '') + (x.up && x.down ? ' · ' : '') + (x.down ? '<b>↓</b> ' + esc(x.down) : '') + '</div>' : '') +
         (x.it ? '<div class="insp-note"><button type="button" class="lnk" data-edit-item="' + x.it.id + '">Изменить</button>' + (x.link ? ' · <a href="' + esc(x.link) + '" target="_blank" rel="noopener">Ссылка на вещь</a>' : '') + '</div>' : '') +
-        (x.s === "missing" ? '<div class="insp-note"><button type="button" class="lnk" data-add="' + x.nid + '">Добавить свою</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : '') + '</div>' : '') +
+        (x.s === "missing" || x.s === "wardrobe" ? '<div class="insp-note"><button type="button" class="lnk" data-add="' + x.nid + '">Добавить свою</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : '') + '</div>' : '') +
         '</div>';
     }).join("") : '<div class="insp-note">' + esc(HINT[slot.id] || "При этой температуре не нужно") + '</div>';
     return body;
