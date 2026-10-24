@@ -550,7 +550,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     sleeves:      { slot: "base", n: "Нарукавники", types: ["sleeves"], r: "uncommon", warm: 1, note: "Стало жарко? Спустите к запястью прямо на ходу", find: "велонарукавники", optional: true },
     longsleeve:   { slot: "base", n: "Термобельё или лонгслив", types: ["longsleeve"], mats: ["merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 2, note: "Заправьте в штаны, чтобы не дуло в поясницу. Если у велоштанов есть лямки, наденьте их поверх", find: "лонгслив меринос термобелье" },
     teeUnder:     { slot: "base", n: "Футболка под термобельё", types: ["tee"], mats: ["merino", "wool", "synthetic"], avoid: ["cotton"], r: "uncommon", warm: 1, note: "Ещё один тонкий слой на тело в сильный мороз", optional: true },
-    mid:          { slot: "mid", n: "Термоджерси или тёплая кофта", types: ["grid", "jersey", "fleece", "sweater"], mats: ["fleece", "merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 3, cafe: true, up: "расстегните ворот", down: "застегните ворот", note: "Лучше облегающая: не топорщится под курткой. Её продувает, поэтому сверху нужна куртка с рукавами", find: "Polartec Power Grid кофта" },
+    mid:          { slot: "mid", n: "Термоджерси или тёплая кофта", types: ["grid", "jersey", "fleece", "sweater"], mats: ["fleece", "merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 3, cafe: true, up: "расстегните ворот", down: "застегните ворот", note: "Лучше облегающая: не топорщится под курткой. Её продувает, поэтому сверху нужна куртка с рукавами", find: "Polartec Power Grid кофта", alts: ["warmVest"] },
     windVest:     { slot: "shell", n: "Жилет от ветра", types: ["windVest"], r: "rare", wind: 2, sleeves: false, cafe: true, up: "расстегните", down: "застегните", note: "Не греет, только закрывает грудь от ветра", find: "велосипедный ветрожилет", alts: ["windJacket"] },
     windJacket:   { slot: "shell", n: "Ветровка", types: ["windJacket", "softshell", "winterJacket"], r: "rare", wind: 3, cafe: true, up: "расстегните до середины груди", down: "застегните до горла", note: "Тонкая куртка сама не греет, греет то, что под ней. Зябко на спуске? Наденьте сверху жилет", find: "веловетровка мужская", alts: ["membrane"] },
     frostShell:   { slot: "shell", n: "Утеплённая велокуртка", types: ["softshell", "winterJacket"], r: "legendary", warm: 2, wind: 3, cafe: true, up: "расстегните до груди", down: "застегните до горла", note: "Выше нуля под неё хватит термобелья, в мороз добавьте термоджерси. Нет такой куртки? Наденьте ветровку, а под неё тёплую кофту", find: "утепленная велокуртка", alts: ["windJacket", "membrane"] },
@@ -640,7 +640,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     // Вещь из файла может заменить старую по имени («replaces»): переименование без дубля
     def.forEach(it => {
       if (!it.replaces || !TYPES[it.slot] || !TYPES[it.slot][it.type]) return;
-      const old = inv.find(x => x.slot === it.slot && String(x.name).toLowerCase() === String(it.replaces).toLowerCase());
+      const old = inv.find(x => String(x.name).toLowerCase() === String(it.replaces).toLowerCase());
       if (!old) return;
       const { replaces, status, ...fresh } = it;
       Object.assign(old, { mat: "other", ...fresh });
@@ -655,7 +655,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   const matRank = (need, it) => { const i = (need.mats || []).indexOf(it.mat); return i < 0 ? 9 : i; };
   function findItem(need, used) {
     const c = inv.filter(it => it.slot === need.slot && need.types.includes(it.type));
-    c.sort((a, b) => (need.types.indexOf(a.type) - need.types.indexOf(b.type)) || (matRank(need, a) - matRank(need, b)));
+    // Вещь с пометкой pref (основная в слоте) идёт первой
+    c.sort((a, b) => (!!b.pref - !!a.pref) || (need.types.indexOf(a.type) - need.types.indexOf(b.type)) || (matRank(need, a) - matRank(need, b)));
     return c.find(it => !used.has(it.id)) || null;
   }
   // Потребность → запись слота: своя вещь, замена или кнопка «Добавить»
@@ -694,8 +695,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     if (ids.shoes[0] === "shoesWinter" && !rain && (has("winterCycling") || has("winterBoots"))) ids.overshoe = [];
     // Нет утеплённой велокуртки — ветровка, а под неё тёплая кофта
     if (ids.shell[0] === "frostShell" && !findItem(NEEDS.frostShell, new Set()) && !ids.mid.length) ids.mid = ["mid"];
-    // Жилет в сильный мороз — только если он есть: трёх слоёв обычно хватает
-    if (ids.shell.includes("warmVest") && !findItem(NEEDS.warmVest, new Set())) ids.shell = ids.shell.filter(n => n !== "warmVest");
+    // Жилет в сильный мороз — только если он есть и ещё не надет средним слоем
+    if (ids.shell.includes("warmVest") && (!findItem(NEEDS.warmVest, new Set()) || (ids.mid.length && !findItem(NEEDS.mid, new Set())))) ids.shell = ids.shell.filter(n => n !== "warmVest");
     // Нет зимних тайтсов при +5° и ниже — обычные тайтсы и брюки поверх (их можно снять в помещении)
     if (ids.legs[0] === "winterTights" && e <= 5 && !ids.legOver.length && !findItem(NEEDS.winterTights, new Set()) && findItem(NEEDS.tights, new Set())) ids.legOver = ["overpants"];
     const used = new Set(), o = {};
