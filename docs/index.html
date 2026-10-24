@@ -143,7 +143,9 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .iname { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .slot.empty .iname { color: var(--muted); font-weight: 400; }
 .iname.need { color: var(--signal); }
-.iname.need::after { content: " — нужно найти"; font-weight: 400; font-size: 14px; }
+.need-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; }
+.add-btn { font-size: 14px; color: var(--signal); background: transparent; border: 1px solid var(--signal); border-radius: 3px; padding: 1px 8px; cursor: pointer; }
+.add-btn:hover { background: var(--signal); color: var(--signal-ink); }
 .iname.sub { color: var(--ink-2); }
 
 .center { display: grid; align-content: start; gap: 14px; min-width: 0; min-height: 0; overflow-y: auto; }
@@ -575,10 +577,10 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     c.sort((a, b) => (need.types.indexOf(a.type) - need.types.indexOf(b.type)) || (matRank(need, a) - matRank(need, b)));
     return c.find(it => !used.has(it.id)) || null;
   }
-  // Потребность → запись слота: своя вещь, замена или «нужно найти»
+  // Потребность → запись слота: своя вещь, замена или кнопка «Добавить»
   function resolve(nid, used) {
     const want = NEEDS[nid];
-    // Порядок: своя вещь нужного типа → замена из своих → «нужно найти»
+    // Порядок: своя вещь нужного типа → замена из своих → кнопка «Добавить»
     let it = findItem(want, used), need = want, sub = null;
     if (!it) for (const a of want.alts || []) { const ai = findItem(NEEDS[a], used); if (ai) { it = ai; need = NEEDS[a]; sub = want; break; } }
     if (!it && want.optional) return null;
@@ -645,10 +647,12 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   function slotHTML(slot) {
     const list = eq[slot.id];
     const empty = !list.length;
-    const title = empty ? (HINT[slot.id] || "Не нужно") : list.map(x => x.n + (x.notes.length ? " — " + x.notes.join(". ") : "")).join("\n");
+    const title = empty ? (HINT[slot.id] || "Не нужно") : list.map(x => x.n + (x.notes.length ? ". " + x.notes.join(". ") : "")).join("\n");
     const lines = empty
       ? '<div class="iname">' + esc(HINT[slot.id] || "Не нужно") + '</div>'
-      : list.map(x => '<div class="iname' + (x.s === "missing" ? " need" : x.sub ? " sub" : "") + '">' + esc(x.n) + '</div>').join("");
+      : list.map(x => x.s === "missing"
+        ? '<div class="need-row"><span class="iname need">' + esc(x.n) + '</span><button type="button" class="add-btn" data-add="' + x.nid + '">Добавить</button></div>'
+        : '<div class="iname' + (x.sub ? " sub" : "") + '">' + esc(x.n) + '</div>').join("");
     return '<div class="slot' + (empty ? " empty" : "") + (state.sel === slot.id ? " sel" : "") + '" data-slot="' + slot.id + '" tabindex="0" role="button" title="' + esc(title) + '">' +
       '<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + ICONS[slot.id] + '</svg></span>' +
       '<div style="min-width:0"><div class="slabel">' + slot.label + '</div>' + lines + '</div></div>';
@@ -658,7 +662,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     const slot = SLOTS.find(s => s.id === sid) || SLOTS[0];
     const list = eq[slot.id] || [];
     const body = list.length ? list.map(x => {
-      const meta = [x.s === "missing" ? "нужно найти" : x.meta, WARM[Math.min(3, x.warm)], x.wind >= 3 ? "не продувается" : x.wind ? "защищает от ветра" : ""].filter(Boolean).join(" · ");
+      const meta = [x.meta, WARM[Math.min(3, x.warm)], x.wind >= 3 ? "не продувается" : x.wind ? "защищает от ветра" : ""].filter(Boolean).join(" · ");
       return '<div class="insp-item"><div class="insp-name' + (x.s === "missing" ? " need" : "") + '">' + esc(x.n) + '</div>' +
         (meta ? '<div class="insp-meta">' + esc(meta) + '</div>' : '') +
         x.notes.map(t => '<div class="insp-note">' + esc(t) + '</div>').join("") +
@@ -766,6 +770,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     renderGuide(e);
 
     bindSlots();
+    bindAdd($("colLeft"));
+    bindAdd($("colRight"));
     showCard();
     save();
   }
@@ -868,7 +874,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     $("addTitle").textContent = "Изменить вещь";
     openAdd();
   }
-  function bindAdd(root) { root.querySelectorAll("[data-add]").forEach(b => b.onclick = () => startAdd(b.dataset.add)); }
+  function bindAdd(root) { root.querySelectorAll("[data-add]").forEach(b => b.onclick = (ev) => { ev.stopPropagation(); startAdd(b.dataset.add); }); }
   function renderInv() {
     const groups = SLOTS.map(s => {
       const items = inv.filter(it => it.slot === s.id);
