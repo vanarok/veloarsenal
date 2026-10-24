@@ -1318,7 +1318,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       } catch (err) { /* нет связи — проверим позже */ }
     }
     setTimeout(check, 1500);
-    setInterval(check, 30 * 60 * 1000);
+    setInterval(check, 3 * 60 * 1000);
+    window.addEventListener("focus", check);
     document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
     // Ждали, пока закроют окно — обновляемся сразу после
     setInterval(() => { if (pending && !busy()) location.replace(location.pathname + "?v=" + pending + location.hash); }, 2000);
