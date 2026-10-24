@@ -192,6 +192,11 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .page-h { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; border-top: 1px solid var(--ink); padding: 10px 0 8px; margin-bottom: 6px; }
 .page-h h2 { margin: 0; font: 600 24px var(--font-cond); }
 .page-h .btn.pri { margin-left: auto; }
+.ph-act { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.ph-act .btn.pri { margin-left: 4px; }
+.io-btn { display: inline-flex; align-items: center; gap: 6px; }
+.io-btn .io-ico { display: none; }
+#ioMsg:empty { display: none; }
 /* Добавление вещи: на компьютере текстом, на телефоне — плюсиком */
 .plus-btn .plus-ico { display: none; }
 .back { font-size: 15px; color: var(--ink-2); background: none; border: 0; padding: 4px 0; cursor: pointer; }
@@ -343,6 +348,11 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .btn.plus-btn { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; line-height: 0; }
   .plus-btn .plus-ico { display: block; }
   .plus-btn .plus-txt { display: none; }
+  /* Экспорт и импорт на телефоне — иконками, рядом с плюсиком */
+  .ph-act { margin-left: 0; gap: 6px; }
+  .btn.io-btn { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; line-height: 0; }
+  .io-btn .io-ico { display: block; }
+  .io-btn .io-txt { display: none; }
   .page { overflow: visible; padding-right: 0; }
   .hd { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .inv-form { grid-template-columns: minmax(0, 1fr); }
@@ -443,17 +453,10 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   </section>
 
   <section class="page" id="p-inv" aria-labelledby="h-inv" hidden>
-    <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-inv">Мои вещи</h2><button type="button" class="btn pri plus-btn" id="addBtn" title="Добавить вещь" aria-label="Добавить вещь"><svg class="plus-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="plus-txt">Добавить вещь</span></button></div>
+    <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-inv">Мои вещи</h2><div class="ph-act"><button type="button" class="btn io-btn" id="ioDownload" title="Сохранить вещи и мерки в файл" aria-label="Экспорт в файл"><svg class="io-ico" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 14v5h16v-5"/></svg><span class="io-txt">Экспорт</span></button><label class="btn io-btn io-file" title="Импорт заменяет весь список вещей и мерки. Данные хранятся только в этом браузере или приложении и никуда не отправляются." aria-label="Импорт из файла"><svg class="io-ico" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M4 14v5h16v-5"/></svg><span class="io-txt">Импорт</span><input type="file" id="ioFile" accept="application/json,.json"></label><button type="button" class="btn pri plus-btn" id="addBtn" title="Добавить вещь" aria-label="Добавить вещь"><svg class="plus-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="plus-txt">Добавить вещь</span></button></div></div>
+    <p class="io-msg" id="ioMsg" aria-live="polite"></p>
     <div class="body-sum"><span id="bodySum"></span><button type="button" class="lnk" id="bodyBtn">Изменить</button></div>
     <div id="invList"></div>
-    <div class="sec-h">Выгрузка <span class="tip" tabindex="0" title="Импорт заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются." aria-label="Импорт заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.">i</span></div>
-        <div class="io">
-          <div class="io-row">
-            <button type="button" class="btn" id="ioDownload">Экспорт в файл</button>
-            <label class="btn io-file">Импорт из файла<input type="file" id="ioFile" accept="application/json,.json"></label>
-          </div>
-          <div class="io-msg" id="ioMsg" aria-live="polite"></div>
-        </div>
   </section>
 
   <section class="page" id="p-tips" aria-labelledby="h-tips" hidden>
@@ -1055,7 +1058,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         '<div class="inv-txt"><div class="inv-n">' + esc(it.name) + '</div><div class="inv-m">' + esc(TYPES[it.slot][it.type]) + (it.mat && it.mat !== "other" ? " · " + esc(MATS[it.mat] || "") : "") + '</div></div>' +
         '<button type="button" class="ib" data-edit="' + it.id + '" aria-label="Изменить">✎</button><button type="button" class="ib" data-del="' + it.id + '" aria-label="Удалить">✕</button></div>').join("") + '</details>';
     }).join("");
-    $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Добавьте вещь или импортируйте файл ниже.</p>';
+    $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Добавьте вещь или загрузите файл кнопкой «Импорт».</p>';
     $("invCount").textContent = inv.length ? String(inv.length) : "";
     // Категории свёрнуты; открытые остаются открытыми, пока страница не перезагружена
     $("invList").querySelectorAll("details.inv-g").forEach(g => g.addEventListener("toggle", () => { if (g.open) invOpen.add(g.dataset.slot); else invOpen.delete(g.dataset.slot); }));
