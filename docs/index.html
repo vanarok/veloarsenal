@@ -187,6 +187,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .page-h { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; border-top: 1px solid var(--ink); padding: 10px 0 8px; margin-bottom: 6px; }
 .page-h h2 { margin: 0; font: 600 24px var(--font-cond); }
 .page-h .btn.pri { margin-left: auto; }
+.plus-btn { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; }
 .back { font-size: 15px; color: var(--ink-2); background: none; border: 0; padding: 4px 0; cursor: pointer; }
 .back:hover { color: var(--ink); }
 .more { margin: 18px 0 0; }
@@ -416,7 +417,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   </section>
 
   <section class="page" id="p-inv" aria-labelledby="h-inv" hidden>
-    <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-inv">Мои вещи</h2><button type="button" class="btn pri" id="addBtn">Добавить</button></div>
+    <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-inv">Мои вещи</h2><button type="button" class="btn pri plus-btn" id="addBtn" title="Добавить вещь" aria-label="Добавить вещь"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
     <div id="invList"></div>
     <div class="sec-h">Перенос <span class="tip" tabindex="0" title="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются." aria-label="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.">i</span></div>
         <div class="io">
@@ -971,7 +972,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         '<div class="inv-txt"><div class="inv-n">' + esc(it.name) + '</div><div class="inv-m">' + esc(TYPES[it.slot][it.type]) + (it.mat && it.mat !== "other" ? " · " + esc(MATS[it.mat] || "") : "") + '</div></div>' +
         '<button type="button" class="ib" data-edit="' + it.id + '" aria-label="Изменить">✎</button><button type="button" class="ib" data-del="' + it.id + '" aria-label="Удалить">✕</button></div>').join("") + '</div>';
     }).join("");
-    $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Нажмите «Добавить» или загрузите файл ниже, в «Переносе».</p>';
+    $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Нажмите «+» или загрузите файл ниже, в «Переносе».</p>';
     $("invCount").textContent = inv.length ? String(inv.length) : "";
     $("invList").querySelectorAll("[data-edit]").forEach(b => b.onclick = () => startEdit(b.dataset.edit));
     $("invList").querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
