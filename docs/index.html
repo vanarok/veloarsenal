@@ -49,6 +49,7 @@
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
+.m-only { display: none !important; }
 body {
   margin: 0;
   background: var(--paper);
@@ -258,28 +259,50 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .col, .center { min-height: auto; overflow: visible; }
 }
 @media (max-width: 760px) {
-  /* Телефон: обычная прокрутка страницы, всё в одну колонку */
+  /* Телефон: сверху погода и комплект, ниже — «что, если»; страница прокручивается обычным образом */
   html, body { height: auto; }
-  body { overflow: auto; padding: 14px 16px; }
-  .app { height: auto; gap: 14px; }
-  .bar { grid-template-columns: auto minmax(0, 1fr); gap: 10px 14px; }
-  .brand-cell { grid-column: 1 / -1; grid-row: 1; }
-  .temp-big { grid-column: 1; grid-row: 2; font-size: 44px; text-align: left; }
-  .toggles { grid-column: 2; grid-row: 2; justify-content: flex-end; }
-  .sliders { grid-column: 1 / -1; grid-row: 3; }
-  .wx { grid-template-columns: minmax(0, 1fr); }
-  .main { grid-template-columns: minmax(0, 1fr); overflow: visible; }
-  .center { grid-column: 1; grid-row: auto; grid-template-columns: 110px minmax(0, 1fr); align-items: start; margin: 16px 0; }
-  .fig-legend { position: static; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 10px; margin-top: 6px; }
-  .col + .col { border-top: 0; }
+  body { overflow: auto; padding: 12px 16px 24px; }
+  .m-only { display: revert !important; }
+  .app { height: auto; display: flex; flex-direction: column; gap: 14px; }
+  .bar { display: contents; }
+  .brand-cell { order: 1; }
+  .brand { font-size: 16px; }
+  .wx { order: 2; grid-template-columns: minmax(0, 1fr); gap: 10px; padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+  .main, .page { order: 3; }
+  .m-cond-h { order: 4; font: 600 13px var(--font-cond); letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); border-top: 1px solid var(--ink); padding-top: 12px; margin-top: 8px; }
+  .temp-big { order: 5; font-size: 40px; text-align: left; }
+  .sliders { order: 6; }
+  .toggles { order: 7; justify-content: flex-start; }
+  .view-page .wx, .view-page .m-cond-h, .view-page .temp-big, .view-page .sliders, .view-page .toggles { display: none; }
+
+  .main { display: flex; flex-direction: column; overflow: visible; }
+  .col, .center { overflow: visible; }
+  .col + .col, .col { border-top: 0; }
+  #colLeft { border-top: 1px solid var(--rule); }
+  .center { order: -1; margin-bottom: 12px; }
+  .figure { grid-template-columns: 104px minmax(0, 1fr); align-items: center; gap: 16px; }
+  .fig-wrap { justify-items: start; }
+  #figure { max-width: 104px; }
+  .fig-legend { position: static; flex-direction: column; gap: 4px; margin-top: 8px; font-size: 13px; }
+  .fig-actions { justify-items: start; gap: 10px; }
+  .kit-h { font: 500 22px var(--font-cond); }
+  .kit-h b { font-weight: 600; }
+  .miss-btn { justify-self: start; }
+  .iname { white-space: normal; }
+  .slot { padding: 12px 6px 12px 10px; }
+
+  .page-h { position: sticky; top: 0; z-index: 5; background: var(--paper); }
   .page { overflow: visible; }
   .hd { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-  .iname { white-space: normal; }
   .inv-form { grid-template-columns: minmax(0, 1fr); }
+  .gcard { grid-template-columns: 70px minmax(0, 1fr); }
+
+  /* Окно добавления — лист снизу, до полей дотягивается большой палец */
+  .modal-bg { place-items: end stretch; padding: 0; }
+  .modal { width: 100%; max-height: 92vh; border-radius: 12px 12px 0 0; padding: 18px 16px 24px; }
 }
 @media (max-width: 420px) {
-  .toggles { grid-column: 1 / -1; grid-row: 4; justify-content: flex-start; }
-  .temp-big { grid-column: 1 / -1; }
+  .speed { flex-wrap: wrap; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -289,6 +312,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     <div class="brand-cell">
       <div class="brand">Велоарсенал</div>
     </div>
+    <div class="m-only m-cond-h">Другая погода или скорость</div>
     <div class="temp-big" id="tempBig">+10°</div>
     <div class="sliders">
       <div class="sl-row"><label for="temp">Воздух</label><input type="range" id="temp" min="-10" max="25" step="1" value="10"><output id="tempOut" for="temp"></output></div>
@@ -341,7 +365,9 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
           <div class="fig-legend" aria-hidden="true"><span><i style="background:var(--layer-1)"></i>лёгкое</span><span><i style="background:var(--layer-2)"></i>тёплое</span><span><i style="background:var(--layer-3)"></i>зимнее</span></div>
         </div>
         <div class="fig-actions">
+          <div class="m-only kit-h" id="kitHead"></div>
           <button type="button" class="miss-btn" id="goMissing" hidden>Не хватает: <span id="qBadge"></span></button>
+          <button type="button" class="lnk m-only" data-go="tips">Советы на эту погоду</button>
           <button type="button" class="lnk all-items" id="goInv">Все мои вещи <span class="cnt" id="invCount"></span></button>
         </div>
 
@@ -693,6 +719,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     $("temp").value = state.t;
     $("wind").value = state.wind;
     $("windOut").textContent = ms(state.wind) + " м/с";
+    $("kitHead").innerHTML = "Одеваемся на <b>" + fmt(e) + "</b>";
     $("effText").innerHTML = state.cruise + (hilly() ? ", спуски до " + state.vmax : "") + " км/ч " + (so ? (so > 0 ? "+" : "−") + Math.abs(so) + "°" : "±0°") + (wa ? ", ветер −" + wa + "°" : "") + " → одеваемся на <b>" + fmt(e) + "</b>";
     if (document.activeElement !== $("spdCruise")) $("spdCruise").value = state.cruise;
     if (document.activeElement !== $("spdMax")) $("spdMax").value = state.vmax;
@@ -909,6 +936,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   function showView(name) {
     if (!VIEWS.includes(name)) name = "main";
     state.tab = name;
+    document.body.classList.toggle("view-page", name !== "main");
     document.querySelector(".main").hidden = name !== "main";
     VIEWS.slice(1).forEach(v => { $("p-" + v).hidden = v !== name; });
     if (name !== "main") $("p-" + name).scrollTop = 0;
