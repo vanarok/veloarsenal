@@ -185,6 +185,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 /* Отдельные экраны: «Не хватает», «Мои вещи», «Советы», таблица */
 .page { position: relative; min-height: 0; overflow-y: auto; }
 .page > * { max-width: 860px; }
+/* Списки вещей тянутся на всю ширину; текстовые страницы остаются узкими для чтения */
+#p-inv > *, #p-quests > * { max-width: none; }
 .page-h { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; border-top: 1px solid var(--ink); padding: 10px 0 8px; margin-bottom: 6px; }
 .page-h h2 { margin: 0; font: 600 24px var(--font-cond); }
 .page-h .btn.pri { margin-left: auto; }
