@@ -86,18 +86,19 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .tg.flag::before { content: ""; display: inline-block; width: 9px; height: 9px; border: 1.5px solid currentColor; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 .tg.flag[aria-pressed="true"]::before { background: currentColor; box-shadow: inset 0 0 0 1.5px var(--ink); }
 
-.wx { position: relative; grid-column: 1 / -1; display: grid; grid-template-columns: minmax(240px, 330px) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+.wx { position: relative; grid-column: 1 / -1; display: grid; grid-template-columns: minmax(220px, 320px) minmax(0, 1fr); gap: 8px 22px; align-items: center; }
+/* Текущая погода — узкой колонкой, переносится на несколько строк */
 .wx-now { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; font-size: 15px; color: var(--ink-2); position: relative; }
 .wx-now b { color: var(--ink); font-weight: 600; }
 .wx-now .wt { font: 500 26px var(--font-cond); color: var(--ink); }
 .w-apply { font-size: 15px; color: var(--ink); background: transparent; border: 1px solid var(--ink); border-radius: 3px; padding: 5px 12px; cursor: pointer; }
 .w-apply:hover { background: var(--ink); color: var(--paper); }
-/* Почасовой прогноз переносится на новую строку, а не прокручивается */
-.hours { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 4px; min-width: 0; }
-.hour { display: grid; justify-items: center; background: transparent; border: 1px solid var(--rule); border-radius: 3px; padding: 3px 4px; cursor: pointer; }
+.hours { display: flex; gap: 0; overflow-x: auto; min-width: 0; border: 1px solid var(--rule); border-radius: 3px; }
+.hour { flex: 0 0 auto; display: grid; justify-items: center; background: transparent; border: 0; border-left: 1px solid var(--rule); padding: 5px 10px; cursor: pointer; min-width: 58px; }
+.hour:first-child { border-left: 0; }
 .hour:hover { background: var(--sheet); }
 .hour .h { color: var(--muted); font-size: 13px; }
-.hour .t { font: 500 18px/1.2 var(--font-cond); }
+.hour .t { font: 500 19px var(--font-cond); }
 .hour .w { color: var(--muted); font-size: 13px; }
 .hour.wet .t { color: var(--rain); }
 .wx-upd { color: var(--muted); font-size: 14px; }
@@ -205,8 +206,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .gprin b { color: var(--ink); font-weight: 600; }
 
 /* Полосы прокрутки поверх содержимого: место не занимают, видны только при прокрутке и наведении */
-html, .main, .col, .center, .tabpanel { scrollbar-width: none; }
-html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .center::-webkit-scrollbar, .tabpanel::-webkit-scrollbar { display: none; }
+html, .main, .col, .center, .tabpanel, .hours { scrollbar-width: none; }
+html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .center::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar { display: none; }
 .tabs { position: relative; }
 .ovs-bar { position: absolute; z-index: 15; opacity: 0; transition: opacity .3s; pointer-events: none; }
 .ovs-bar.on, .ovs-bar:hover { opacity: 1; }
@@ -1001,6 +1002,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     place();
   }
   overlayScroll(pageEl, "y");
+  overlayScroll($("wHours"), "x");
   document.querySelectorAll(".tabpanel, .main, .col, .center").forEach(el => overlayScroll(el, "y"));
 
   resetForm();
