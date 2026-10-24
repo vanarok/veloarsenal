@@ -86,9 +86,11 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .tg.flag::before { content: ""; display: inline-block; width: 9px; height: 9px; border: 1.5px solid currentColor; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 .tg.flag[aria-pressed="true"]::before { background: currentColor; box-shadow: inset 0 0 0 1.5px var(--ink); }
 
-.wx { position: relative; grid-column: 1 / -1; display: grid; grid-template-columns: minmax(220px, 320px) minmax(0, 1fr); gap: 8px 22px; align-items: center; }
+.wx { position: relative; grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 22px; align-items: center; }
 /* Текущая погода — узкой колонкой, переносится на несколько строк */
-.wx-now { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; font-size: 15px; color: var(--ink-2); position: relative; }
+.wx-now { display: grid; justify-items: start; gap: 2px; font-size: 15px; color: var(--ink-2); position: relative; }
+.wx-l { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 12px; }
+.wx-now .w-apply { margin-top: 4px; }
 .wx-now b { color: var(--ink); font-weight: 600; }
 .wx-now .wt { font: 500 26px var(--font-cond); color: var(--ink); }
 .w-apply { font-size: 15px; color: var(--ink); background: transparent; border: 1px solid var(--ink); border-radius: 3px; padding: 5px 12px; cursor: pointer; }
@@ -880,7 +882,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   function renderWeather() {
     const city = '<button type="button" class="city-btn" id="cityBtn" title="Сменить город" aria-haspopup="dialog">' + esc(place.name) + '</button>';
     if (!weather || !weather.current) {
-      $("wNow").innerHTML = city + "<span>загружаю прогноз…</span>";
+      $("wNow").innerHTML = '<div class="wx-l">' + city + "<span>загружаю прогноз…</span></div>";
       $("wHours").innerHTML = "";
       $("cityBtn").onclick = () => toggleCity($("cityPanel").hidden);
       return;
@@ -889,10 +891,10 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     const when = new Date(weather.updatedAt);
     const old = (Date.now() - when.getTime()) / 3600000 > 1;
     $("wNow").innerHTML =
-      city + '<span class="wt">' + fmt(Math.round(c.t)) + '</span>' +
-      '<span>ощущ. <b>' + fmt(Math.round(c.feels)) + '</b></span>' +
-      '<span>ветер <b>' + ms(c.wind) + '</b>, порывы <b>' + Math.round(c.gust) + '</b> м/с</span>' +
-      '<span><b>' + (WMO[c.code] || "—") + '</b></span>' +
+      '<div class="wx-l">' + city + '<span class="wt">' + fmt(Math.round(c.t)) + '</span>' +
+      '<span>ощущ. <b>' + fmt(Math.round(c.feels)) + '</b></span></div>' +
+      '<div class="wx-l"><span>ветер <b>' + ms(c.wind) + '</b>, порывы <b>' + Math.round(c.gust) + '</b> м/с</span>' +
+      '<span><b>' + (WMO[c.code] || "—") + '</b></span></div>' +
       '<button type="button" class="w-apply" id="wApply">Одеться на сейчас<span class="wx-upd">прогноз от ' + when.toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + (old ? " · устарел" : "") + '</span></button>';
     $("cityBtn").onclick = () => toggleCity($("cityPanel").hidden);
     $("wApply").onclick = () => { lastManual = 0; applyWeather(c.t, c.wind, c.code); };
