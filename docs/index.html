@@ -451,14 +451,14 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         <dl class="gcard" id="gCard"></dl>
         <div class="sec-h">Принципы</div>
         <ul class="gprin">
-          <li><b>Три слоя:</b> снизу термобельё, в середине тёплая кофта или термоджерси, сверху куртка от ветра</li>
+          <li><b>Два слоя до −5°:</b> термобельё и куртка от ветра, ближе к нулю утеплённая. В мороз между ними термоджерси или жилет</li>
           <li><b>На старте чуть прохладно.</b> Разогрелись, расстегнитесь</li>
           <li><b>На скорости ветер</b> холодит сильнее, чем сам мороз</li>
           <li><b>Руки, ноги и голову</b> утепляйте первыми</li>
           <li><b>Носки шерстяные,</b> сверху бахилы от ветра и воды</li>
           <li><b>В сильный мороз</b> нужны лобстеры или муфты на руль</li>
         </ul>
-        <p class="src">Усреднено по <a href="https://www.britishcycling.org.uk/knowledge/article/izn20150127-Cycling-Winter-Clothing-Guide-0" target="_blank" rel="noopener">British Cycling</a>, <a href="https://www.cyclinguk.org/cycle/wear-cycling-winter-cold" target="_blank" rel="noopener">Cycling UK</a>, <a href="https://45nrth.com/blogs/blog/what-to-wear-winter-cycling-at-10%C2%BA-0%C2%BAf" target="_blank" rel="noopener">45NRTH</a>, <a href="https://join.cc/cycling-tips/cycling-what-to-wear-temperature-guide" target="_blank" rel="noopener">Join.cc</a>, <a href="https://www.roadbikerider.com/what-to-wear-in-various-weather/" target="_blank" rel="noopener">RoadBikeRider</a>. Таблица рассчитана на быстрый темп.</p>
+        <p class="src">Усреднено по <a href="https://www.britishcycling.org.uk/knowledge/article/izn20150127-Cycling-Winter-Clothing-Guide-0" target="_blank" rel="noopener">British Cycling</a>, <a href="https://www.cyclinguk.org/cycle/wear-cycling-winter-cold" target="_blank" rel="noopener">Cycling UK</a>, <a href="https://45nrth.com/blogs/blog/what-to-wear-winter-cycling-at-10%C2%BA-0%C2%BAf" target="_blank" rel="noopener">45NRTH</a>, <a href="https://join.cc/cycling-tips/cycling-what-to-wear-temperature-guide" target="_blank" rel="noopener">Join.cc</a>, <a href="https://www.roadbikerider.com/what-to-wear-in-various-weather/" target="_blank" rel="noopener">RoadBikeRider</a>. В источниках температура воздуха, а здесь строка выбирается по температуре «одеваемся на», с поправкой на вашу скорость и ветер.</p>
   </section>
 
   <div class="modal-bg" id="addDlg" hidden>
@@ -550,17 +550,16 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     sleeves:      { slot: "base", n: "Нарукавники", types: ["sleeves"], r: "uncommon", warm: 1, note: "Стало жарко? Спустите к запястью прямо на ходу", find: "велонарукавники", optional: true },
     longsleeve:   { slot: "base", n: "Термобельё или лонгслив", types: ["longsleeve"], mats: ["merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 2, note: "Заправьте в штаны, чтобы не дуло в поясницу. Если у велоштанов есть лямки, наденьте их поверх", find: "лонгслив меринос термобелье" },
     teeUnder:     { slot: "base", n: "Футболка под термобельё", types: ["tee"], mats: ["merino", "wool", "synthetic"], avoid: ["cotton"], r: "uncommon", warm: 1, note: "Ещё один тонкий слой на тело в сильный мороз", optional: true },
-    mid:          { slot: "mid", n: "Тёплая кофта или термоджерси", types: ["grid", "jersey", "fleece", "sweater"], mats: ["fleece", "merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 3, cafe: true, up: "расстегните ворот", down: "застегните ворот", note: "Лучше облегающая: не топорщится под курткой. Её продувает, поэтому сверху нужна куртка с рукавами", find: "Polartec Power Grid кофта" },
-    puffyMid:     { slot: "mid", n: "Лёгкий пуховик под куртку", types: ["puffy"], mats: ["down", "insulation"], r: "legendary", warm: 3, cafe: true, up: "расстегните", down: "застегните", note: "Только для сильного мороза: в гору в нём жарко", optional: true },
+    mid:          { slot: "mid", n: "Термоджерси или тёплая кофта", types: ["grid", "jersey", "fleece", "sweater"], mats: ["fleece", "merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 3, cafe: true, up: "расстегните ворот", down: "застегните ворот", note: "Лучше облегающая: не топорщится под курткой. Её продувает, поэтому сверху нужна куртка с рукавами", find: "Polartec Power Grid кофта", alts: ["warmVest"] },
     windVest:     { slot: "shell", n: "Жилет от ветра", types: ["windVest"], r: "rare", wind: 2, sleeves: false, cafe: true, up: "расстегните", down: "застегните", note: "Не греет, только закрывает грудь от ветра", find: "велосипедный ветрожилет", alts: ["windJacket"] },
-    windJacket:   { slot: "shell", n: "Ветровка", types: ["windJacket", "softshell"], r: "rare", wind: 3, cafe: true, up: "расстегните до середины груди", down: "застегните до горла", note: "Тонкая куртка сама не греет, греет то, что под ней. Зябко на спуске? Наденьте сверху жилет", find: "веловетровка мужская", alts: ["membrane"] },
-    frostShell:   { slot: "shell", n: "Зимняя куртка", types: ["winterJacket", "membrane", "softshell"], r: "legendary", warm: 2, wind: 3, cafe: true, up: "расстегните до груди", down: "застегните до горла", note: "Тёплая зимняя куртка заменяет и непромокаемую куртку, и тёплый жилет", find: "утепленная велокуртка зимняя" },
+    windJacket:   { slot: "shell", n: "Ветровка", types: ["windJacket", "softshell", "winterJacket"], r: "rare", wind: 3, cafe: true, up: "расстегните до середины груди", down: "застегните до горла", note: "Тонкая куртка сама не греет, греет то, что под ней. Зябко на спуске? Наденьте сверху жилет", find: "веловетровка мужская", alts: ["membrane"] },
+    frostShell:   { slot: "shell", n: "Утеплённая велокуртка", types: ["softshell", "winterJacket"], r: "legendary", warm: 2, wind: 3, cafe: true, up: "расстегните до груди", down: "застегните до горла", note: "Греет сама: под неё хватит термобелья. Нет такой куртки? Наденьте ветровку, а под неё тёплую кофту", find: "утепленная велокуртка", alts: ["windJacket", "membrane"] },
     membrane:     { slot: "shell", n: "Непромокаемая куртка", types: ["membrane", "softshell"], r: "epic", warm: 1, wind: 3, cafe: true, up: "расстегните до груди", down: "застегните до горла", note: "Плохо выпускает пот, поэтому в гору расстёгивайтесь", find: "мембранная велокуртка", alts: ["windJacket"] },
-    warmVest:     { slot: "shell", n: "Утеплённый жилет", types: ["warmVest"], r: "epic", warm: 1, wind: 2, sleeves: false, cafe: true, up: "расстегните", down: "застегните", note: "В мороз надевается под куртку или поверх неё", find: "утеплённый веложилет", alts: ["windVest"] },
+    warmVest:     { slot: "shell", n: "Утеплённый жилет", types: ["warmVest"], r: "epic", warm: 1, wind: 2, sleeves: false, cafe: true, up: "расстегните", down: "застегните", note: "Надевается под куртку: греет грудь и живот, а рукава не толстеют", find: "утеплённый веложилет", alts: ["windVest"] },
     gMesh:        { slot: "hands", n: "Лёгкие перчатки", types: ["mesh", "thin"], r: "uncommon", find: "велоперчатки летние" },
     gThin:        { slot: "hands", n: "Тонкие перчатки с пальцами", types: ["thin", "windproof", "liner", "insulated"], r: "uncommon", warm: 1, find: "велоперчатки длинный палец" },
     gWind:        { slot: "hands", n: "Ветрозащитные перчатки", types: ["windproof", "insulated"], r: "rare", warm: 1, wind: 2, note: "Тонкие, но не продуваются: на ветру пальцы не мёрзнут, а руки не потеют", find: "перчатки ветрозащитные виндстопер", alts: ["gWarm"] },
-    gWarm:        { slot: "hands", n: "Тёплые перчатки", types: ["insulated"], r: "epic", warm: 2, wind: 2, up: "ослабьте на запястье", down: "затяните на запястье", note: "Обычно держат тепло примерно до +2…+4°", find: "велоперчатки утепленные ветрозащитные", alts: ["gLobster"] },
+    gWarm:        { slot: "hands", n: "Тёплые перчатки", types: ["insulated"], r: "epic", warm: 2, wind: 2, up: "ослабьте на запястье", down: "затяните на запястье", note: "Если пальцы всё равно мёрзнут, переходите на лобстеры", find: "велоперчатки утепленные ветрозащитные", alts: ["gLobster"] },
     gLobster:     { slot: "hands", n: "Лобстеры или варежки", types: ["lobster", "mittens", "muffs"], r: "legendary", warm: 3, wind: 3, note: "В лобстерах тормозите и переключаете скорости двумя пальцами. В сильный мороз наденьте под них тонкие перчатки", find: "лобстеры перчатки беговые лыжи", alts: ["gWarm"] },
     shorts:       { slot: "legs", n: "Шорты или велошорты", types: ["shorts", "knickers"], r: "uncommon", find: "велошорты с памперсом", alts: ["tights"] },
     tights:       { slot: "legs", n: "Тонкие штаны или велоштаны", types: ["tights", "knickers", "winterTights"], r: "uncommon", warm: 1, find: "велоштаны с памперсом" },
@@ -589,8 +588,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   ];
 
   const HINT = {
-    head: "Выше +12° не нужна", face: "Выше +15° по желанию", mid: "Выше +12° флис лишний",
-    shell: "Выше +16° не нужна", legOver: "Выше −3° не нужны",
+    head: "Выше +12° не нужна", face: "Выше +15° по желанию", mid: "Выше −5° не нужен, если куртка утеплённая",
+    shell: "Выше +16° не нужна", legOver: "Выше −5° не нужны",
     overshoe: "Не нужны: тепло и сухо или на ногах зимние ботинки"
   };
 
@@ -601,12 +600,13 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     o.face = e > 15 ? [] : e > 5 ? ["neck"] : e > 0 ? ["nose"] : ["under"];
     o.eyes = [e > 2 ? "glasses" : "glassesSeal"];
     o.base = e > 20 ? ["tee"] : e > 12 ? ["tee", "sleeves"] : e > -5 ? ["longsleeve"] : ["teeUnder", "longsleeve"];
-    o.mid = e > 12 ? [] : e > -5 ? ["mid"] : ["mid", "puffyMid"];
-    o.shell = e > 0 ? (rain ? ["membrane"] : e > 16 ? [] : e > 12 ? ["windVest"] : ["windJacket"]) : ["frostShell", "warmVest"];
-    o.hands = e > 15 ? ["gMesh"] : e > 10 ? ["gThin"] : e > 5 ? ["gWind"] : e > 2 ? ["gWarm"] : ["gLobster"];
+    // Слои по British Cycling, Join.cc, RoadBikeRider: до −5° два (термобельё и куртка), ниже −5° три
+    o.mid = e > -5 ? (rain && e > 0 && e <= 5 ? ["mid"] : []) : ["mid"];
+    o.shell = rain && e > 0 ? ["membrane"] : e > 16 ? [] : e > 12 ? ["windVest"] : e > 5 ? ["windJacket"] : ["frostShell"];
+    o.hands = e > 15 ? ["gMesh"] : e > 10 ? ["gThin"] : e > 5 ? ["gWind"] : e > -5 ? ["gWarm"] : ["gLobster"];
     // Ноги теплеют вместе с погодой: шорты → тайтсы → зимние тайтсы → зимние + брюки поверх
     o.legs = e > 18 ? ["shorts"] : e > 10 ? ["tights"] : ["winterTights"];
-    o.legOver = e > -3 ? [] : ["overpants"];
+    o.legOver = e > -5 ? [] : ["overpants"];
     o.socks = e > 12 ? ["socksReg"] : e > 0 ? ["socksThin"] : ["socksThick"];
     o.shoes = e > 5 && !rain ? ["shoesSummer"] : e > -3 ? ["shoesCool"] : ["shoesWinter"];
     o.overshoe = e > 5 && !rain ? [] : ["overshoes"];
@@ -691,8 +691,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     if (ids.legs[0] === "winterTights" && e > 3 && !findItem(NEEDS.winterTights, new Set()) && !findItem(NEEDS.tights, new Set()) && has("shorts") && has("warmLegWarmers")) { ids.legs = ["shorts"]; ids.legOver = ["warmLegWarm"]; }
     // Зимние ботинки в сухой мороз — бахилы не нужны
     if (ids.shoes[0] === "shoesWinter" && !rain && (has("winterCycling") || has("winterBoots"))) ids.overshoe = [];
-    // Утеплённая зимняя куртка в мороз заменяет и мембрану, и утеплённый жилет
-    if (ids.shell.includes("frostShell") && has("winterJacket")) ids.shell = ids.shell.filter(n => n !== "warmVest");
+    // Нет утеплённой велокуртки — ветровка, а под неё тёплая кофта
+    if (ids.shell[0] === "frostShell" && !findItem(NEEDS.frostShell, new Set()) && !ids.mid.length) ids.mid = ["mid"];
     // Нет зимних тайтсов при +5° и ниже — обычные тайтсы и брюки поверх (их можно снять в помещении)
     if (ids.legs[0] === "winterTights" && e <= 5 && !ids.legOver.length && !findItem(NEEDS.winterTights, new Set()) && findItem(NEEDS.tights, new Set())) ids.legOver = ["overpants"];
     const used = new Set(), o = {};
@@ -887,9 +887,10 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     if (hill) r.push("<b>Одевайтесь так, чтобы не замёрзнуть на спуске.</b> В гору заранее расстегнитесь, чтобы не вспотеть: влажная одежда на спуске сильно холодит.");
     if (e > 16) r.push("<b>Куртка не нужна:</b> на ходу тело греется само.");
     else if (e > 12) r.push("<b>Хватит жилета:</b> он закрывает грудь от ветра, а руки и спина не потеют.");
-    else if (e > 8) r.push("<b>Нужна куртка с рукавами.</b> Кофту, флиску и термоджерси ветер продувает насквозь, и мёрзнут плечи и руки.");
-    else if (e > 0) r.push("<b>Три слоя:</b> термобельё, тёплая кофта или термоджерси и сверху куртка от ветра.");
-    else r.push("<b>Мороз:</b> балаклава, очки с прокладкой по краю и самые тёплые перчатки.", "<b>Без хлопка:</b> он намокает от пота и холодит.");
+    else if (e > 5) r.push("<b>Нужна куртка с рукавами.</b> Кофту, флиску и термоджерси ветер продувает насквозь, и мёрзнут плечи и руки.");
+    else if (e > -5) r.push("<b>Два слоя:</b> термобельё и утеплённая велокуртка. Если куртка тонкая, под неё нужна тёплая кофта.");
+    else r.push("<b>Три слоя:</b> термобельё, термоджерси или тёплый жилет и утеплённая куртка.");
+    if (e <= 0) r.push("<b>Мороз:</b> балаклава, очки с прокладкой по краю и самые тёплые перчатки.", "<b>Без хлопка:</b> он намокает от пота и холодит.");
     r.push("<b>На старте должно быть чуть прохладно.</b> Через 5–10 минут разогреетесь.");
     r.push("<b>Руки, уши и колени мёрзнут первыми.</b> Их утепляйте сильнее, чем тело.");
     if (!hill && e <= 12) r.push("<b>Жарко в гору?</b> Расстегнитесь, а не снимайте вещи.");
@@ -1034,9 +1035,9 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     { k: "+20…+25", lo: 20, hi: 99, body: "футболка или велоджерси", legs: "велошорты или шорты", hands: "короткие перчатки или без них", feet: "обычные носки", head: "очки от солнца" },
     { k: "+15…+20", lo: 15, hi: 20, body: "футболка или велоджерси, на старте жилет", legs: "велошорты", hands: "короткие перчатки", feet: "обычные носки", head: "ничего" },
     { k: "+10…+15", lo: 10, hi: 15, body: "лонгслив или велоджерси с длинным рукавом (или футболка с нарукавниками), сверху жилет", legs: "шорты с гетрами или тонкие велоштаны", hands: "тонкие перчатки с пальцами", feet: "обычные носки", head: "снуд на шее" },
-    { k: "0…+10", lo: 0, hi: 10, body: "термобельё, кофта или термоджерси и куртка от ветра", legs: "велоштаны с начёсом", hands: "перчатки, которые не продувает", feet: "шерстяные носки и бахилы", head: "шапочка под шлем и снуд" },
-    { k: "−5…0", lo: -5, hi: 0, body: "термобельё, флиска или термоджерси и тёплая куртка от ветра", legs: "зимние велоштаны", hands: "толстые тёплые перчатки", feet: "тёплые носки и утеплённые бахилы", head: "снуд или балаклава" },
-    { k: "−10…−5", lo: -99, hi: -5, body: "шерстяное термобельё, тёплая кофта или термоджерси и зимняя куртка", legs: "зимние велоштаны и штаны от ветра сверху", hands: "лобстеры, варежки или муфты на руль", feet: "шерстяные носки и зимние ботинки", head: "балаклава и очки" }
+    { k: "0…+10", lo: 0, hi: 10, body: "термобельё и куртка от ветра, ближе к нулю утеплённая велокуртка", legs: "велоштаны с начёсом", hands: "перчатки, которые не продувает", feet: "шерстяные носки и бахилы", head: "шапочка под шлем и снуд" },
+    { k: "−5…0", lo: -5, hi: 0, body: "тёплое термобельё и утеплённая велокуртка", legs: "зимние велоштаны", hands: "толстые тёплые перчатки", feet: "тёплые носки и бахилы", head: "снуд или балаклава" },
+    { k: "−10…−5", lo: -99, hi: -5, body: "тёплое термобельё, термоджерси или тёплый жилет и утеплённая куртка", legs: "зимние велоштаны, в ветер штаны поверх", hands: "лобстеры, варежки или муфты на руль", feet: "шерстяные носки и зимние ботинки", head: "балаклава и очки" }
   ];
   let guidePick = null;
   function renderGuide(e) {
