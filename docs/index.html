@@ -227,7 +227,13 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .btn:hover { border-color: var(--ink); }
 .btn.pri { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .inv-actions { grid-column: 1 / -1; display: flex; gap: 8px; }
-.inv-g .sec-h { margin-top: 12px; }
+.inv-g { border-bottom: 1px solid var(--rule); }
+.inv-g > summary { list-style: none; display: flex; align-items: center; gap: 8px; padding: 10px 0; cursor: pointer; font: 600 13px var(--font-cond); letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-2); }
+.inv-g > summary::-webkit-details-marker { display: none; }
+.inv-g > summary::before { content: "▸"; color: var(--muted); transition: transform .15s; }
+.inv-g[open] > summary::before { transform: rotate(90deg); }
+.inv-g > summary .inv-c { margin-left: auto; color: var(--muted); font-weight: 500; }
+.inv-g[open] { padding-bottom: 8px; }
 .inv-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 4px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--rule); }
 .inv-n { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .inv-m { color: var(--muted); font-size: 14px; }
@@ -241,7 +247,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .body-form .bf-u { color: var(--muted); font-size: 14px; white-space: nowrap; }
 .body-howto { color: var(--muted); font-size: 14px; margin: 4px 0 14px; }
 .body-hint { margin: 0; color: var(--ink-2); font-size: 14px; }
-.body-hint:empty { display: none; }
+.body-sum { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin: 0 0 12px; color: var(--ink-2); font-size: 15px; }
+.modal .body-form { margin-top: 8px; }
 .io-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .io-file { position: relative; overflow: hidden; }
 .io-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
@@ -433,10 +440,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
   <section class="page" id="p-inv" aria-labelledby="h-inv" hidden>
     <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-inv">Мои вещи</h2><button type="button" class="btn pri plus-btn" id="addBtn" title="Добавить вещь" aria-label="Добавить вещь"><svg class="plus-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="plus-txt">Добавить вещь</span></button></div>
+    <div class="body-sum"><span id="bodySum"></span><button type="button" class="lnk" id="bodyBtn">Изменить</button></div>
     <div id="invList"></div>
-    <div class="sec-h">Мои мерки <span class="tip" tabindex="0" title="Нужны, чтобы подобрать размер. Сохраняются сами и попадают в файл выгрузки." aria-label="Нужны, чтобы подобрать размер. Сохраняются сами и попадают в файл выгрузки.">i</span></div>
-    <div class="body-form" id="bodyForm"></div>
-    <p class="body-howto">Мерьте без одежды, стоя ровно. Лента прилегает, но не врезается: под неё проходит палец. Перемерьте два-три раза и возьмите среднее.</p>
     <div class="sec-h">Выгрузка <span class="tip" tabindex="0" title="Импорт заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются." aria-label="Импорт заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.">i</span></div>
         <div class="io">
           <div class="io-row">
@@ -481,11 +486,20 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
           <label>Куда<select id="fSlot"></select></label>
           <label>Тип<select id="fType"></select></label>
           <label class="wide" id="fMatRow">Материал<select id="fMat"></select></label>
-          <p class="wide body-hint" id="fBodyHint"></p>
+          <p class="wide body-hint"><span id="fBodyHint"></span> <button type="button" class="lnk" id="fBodyEdit">мерки</button></p>
           <input class="wide" id="fNote" placeholder="Заметка: размер, как носить" aria-label="Заметка" maxlength="300">
           <input class="wide" id="fLink" placeholder="Ссылка на вещь (необязательно)" aria-label="Ссылка" type="url">
           <div class="inv-actions"><button type="submit" class="btn pri" id="fSave">Добавить</button><button type="button" class="btn" id="fCancel">Отмена</button></div>
         </form>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="bodyDlg" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="bodyTitle">
+      <h2 id="bodyTitle">Мои мерки</h2>
+      <div class="body-form" id="bodyForm"></div>
+      <p class="body-howto">Мерьте без одежды, стоя ровно. Лента прилегает, но не врезается: под неё проходит палец. Перемерьте два-три раза и возьмите среднее. Сохраняется само и попадает в файл выгрузки.</p>
+      <div class="inv-actions"><button type="button" class="btn pri" id="bodyDone">Готово</button></div>
     </div>
   </div>
 </div>
@@ -964,6 +978,14 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     $("bodyForm").innerHTML = BODY.map(f => '<label title="' + esc(f.how) + '">' + f.n + '<span class="bf-in"><input data-body="' + f.k + '" ' + (f.text ? 'type="text" maxlength="20"' : 'type="number" inputmode="decimal" min="1" max="399" step="0.5"') + ' value="' + esc(body[f.k] != null ? body[f.k] : "") + '" placeholder="' + (f.text ? "42–44" : "") + '" aria-label="' + f.n + ', ' + f.u + '"><span class="bf-u">' + f.u + '</span></span></label>').join("");
     $("bodyForm").querySelectorAll("[data-body]").forEach(inp => inp.addEventListener("input", () => { body = cleanBody({ ...body, [inp.dataset.body]: inp.value }); saveBody(); }));
   }
+  function renderBodySum() {
+    const parts = BODY.filter(f => body[f.k] != null).map(f => f.n.toLowerCase() + " " + String(body[f.k]).replace(".", ",") + (f.u === "RU" ? "" : " " + f.u));
+    $("bodySum").textContent = parts.length ? "Мерки: " + parts.join(" · ") : "Мерки не заданы: добавьте их, чтобы подбирать размер";
+    $("bodyBtn").textContent = parts.length ? "Изменить" : "Добавить мерки";
+  }
+  let bodyBack = null;
+  function openBody(back) { bodyBack = back || null; renderBody(); $("bodyDlg").hidden = false; const f = $("bodyForm").querySelector("input"); if (f) f.focus(); }
+  function closeBody() { $("bodyDlg").hidden = true; renderBodySum(); if (bodyBack) { const fn = bodyBack; bodyBack = null; fn(); } }
   const bodyLine = (slot) => (BODY_FOR[slot] || []).filter(k => body[k] != null).map(k => { const f = BODY.find(x => x.k === k); return f.n.toLowerCase() + " " + String(body[k]).replace(".", ",") + (f.u === "RU" ? "" : " " + f.u); }).join(" · ");
 
   // Вкладка «Вещи»: добавление, правка, удаление
@@ -976,7 +998,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     $("fMatRow").hidden = !mats.length;
     fill($("fMat"), Object.fromEntries(mats.map(k => [k, MATS[k]])), mats.includes(mat) ? mat : mats[0]);
     const line = bodyLine(slot);
-    $("fBodyHint").textContent = line ? "Ваши мерки: " + line : "";
+    $("fBodyHint").textContent = line ? "Ваши мерки: " + line + "." : "Для подбора размера пригодятся";
   }
   function resetForm() {
     editId = null;
@@ -1018,17 +1040,20 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     openAdd();
   }
   function bindAdd(root) { root.querySelectorAll("[data-add]").forEach(b => b.onclick = (ev) => { ev.stopPropagation(); startAdd(b.dataset.add); }); }
+  const invOpen = new Set();
   function renderInv() {
     const groups = SLOTS.map(s => {
       const items = inv.filter(it => it.slot === s.id);
       if (!items.length) return "";
-      return '<div class="inv-g"><div class="sec-h">' + s.label + '</div>' + items.map(it =>
+      return '<details class="inv-g" data-slot="' + s.id + '"' + (invOpen.has(s.id) ? " open" : "") + '><summary>' + s.label + '<span class="inv-c">' + items.length + '</span></summary>' + items.map(it =>
         '<div class="inv-row">' +
         '<div class="inv-txt"><div class="inv-n">' + esc(it.name) + '</div><div class="inv-m">' + esc(TYPES[it.slot][it.type]) + (it.mat && it.mat !== "other" ? " · " + esc(MATS[it.mat] || "") : "") + '</div></div>' +
-        '<button type="button" class="ib" data-edit="' + it.id + '" aria-label="Изменить">✎</button><button type="button" class="ib" data-del="' + it.id + '" aria-label="Удалить">✕</button></div>').join("") + '</div>';
+        '<button type="button" class="ib" data-edit="' + it.id + '" aria-label="Изменить">✎</button><button type="button" class="ib" data-del="' + it.id + '" aria-label="Удалить">✕</button></div>').join("") + '</details>';
     }).join("");
     $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Добавьте вещь или импортируйте файл ниже.</p>';
     $("invCount").textContent = inv.length ? String(inv.length) : "";
+    // Категории свёрнуты; открытые остаются открытыми, пока страница не перезагружена
+    $("invList").querySelectorAll("details.inv-g").forEach(g => g.addEventListener("toggle", () => { if (g.open) invOpen.add(g.dataset.slot); else invOpen.delete(g.dataset.slot); }));
     $("invList").querySelectorAll("[data-edit]").forEach(b => b.onclick = () => startEdit(b.dataset.edit));
     $("invList").querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
       const it = inv.find(x => x.id === b.dataset.del);
@@ -1043,6 +1068,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     if (!name) return;
     const data = { name, slot: $("fSlot").value, type: $("fType").value, mat: $("fMatRow").hidden ? "other" : $("fMat").value, note: $("fNote").value.trim(), link: $("fLink").value.trim() };
     if (data.link && !/^https?:\/\//i.test(data.link)) data.link = "";
+    invOpen.add(data.slot);
     if (editId) inv = inv.map(x => x.id === editId ? { ...x, ...data } : x);
     else inv.push({ id: newId(), ...data });
     saveInv(); closeAdd(); renderInv(); render();
@@ -1059,7 +1085,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     if (!ok.length) { $("ioMsg").textContent = "Подходящих вещей в файле не нашлось."; return; }
     if (inv.length && !confirm("Заменить ваши вещи (" + inv.length + ") списком из файла (" + ok.length + ")?")) { $("ioMsg").textContent = ""; return; }
     inv = ok;
-    if (data && data.body && typeof data.body === "object") { body = cleanBody(data.body); saveBody(); renderBody(); }
+    if (data && data.body && typeof data.body === "object") { body = cleanBody(data.body); saveBody(); renderBodySum(); }
     saveInv(); renderInv(); render();
     $("ioMsg").textContent = "Загружено вещей: " + ok.length + (items.length > ok.length ? ", пропущено: " + (items.length - ok.length) : "") + ".";
   }
@@ -1121,6 +1147,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   document.addEventListener("keydown", (ev) => {
     if (ev.key !== "Escape") return;
     if (document.body.classList.contains("cond-open")) setCond(false);
+    else if (!$("bodyDlg").hidden) closeBody();
     else if (!$("addDlg").hidden) closeAdd();
     else if (cardOpen) { cardOpen = false; showCard(); }
     else if (state.tab !== "main" && $("cityPanel").hidden) showView("main");
@@ -1376,7 +1403,11 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
   resetForm();
   renderInv();
-  renderBody();
+  renderBodySum();
+  $("bodyBtn").addEventListener("click", () => openBody());
+  $("bodyDone").addEventListener("click", closeBody);
+  $("bodyDlg").addEventListener("click", (ev) => { if (ev.target === $("bodyDlg")) closeBody(); });
+  $("fBodyEdit").addEventListener("click", () => { $("addDlg").hidden = true; openBody(() => { $("addDlg").hidden = false; fillTypes($("fType").value, $("fMat").value); }); });
   showView("main");
   if (!SLOTS.some(s => s.id === state.sel)) state.sel = "shell";
   render();
