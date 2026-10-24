@@ -900,8 +900,9 @@ html::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar
 
 
   // Полосы прокрутки поверх содержимого
+  const pageEl = document.scrollingElement || document.documentElement;
   function overlayScroll(el, axis) {
-    const page = el === document.scrollingElement;
+    const page = el === pageEl;
     const host = page ? document.body : el.parentElement;
     const X = axis === "x";
     const bar = document.createElement("div");
@@ -917,8 +918,9 @@ html::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar
     const pos = () => X ? el.scrollLeft : el.scrollTop;
     const track = () => X ? bar.clientWidth : bar.clientHeight;
     function place() {
-      if (full() <= view() + 1) { bar.hidden = true; return; }
-      bar.hidden = false;
+      const none = full() <= view() + 1;
+      if (bar.hidden !== none) bar.hidden = none;
+      if (none) return;
       if (!page) {
         const r = el.getBoundingClientRect(), h = host.getBoundingClientRect();
         if (X) Object.assign(bar.style, { left: (r.left - h.left) + "px", top: (r.bottom - h.top - 10) + "px", width: r.width + "px" });
@@ -938,7 +940,9 @@ html::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar
     (page ? window : el).addEventListener("scroll", flash, { passive: true });
     if (!page) el.addEventListener("mouseenter", flash);
     window.addEventListener("resize", place);
-    new MutationObserver(place).observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
+    // Пересчёт, когда меняется содержимое; изменения самой полосы не учитываются
+    new MutationObserver((list) => { if (list.some(m => !bar.contains(m.target) && m.target !== bar)) place(); })
+      .observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
     thumb.addEventListener("pointerdown", (ev) => {
       drag = { from: X ? ev.clientX : ev.clientY, at: pos() };
       thumb.setPointerCapture(ev.pointerId);
@@ -956,7 +960,7 @@ html::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar
     thumb.addEventListener("pointercancel", end);
     place();
   }
-  overlayScroll(document.scrollingElement, "y");
+  overlayScroll(pageEl, "y");
   overlayScroll($("wHours"), "x");
   document.querySelectorAll(".tabpanel").forEach(el => overlayScroll(el, "y"));
 
