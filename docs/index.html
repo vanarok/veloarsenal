@@ -77,26 +77,27 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .eff { font-size: 15px; color: var(--ink-2); }
 .eff b { color: var(--ink); font-weight: 600; }
 .toggles { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: flex-end; align-items: center; }
-.seg { display: inline-flex; border: 1px solid var(--rule-strong); border-radius: 3px; overflow: hidden; }
+.speed { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; color: var(--ink-2); }
+.speed label { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.speed input { width: 3.6em; padding: 5px 6px; text-align: right; font-size: 16px; color: var(--ink); background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 3px; }
 .tg { font-size: 15px; color: var(--ink-2); background: transparent; border: 0; padding: 7px 12px; cursor: pointer; white-space: nowrap; }
-.seg .tg + .tg { border-left: 1px solid var(--rule-strong); }
 .tg[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
 .tg.flag { border: 1px solid var(--rule-strong); border-radius: 3px; }
 .tg.flag::before { content: ""; display: inline-block; width: 9px; height: 9px; border: 1.5px solid currentColor; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 .tg.flag[aria-pressed="true"]::before { background: currentColor; box-shadow: inset 0 0 0 1.5px var(--ink); }
 
-.wx { position: relative; grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 18px; align-items: center; }
-.wx-now { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; font-size: 15px; color: var(--ink-2); position: relative; }
+.wx { position: relative; grid-column: 1 / -1; display: grid; grid-template-columns: minmax(240px, 330px) minmax(0, 1fr); gap: 8px 22px; align-items: start; }
+.wx-now { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; font-size: 15px; color: var(--ink-2); position: relative; }
 .wx-now b { color: var(--ink); font-weight: 600; }
 .wx-now .wt { font: 500 26px var(--font-cond); color: var(--ink); }
 .w-apply { font-size: 15px; color: var(--ink); background: transparent; border: 1px solid var(--ink); border-radius: 3px; padding: 5px 12px; cursor: pointer; }
 .w-apply:hover { background: var(--ink); color: var(--paper); }
-.hours { display: flex; gap: 0; overflow-x: auto; min-width: 0; border: 1px solid var(--rule); border-radius: 3px; }
-.hour { flex: 0 0 auto; display: grid; justify-items: center; background: transparent; border: 0; border-left: 1px solid var(--rule); padding: 5px 10px; cursor: pointer; min-width: 58px; }
-.hour:first-child { border-left: 0; }
+/* Почасовой прогноз переносится на новую строку, а не прокручивается */
+.hours { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 4px; min-width: 0; }
+.hour { display: grid; justify-items: center; background: transparent; border: 1px solid var(--rule); border-radius: 3px; padding: 3px 4px; cursor: pointer; }
 .hour:hover { background: var(--sheet); }
 .hour .h { color: var(--muted); font-size: 13px; }
-.hour .t { font: 500 19px var(--font-cond); }
+.hour .t { font: 500 18px/1.2 var(--font-cond); }
 .hour .w { color: var(--muted); font-size: 13px; }
 .hour.wet .t { color: var(--rain); }
 .wx-upd { color: var(--muted); font-size: 14px; }
@@ -204,8 +205,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .gprin b { color: var(--ink); font-weight: 600; }
 
 /* Полосы прокрутки поверх содержимого: место не занимают, видны только при прокрутке и наведении */
-html, .main, .col, .center, .tabpanel, .hours { scrollbar-width: none; }
-html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .center::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar { display: none; }
+html, .main, .col, .center, .tabpanel { scrollbar-width: none; }
+html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .center::-webkit-scrollbar, .tabpanel::-webkit-scrollbar { display: none; }
 .tabs { position: relative; }
 .ovs-bar { position: absolute; z-index: 15; opacity: 0; transition: opacity .3s; pointer-events: none; }
 .ovs-bar.on, .ovs-bar:hover { opacity: 1; }
@@ -222,7 +223,6 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .bar { grid-template-columns: auto auto minmax(0, 1fr); gap: 10px 20px; }
   .toggles { grid-column: 3; grid-row: 1; }
   .sliders { grid-column: 1 / -1; grid-row: 2; }
-  .wx { grid-template-columns: minmax(0, 1fr); }
   /* Вкладки уходят вниз — прокручивается вся рабочая область целиком */
   .main { grid-template-columns: minmax(0, 1fr) 180px minmax(0, 1fr); grid-auto-rows: max-content; overflow-y: auto; align-items: start; }
   .col, .center, .tabs { min-height: auto; overflow: visible; }
@@ -239,12 +239,14 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .temp-big { grid-column: 1; grid-row: 2; font-size: 44px; text-align: left; }
   .toggles { grid-column: 2; grid-row: 2; justify-content: flex-end; }
   .sliders { grid-column: 1 / -1; grid-row: 3; }
+  .wx { grid-template-columns: minmax(0, 1fr); }
   .main { grid-template-columns: minmax(0, 1fr); overflow: visible; }
   .center { grid-column: 1; grid-row: auto; grid-template-columns: 110px minmax(0, 1fr); align-items: start; margin: 16px 0; }
   .center .inspector { border-top: 0; padding-top: 0; }
   .col + .col { border-top: 0; }
   .tabs { grid-column: 1; }
   .hd { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .iname { white-space: normal; }
   .inv-form { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 420px) {
@@ -264,9 +266,9 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       <div class="eff" id="effText"></div>
     </div>
     <div class="toggles">
-      <div class="seg" role="group" aria-label="Маршрут">
-        <button type="button" class="tg" id="spdCalm" aria-pressed="false">Ровно 15 км/ч</button>
-        <button type="button" class="tg" id="spdFast" aria-pressed="true" title="Одеваемся под спуск 40 км/ч, на подъёме расстёгиваемся">Подъём и спуск 40</button>
+      <div class="speed" role="group" aria-label="Скорость">
+        <label>Скорость <input id="spdCruise" type="number" min="5" max="60" step="1" inputmode="numeric" aria-label="Обычная скорость, км/ч"></label>
+        <label>до <input id="spdMax" type="number" min="5" max="90" step="1" inputmode="numeric" aria-label="Максимальная скорость на спусках, км/ч"> км/ч</label>
       </div>
       <button type="button" class="tg flag" id="dark" aria-pressed="true">Темно</button>
       <button type="button" class="tg flag" id="rain" aria-pressed="false">Осадки</button>
@@ -529,8 +531,23 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   const ms = (x) => String(r1(x)).replace(".", ",");
   const ozon = (q) => "https://www.ozon.ru/search/?text=" + encodeURIComponent(q);
 
-  const state = { t: 10, hill: true, dark: true, wind: 0, rain: false, tab: "quests", sel: "shell" };
-  try { const s = JSON.parse(localStorage.getItem("veloarsenal") || "null"); if (s && typeof s.t === "number") { delete s.fast; Object.assign(state, s); } } catch (err) { /* без сохранения */ }
+  const state = { t: 10, cruise: 15, vmax: 40, dark: true, wind: 0, rain: false, tab: "quests", sel: "shell" };
+  try {
+    const s = JSON.parse(localStorage.getItem("veloarsenal") || "null");
+    if (s && typeof s.t === "number") {
+      // Старые настройки: режим «ровно / подъём и спуск» → скорости
+      if (typeof s.hill === "boolean" && s.vmax == null) s.vmax = s.hill ? 40 : 15;
+      delete s.fast; delete s.hill;
+      Object.assign(state, s);
+    }
+  } catch (err) { /* без сохранения */ }
+  const clampSpeed = (v, lo, hi, def) => { v = Math.round(Number(v)); return isFinite(v) && v > 0 ? Math.max(lo, Math.min(hi, v)) : def; };
+  state.cruise = clampSpeed(state.cruise, 5, 60, 15);
+  state.vmax = Math.max(state.cruise, clampSpeed(state.vmax, 5, 90, 40));
+  // Поправка к температуре воздуха: педали греют на обычной скорости, спуски холодят.
+  // 15/15 км/ч → +3°, 15/40 км/ч → −3°
+  const speedOffset = () => Math.max(-8, Math.min(4, Math.round(3 - 0.24 * (state.vmax - state.cruise) - 0.12 * Math.max(0, state.cruise - 15))));
+  const hilly = () => state.vmax - state.cruise >= 10;
   const save = () => { try { localStorage.setItem("veloarsenal", JSON.stringify(state)); } catch (err) { /* ignore */ } };
 
   const windPenalty = (w) => Math.min(5, Math.max(0, Math.round((w - 2) * 0.6)));
@@ -576,7 +593,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
   function render() {
     const wa = windPenalty(state.wind);
-    const e = state.t + (state.hill ? -3 : 3) - wa;
+    const so = speedOffset();
+    const e = state.t + so - wa;
     curE = e;
     eq = outfit(e, state.dark, state.rain);
 
@@ -585,9 +603,9 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     $("temp").value = state.t;
     $("wind").value = state.wind;
     $("windOut").textContent = ms(state.wind) + " м/с";
-    $("effText").innerHTML = (state.hill ? "Под спуск 40 км/ч, −3°" : "Ровно 15 км/ч, +3°") + (wa ? ", ветер −" + wa + "°" : "") + " → одеваемся на <b>" + fmt(e) + "</b>";
-    $("spdFast").setAttribute("aria-pressed", String(state.hill));
-    $("spdCalm").setAttribute("aria-pressed", String(!state.hill));
+    $("effText").innerHTML = state.cruise + (hilly() ? ", спуски до " + state.vmax : "") + " км/ч " + (so ? (so > 0 ? "+" : "−") + Math.abs(so) + "°" : "±0°") + (wa ? ", ветер −" + wa + "°" : "") + " → одеваемся на <b>" + fmt(e) + "</b>";
+    if (document.activeElement !== $("spdCruise")) $("spdCruise").value = state.cruise;
+    if (document.activeElement !== $("spdMax")) $("spdMax").value = state.vmax;
     $("dark").setAttribute("aria-pressed", String(state.dark));
     $("rain").setAttribute("aria-pressed", String(state.rain));
 
@@ -605,12 +623,12 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
     const all = Object.values(eq).flat();
     renderQuests(all);
-    $("rules").innerHTML = rules(e, state.hill).map(x => "<li>" + x + "</li>").join("");
+    $("rules").innerHTML = rules(e, hilly()).map(x => "<li>" + x + "</li>").join("");
     const short = (x) => esc(x.n.split(/,| — /)[0]);
     const cafe = all.filter(x => x.cafe && x.s !== "missing");
     $("cafe").innerHTML = cafe.length ? cafe.map(x => short(x)).join(", ") : '<span class="empty-note">Снимать нечего</span>';
     const li = (k) => all.filter(x => x[k]).map(x => "<li><b>" + short(x) + ":</b> " + esc(x[k]) + "</li>").join("");
-    $("hdHead").textContent = state.hill ? "Подъём → спуск" : "Если будет горка";
+    $("hdHead").textContent = hilly() ? "Подъём → спуск" : "Если будет горка";
     $("hd").innerHTML = '<div><h4>На подъёме</h4><ul>' + (li("up") || "<li>Ничего не трогать</li>") + '</ul></div><div><h4>Перед спуском</h4><ul>' + (li("down") || "<li>Ничего не трогать</li>") + '</ul></div>';
     renderGuide(e);
 
@@ -913,8 +931,10 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
   $("temp").addEventListener("input", (ev) => { lastManual = Date.now(); state.t = Number(ev.target.value); render(); });
   $("wind").addEventListener("input", (ev) => { lastManual = Date.now(); state.wind = Number(ev.target.value); render(); });
-  $("spdFast").addEventListener("click", () => { state.hill = true; render(); });
-  $("spdCalm").addEventListener("click", () => { state.hill = false; render(); });
+  // Скорости сохраняются сразу при вводе
+  $("spdCruise").addEventListener("input", (ev) => { const v = clampSpeed(ev.target.value, 5, 60, 0); if (v) { state.cruise = v; state.vmax = Math.max(state.vmax, v); render(); } });
+  $("spdMax").addEventListener("input", (ev) => { const v = clampSpeed(ev.target.value, 5, 90, 0); if (v && v >= state.cruise) { state.vmax = v; render(); } });
+  ["spdCruise", "spdMax"].forEach(id => $(id).addEventListener("blur", () => render()));
   $("dark").addEventListener("click", () => { state.dark = !state.dark; render(); });
   $("rain").addEventListener("click", () => { state.rain = !state.rain; render(); });
 
@@ -981,7 +1001,6 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     place();
   }
   overlayScroll(pageEl, "y");
-  overlayScroll($("wHours"), "x");
   document.querySelectorAll(".tabpanel, .main, .col, .center").forEach(el => overlayScroll(el, "y"));
 
   resetForm();
