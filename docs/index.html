@@ -590,6 +590,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     gWarm:        { slot: "hands", n: "Тёплые перчатки", types: ["insulated"], r: "epic", warm: 2, wind: 2, up: "ослабьте на запястье", down: "затяните на запястье", note: "Если пальцы всё равно мёрзнут, переходите на лобстеры", find: "велоперчатки утепленные ветрозащитные", alts: ["gLobster"] },
     gLobster:     { slot: "hands", n: "Лобстеры или варежки", types: ["lobster", "mittens", "muffs"], r: "legendary", warm: 3, wind: 3, note: "В лобстерах тормозите и переключаете скорости двумя пальцами. В сильный мороз наденьте под них тонкие перчатки", find: "лобстеры перчатки беговые лыжи", alts: ["gWarm"] },
     shorts:       { slot: "legs", n: "Шорты или велошорты", types: ["shorts", "knickers"], r: "uncommon", find: "велошорты с памперсом", alts: ["tights"] },
+    shortsHot:    { slot: "legs", n: "Шорты или велошорты", types: ["shorts"], r: "uncommon", note: "В жару длинные штаны не подойдут", find: "велошорты с памперсом" },
     tights:       { slot: "legs", n: "Тонкие штаны или велоштаны", types: ["tights", "knickers", "winterTights"], r: "uncommon", warm: 1, find: "велоштаны с памперсом" },
     winterTights: { slot: "legs", n: "Утеплённые штаны или зимние велоштаны", types: ["winterTights"], r: "legendary", warm: 3, wind: 2, note: "Лучше с флисом внутри и тканью спереди, которая не продувается", find: "велоштаны утепленные с памперсом", alts: ["tights"] },
     legWarm:      { slot: "legOver", n: "Гетры", types: ["legWarmers", "warmLegWarmers"], r: "uncommon", warm: 1, note: "Надеваются с шортами вместо длинных штанов. Стало жарко? Спустите вниз", optional: true },
@@ -634,7 +635,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     o.shell = rain && e > 0 ? ["membrane"] : e > 16 ? [] : e > 12 ? ["windVest"] : e > 5 ? ["windJacket"] : e > -10 ? ["frostShell"] : ["frostShell", "warmVest"];
     o.hands = e > 15 ? ["gMesh"] : e > 10 ? ["gThin"] : e > 5 ? ["gWind"] : e > -5 ? ["gWarm"] : ["gLobster"];
     // Ноги теплеют вместе с погодой: шорты → тайтсы → зимние тайтсы → зимние + брюки поверх
-    o.legs = e > 18 ? ["shorts"] : e > 10 ? ["tights"] : ["winterTights"];
+    o.legs = e > 22 ? ["shortsHot"] : e > 18 ? ["shorts"] : e > 10 ? ["tights"] : ["winterTights"];
     o.legOver = e > -5 ? [] : ["overpants"];
     o.socks = e > 12 ? ["socksReg"] : e > 0 ? ["socksThin"] : ["socksThick"];
     o.shoes = e > 5 && !rain ? ["shoesSummer"] : e > -3 ? ["shoesCool"] : ["shoesWinter"];
