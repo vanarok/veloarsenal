@@ -69,6 +69,7 @@ a:hover { text-decoration-color: var(--ink); }
 /* Шапка: условия поездки */
 .bar { display: grid; grid-template-columns: auto auto minmax(220px, 1fr) auto; gap: 10px 28px; align-items: center; padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
 .brand-cell { display: grid; justify-items: start; gap: 4px; }
+.nav { display: flex; flex-wrap: wrap; gap: 2px 14px; }
 .nav-btn { font-size: 15px; color: var(--ink); background: none; border: 0; border-bottom: 1px solid var(--rule-strong); padding: 0 0 1px; cursor: pointer; }
 .nav-btn:hover { border-bottom-color: var(--ink); }
 .nav-btn .cnt { color: var(--muted); }
@@ -144,11 +145,13 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .iname.sub { color: var(--ink-2); }
 
 .center { display: grid; align-content: start; gap: 14px; min-width: 0; min-height: 0; overflow-y: auto; }
-#figure { width: 100%; max-width: 170px; height: auto; justify-self: center; }
+/* Силуэт с легендой слева в свободном месте, кнопка «Не хватает» под ними */
+.figure { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "leg fig" "btn btn"; gap: 12px 6px; align-items: end; }
+#figure { grid-area: fig; width: 100%; max-width: 170px; height: auto; justify-self: center; }
 #figure .part { stroke: var(--ink-2); stroke-width: 1.2; transition: fill .2s; cursor: pointer; }
 #figure .part.miss { stroke: var(--signal); stroke-dasharray: 4 3; stroke-width: 2; }
 #figure .part.hl { stroke: var(--ink); stroke-width: 2.4; }
-.fig-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; font-size: 13px; color: var(--muted); }
+.fig-legend { grid-area: leg; display: flex; flex-direction: column; gap: 6px; padding-bottom: 8px; font-size: 13px; color: var(--muted); }
 .fig-legend i { display: inline-block; width: 12px; height: 12px; border: 1px solid var(--ink-2); vertical-align: -1px; margin-right: 4px; }
 
 .inspector { border-top: 1px solid var(--ink); padding-top: 8px; min-height: 90px; }
@@ -169,7 +172,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .back { font-size: 15px; color: var(--ink-2); background: none; border: 0; padding: 4px 0; cursor: pointer; }
 .back:hover { color: var(--ink); }
 .more { margin: 18px 0 0; }
-.miss-btn { justify-self: center; font-size: 15px; color: var(--signal); background: transparent; border: 1px solid var(--signal); border-radius: 3px; padding: 5px 12px; cursor: pointer; }
+.miss-btn { grid-area: btn; justify-self: center; font-size: 15px; color: var(--signal); background: transparent; border: 1px solid var(--signal); border-radius: 3px; padding: 5px 12px; cursor: pointer; }
 .miss-btn:hover { background: var(--signal); color: var(--signal-ink); }
 .modal-bg { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / 0.3); }
 .modal { width: min(520px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 4px; padding: 16px 18px; box-shadow: 0 12px 40px rgb(0 0 0 / 0.18); }
@@ -256,7 +259,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   body { overflow: auto; padding: 14px 16px; }
   .app { height: auto; gap: 14px; }
   .bar { grid-template-columns: auto minmax(0, 1fr); gap: 10px 14px; }
-  .brand-cell { grid-column: 1 / -1; grid-row: 1; grid-template-columns: auto auto; align-items: baseline; justify-content: space-between; width: 100%; }
+  .brand-cell { grid-column: 1 / -1; grid-row: 1; }
   .temp-big { grid-column: 1; grid-row: 2; font-size: 44px; text-align: left; }
   .toggles { grid-column: 2; grid-row: 2; justify-content: flex-end; }
   .sliders { grid-column: 1 / -1; grid-row: 3; }
@@ -264,6 +267,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .main { grid-template-columns: minmax(0, 1fr); overflow: visible; }
   .center { grid-column: 1; grid-row: auto; grid-template-columns: 110px minmax(0, 1fr); align-items: start; margin: 16px 0; }
   .center .inspector { border-top: 0; padding-top: 0; }
+  .figure { grid-template-columns: minmax(0, 1fr); grid-template-areas: "fig" "leg" "btn"; }
+  .fig-legend { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 10px; padding-bottom: 0; }
   .col + .col { border-top: 0; }
   .page { overflow: visible; }
   .hd { grid-template-columns: minmax(0, 1fr); gap: 10px; }
@@ -281,7 +286,11 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   <section class="bar" aria-label="Условия поездки">
     <div class="brand-cell">
       <div class="brand">Велоарсенал</div>
-      <button type="button" class="nav-btn" id="goInv">Мои вещи <span class="cnt" id="invCount"></span></button>
+      <nav class="nav" aria-label="Разделы">
+        <button type="button" class="nav-btn" id="goInv">Мои вещи <span class="cnt" id="invCount"></span></button>
+        <button type="button" class="nav-btn" data-go="tips">Советы</button>
+        <button type="button" class="nav-btn" data-go="guide">Что надеть по температуре</button>
+      </nav>
     </div>
     <div class="temp-big" id="tempBig">+10°</div>
     <div class="sliders">
