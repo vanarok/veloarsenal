@@ -14,6 +14,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         config.userContentController.add(self, name: "geo")
+        // Без контекстного меню по правой кнопке; в полях ввода оставлено для вставки текста
+        config.userContentController.addUserScript(WKUserScript(
+            source: "document.addEventListener('contextmenu', e => { if (!e.target.closest('input, textarea, select')) e.preventDefault(); }, true);",
+            injectionTime: .atDocumentStart, forMainFrameOnly: true))
         web = WKWebView(frame: .zero, configuration: config)
         web.navigationDelegate = self
         web.uiDelegate = self
