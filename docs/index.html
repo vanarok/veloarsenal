@@ -202,7 +202,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .modal .inv-form { margin: 0; }
 .sec-h { font: 600 13px var(--font-cond); letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
 .sec-h:first-child { margin-top: 2px; }
-#cafeSec > .sec-h, #hdSec > .sec-h { margin-top: 16px; }
+#cafeSec > .sec-h { margin-top: 16px; }
 .quest { padding: 7px 0; border-bottom: 1px solid var(--rule); }
 .quest .qt { font-weight: 500; }
 .quest.miss .qt { color: var(--signal); }
@@ -442,10 +442,6 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     <div id="cafeSec">
       <div class="sec-h">Что снять в помещении</div>
       <div class="cafe" id="cafe"></div>
-    </div>
-    <div id="hdSec">
-      <div class="sec-h">Другие советы</div>
-      <ul class="rules" id="hdList"></ul>
     </div>
     <p class="more"><button type="button" class="lnk" data-go="guide">Что надеть при другой температуре →</button></p>
   </section>
@@ -860,11 +856,6 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     const cafe = all.filter(x => x.cafe && x.s !== "missing");
     $("cafeSec").hidden = !cafe.length;
     $("cafe").innerHTML = cafe.map(x => short(x)).join(", ");
-    // Что сделать с вещью в гору и перед спуском — одной строкой
-    const tips = all.filter(x => x.up || x.down).map(x => "<li><b>" + short(x) + ":</b> " +
-      [x.up ? "в гору " + esc(x.up) : "", x.down ? "перед спуском " + esc(x.down) : ""].filter(Boolean).join(", ") + "</li>");
-    $("hdSec").hidden = !tips.length;
-    $("hdList").innerHTML = tips.join("");
     renderGuide(e);
 
     bindSlots();
