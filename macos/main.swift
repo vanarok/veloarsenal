@@ -18,6 +18,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         config.userContentController.addUserScript(WKUserScript(
             source: "document.addEventListener('contextmenu', e => { if (!e.target.closest('input, textarea, select')) e.preventDefault(); }, true);",
             injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        // Надписи не выделяются и не копируются, как в обычном приложении; поля ввода — как обычно
+        config.userContentController.addUserScript(WKUserScript(
+            source: "const st = document.createElement('style'); st.textContent = '* { -webkit-user-select: none; user-select: none; cursor: default; } a, button, label, .slot, .part, .hour { cursor: pointer; } input, textarea, select { -webkit-user-select: text; user-select: text; cursor: auto; }'; document.head.appendChild(st);",
+            injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         web = WKWebView(frame: .zero, configuration: config)
         web.navigationDelegate = self
         web.uiDelegate = self
