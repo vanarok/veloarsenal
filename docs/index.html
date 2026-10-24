@@ -456,11 +456,11 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         <div class="sec-h">Принципы</div>
         <ul class="gprin">
           <li><b>Три слоя:</b> снизу шерсть, в середине тёплая кофта, сверху куртка от ветра</li>
-          <li><b>На старте чуть прохладно.</b> Разогрелись — расстегнитесь</li>
+          <li><b>На старте чуть прохладно.</b> Разогрелись, расстегнитесь</li>
           <li><b>На скорости ветер</b> холодит сильнее, чем сам мороз</li>
           <li><b>Руки, ноги и голову</b> утепляйте первыми</li>
           <li><b>Носки шерстяные,</b> сверху бахилы от ветра и воды</li>
-          <li><b>В сильный мороз</b> — лобстеры или муфты на руль</li>
+          <li><b>В сильный мороз</b> нужны лобстеры или муфты на руль</li>
         </ul>
         <p class="src">Усреднено по <a href="https://www.britishcycling.org.uk/knowledge/article/izn20150127-Cycling-Winter-Clothing-Guide-0" target="_blank" rel="noopener">British Cycling</a>, <a href="https://www.cyclinguk.org/cycle/wear-cycling-winter-cold" target="_blank" rel="noopener">Cycling UK</a>, <a href="https://45nrth.com/blogs/blog/what-to-wear-winter-cycling-at-10%C2%BA-0%C2%BAf" target="_blank" rel="noopener">45NRTH</a>, <a href="https://join.cc/cycling-tips/cycling-what-to-wear-temperature-guide" target="_blank" rel="noopener">Join.cc</a>, <a href="https://www.roadbikerider.com/what-to-wear-in-various-weather/" target="_blank" rel="noopener">RoadBikeRider</a>. Таблица рассчитана на быстрый темп.</p>
   </section>
@@ -541,41 +541,41 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   // среди подходящих — сначала та, что уже есть, потом по предпочтительному материалу
   const NEEDS = {
     helmet:       { slot: "helmet", n: "Велошлем", types: ["road", "mtb", "urban", "winter"], r: "rare", note: "Сидит ровно, ремешок под подбородком с зазором в палец", find: "велошлем" },
-    helmetWinter: { slot: "helmet", n: "Зимний шлем", types: ["winter", "urban", "mtb", "road"], r: "epic", warm: 1, wind: 1, note: "Через вентиляцию обычного шлема в мороз дует — наденьте под него шапочку или балаклаву", find: "велошлем зимний" },
+    helmetWinter: { slot: "helmet", n: "Зимний шлем", types: ["winter", "urban", "mtb", "road"], r: "epic", warm: 1, wind: 1, note: "Через вентиляцию обычного шлема в мороз дует. Наденьте под него шапочку или балаклаву", find: "велошлем зимний" },
     capThin:      { slot: "head", n: "Тонкая шапка под шлем", types: ["thin", "helmetCap", "earband", "cycCap"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, find: "тонкая шапка под велошлем" },
     capWind:      { slot: "head", n: "Шапочка под шлем с ветрозащитой", types: ["helmetCap", "thin", "earband"], r: "rare", warm: 1, wind: 1, cafe: true, note: "Закрывает уши от ветра", find: "велошапочка под шлем ветрозащитная" },
     balaclava:    { slot: "head", n: "Балаклава", types: ["balaclava"], r: "epic", warm: 2, wind: 1, cafe: true, up: "опустить с носа", down: "поднять на нос", find: "балаклава тонкая под шлем", alts: ["capWind"] },
     neck:         { slot: "face", n: "Снуд на шее", types: ["snood", "scarf", "balaclava", "mask"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, down: "подтянуть до подбородка", find: "снуд бафф меринос" },
-    nose:         { slot: "face", n: "Снуд на подбородок и нос", types: ["snood", "mask", "balaclava", "scarf"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, note: "В помещении снимите, чтобы высох. Не натягивайте до самых очков — запотеют", up: "опустить на шею", down: "натянуть на нос", find: "снуд бафф меринос" },
+    nose:         { slot: "face", n: "Снуд на подбородок и нос", types: ["snood", "mask", "balaclava", "scarf"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, note: "В помещении снимите, чтобы высох. Не натягивайте до самых очков, иначе они запотеют", up: "опустить на шею", down: "натянуть на нос", find: "снуд бафф меринос" },
     under:        { slot: "face", n: "Тонкий снуд под балаклаву", types: ["snood", "mask"], mats: ["merino", "synthetic"], r: "uncommon", warm: 1, optional: true },
-    glasses:      { slot: "eyes", n: "Спортивные очки", types: ["glasses", "sealed"], r: "rare", wind: 1, note: "Вечером — с прозрачными стёклами", down: "надеть, иначе от ветра слезятся глаза", find: "велоочки прозрачная линза" },
-    glassesSeal:  { slot: "eyes", n: "Очки с уплотнителем", types: ["sealed", "goggles"], r: "epic", wind: 2, note: "Мягкая прокладка по краю не пускает холодный воздух сбоку — глаза не слезятся", down: "надеть", find: "спортивные очки с уплотнителем прозрачная линза", alts: ["glasses"] },
+    glasses:      { slot: "eyes", n: "Спортивные очки", types: ["glasses", "sealed"], r: "rare", wind: 1, note: "Вечером нужны прозрачные стёкла", down: "надеть, иначе от ветра слезятся глаза", find: "велоочки прозрачная линза" },
+    glassesSeal:  { slot: "eyes", n: "Очки с уплотнителем", types: ["sealed", "goggles"], r: "epic", wind: 2, note: "Мягкая прокладка по краю не пускает холодный воздух сбоку, и глаза не слезятся", down: "надеть", find: "спортивные очки с уплотнителем прозрачная линза", alts: ["glasses"] },
     tee:          { slot: "base", n: "Футболка", types: ["tee"], mats: ["merino", "synthetic"], avoid: ["cotton"], r: "uncommon", warm: 1, find: "велофутболка", alts: ["longsleeve"] },
-    sleeves:      { slot: "base", n: "Нарукавники", types: ["sleeves"], r: "uncommon", warm: 1, note: "Стало жарко — спустите к запястью прямо на ходу", find: "велонарукавники", optional: true },
-    longsleeve:   { slot: "base", n: "Термобельё с длинным рукавом", types: ["longsleeve"], mats: ["merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 2, note: "Заправьте в велоштаны, лямки штанов — поверх", find: "лонгслив меринос термобелье" },
+    sleeves:      { slot: "base", n: "Нарукавники", types: ["sleeves"], r: "uncommon", warm: 1, note: "Стало жарко? Спустите к запястью прямо на ходу", find: "велонарукавники", optional: true },
+    longsleeve:   { slot: "base", n: "Термобельё с длинным рукавом", types: ["longsleeve"], mats: ["merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 2, note: "Заправьте в велоштаны, а лямки штанов наденьте поверх", find: "лонгслив меринос термобелье" },
     teeUnder:     { slot: "base", n: "Футболка под термобельё", types: ["tee"], mats: ["merino", "wool", "synthetic"], avoid: ["cotton"], r: "uncommon", warm: 1, note: "Ещё один тонкий слой на тело в сильный мороз", optional: true },
-    mid:          { slot: "mid", n: "Тёплая кофта под куртку", types: ["grid", "jersey", "fleece", "sweater"], mats: ["fleece", "merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 3, cafe: true, up: "расстегнуть ворот", down: "застегнуть ворот", note: "Лучше облегающая — не топорщится под курткой. Кофту продувает, поэтому сверху нужна куртка с рукавами", find: "Polartec Power Grid кофта" },
-    puffyMid:     { slot: "mid", n: "Лёгкий пуховик под куртку", types: ["puffy"], mats: ["down", "insulation"], r: "legendary", warm: 3, cafe: true, up: "расстегнуть", down: "застегнуть", note: "Только для сильного мороза — в гору в нём жарко", optional: true },
+    mid:          { slot: "mid", n: "Тёплая кофта под куртку", types: ["grid", "jersey", "fleece", "sweater"], mats: ["fleece", "merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 3, cafe: true, up: "расстегнуть ворот", down: "застегнуть ворот", note: "Лучше облегающая: она не топорщится под курткой. Кофту продувает, поэтому сверху нужна куртка с рукавами", find: "Polartec Power Grid кофта" },
+    puffyMid:     { slot: "mid", n: "Лёгкий пуховик под куртку", types: ["puffy"], mats: ["down", "insulation"], r: "legendary", warm: 3, cafe: true, up: "расстегнуть", down: "застегнуть", note: "Только для сильного мороза: в гору в нём жарко", optional: true },
     windVest:     { slot: "shell", n: "Ветрожилет", types: ["windVest"], r: "rare", wind: 2, sleeves: false, cafe: true, up: "расстегнуть", down: "застегнуть", note: "Не греет, только закрывает грудь от ветра", find: "велосипедный ветрожилет", alts: ["windJacket"] },
-    windJacket:   { slot: "shell", n: "Ветровка", types: ["windJacket", "softshell"], r: "rare", wind: 3, cafe: true, up: "расстегнуть до середины груди", down: "застегнуть до горла", note: "Тонкая куртка сама не греет — греет то, что под ней. Зябко на спуске — наденьте сверху жилет", find: "веловетровка мужская", alts: ["membrane"] },
+    windJacket:   { slot: "shell", n: "Ветровка", types: ["windJacket", "softshell"], r: "rare", wind: 3, cafe: true, up: "расстегнуть до середины груди", down: "застегнуть до горла", note: "Тонкая куртка сама не греет, греет то, что под ней. Зябко на спуске? Наденьте сверху жилет", find: "веловетровка мужская", alts: ["membrane"] },
     frostShell:   { slot: "shell", n: "Зимняя куртка", types: ["winterJacket", "membrane", "softshell"], r: "legendary", warm: 2, wind: 3, cafe: true, up: "расстегнуть до груди", down: "застегнуть до горла", note: "Тёплая зимняя куртка заменяет и непромокаемую куртку, и тёплый жилет", find: "утепленная велокуртка зимняя" },
-    membrane:     { slot: "shell", n: "Непромокаемая куртка", types: ["membrane", "softshell"], r: "epic", warm: 1, wind: 3, cafe: true, up: "расстегнуть до груди", down: "застегнуть до горла", note: "Плохо выпускает пот — в гору расстёгивайтесь", find: "мембранная велокуртка", alts: ["windJacket"] },
-    warmVest:     { slot: "shell", n: "Утеплённый жилет", types: ["warmVest"], r: "epic", warm: 1, wind: 2, sleeves: false, cafe: true, up: "расстегнуть", down: "застегнуть", note: "В мороз — под куртку или поверх неё", find: "утеплённый веложилет", alts: ["windVest"] },
+    membrane:     { slot: "shell", n: "Непромокаемая куртка", types: ["membrane", "softshell"], r: "epic", warm: 1, wind: 3, cafe: true, up: "расстегнуть до груди", down: "застегнуть до горла", note: "Плохо выпускает пот, поэтому в гору расстёгивайтесь", find: "мембранная велокуртка", alts: ["windJacket"] },
+    warmVest:     { slot: "shell", n: "Утеплённый жилет", types: ["warmVest"], r: "epic", warm: 1, wind: 2, sleeves: false, cafe: true, up: "расстегнуть", down: "застегнуть", note: "В мороз надевается под куртку или поверх неё", find: "утеплённый веложилет", alts: ["windVest"] },
     gMesh:        { slot: "hands", n: "Летние перчатки", types: ["mesh", "thin"], r: "uncommon", find: "велоперчатки летние" },
     gThin:        { slot: "hands", n: "Тонкие длиннопалые перчатки", types: ["thin", "liner", "insulated"], r: "uncommon", warm: 1, find: "велоперчатки длинный палец" },
     gWarm:        { slot: "hands", n: "Тёплые велоперчатки", types: ["insulated"], r: "epic", warm: 2, wind: 2, up: "ослабить на запястье", down: "затянуть на запястье", note: "Обычно держат тепло примерно до +2…+4°", find: "велоперчатки утепленные ветрозащитные", alts: ["gLobster"] },
-    gLobster:     { slot: "hands", n: "Лобстеры", types: ["lobster", "mittens", "muffs"], r: "legendary", warm: 3, wind: 3, note: "Тормозите и переключаете скорости двумя пальцами. В сильный мороз под них — тонкие перчатки", find: "лобстеры перчатки беговые лыжи", alts: ["gWarm"] },
+    gLobster:     { slot: "hands", n: "Лобстеры", types: ["lobster", "mittens", "muffs"], r: "legendary", warm: 3, wind: 3, note: "Тормозите и переключаете скорости двумя пальцами. В сильный мороз наденьте под них тонкие перчатки", find: "лобстеры перчатки беговые лыжи", alts: ["gWarm"] },
     shorts:       { slot: "legs", n: "Велошорты", types: ["shorts", "knickers"], r: "uncommon", find: "велошорты с памперсом", alts: ["tights"] },
     tights:       { slot: "legs", n: "Тонкие велоштаны", types: ["tights", "knickers", "winterTights"], r: "uncommon", warm: 1, find: "велоштаны с памперсом" },
     winterTights: { slot: "legs", n: "Зимние велоштаны", types: ["winterTights"], r: "legendary", warm: 3, wind: 2, note: "Внутри флис, спереди ткань не продувается", find: "велоштаны утепленные с памперсом", alts: ["tights"] },
-    legWarm:      { slot: "legOver", n: "Велогетры", types: ["legWarmers", "warmLegWarmers"], r: "uncommon", warm: 1, note: "С шортами вместо длинных штанов. Жарко — спустите вниз", optional: true },
+    legWarm:      { slot: "legOver", n: "Велогетры", types: ["legWarmers", "warmLegWarmers"], r: "uncommon", warm: 1, note: "Надеваются с шортами вместо длинных штанов. Стало жарко? Спустите вниз", optional: true },
     warmLegWarm:  { slot: "legOver", n: "Утеплённые гетры", types: ["warmLegWarmers"], r: "rare", warm: 2, note: "С шортами вместо тёплых штанов, примерно до +3°" },
     overpants:    { slot: "legOver", n: "Штаны от ветра поверх", types: ["overpants", "warmPants"], r: "epic", warm: 2, wind: 3, cafe: true, up: "приоткрыть молнии по бокам", down: "закрыть молнии", note: "Снимаются, не разуваясь", find: "самосбросы брюки ветрозащитные" },
     socksReg:     { slot: "socks", n: "Обычные спортивные носки", types: ["regular", "thinWool"], r: "common", find: "носки спортивные" },
-    socksThin:    { slot: "socks", n: "Тонкие шерстяные носки", types: ["thinWool", "waterproof", "thickWool"], mats: ["merino", "wool"], r: "rare", warm: 1, note: "Должны заходить под штанину — без голой полоски на щиколотке", find: "носки меринос тонкие" },
-    socksThick:   { slot: "socks", n: "Толстые шерстяные носки", types: ["thickWool", "waterproof"], mats: ["merino", "wool"], r: "epic", warm: 2, note: "Обувь не должна давить — в тесной ноги мёрзнут сильнее", find: "носки меринос теплые", alts: ["socksThin"] },
+    socksThin:    { slot: "socks", n: "Тонкие шерстяные носки", types: ["thinWool", "waterproof", "thickWool"], mats: ["merino", "wool"], r: "rare", warm: 1, note: "Должны заходить под штанину, чтобы не было голой полоски на щиколотке", find: "носки меринос тонкие" },
+    socksThick:   { slot: "socks", n: "Толстые шерстяные носки", types: ["thickWool", "waterproof"], mats: ["merino", "wool"], r: "epic", warm: 2, note: "Обувь не должна давить: в тесной ноги мёрзнут сильнее", find: "носки меринос теплые", alts: ["socksThin"] },
     shoesSummer:  { slot: "shoes", n: "Велотуфли или кроссовки", types: ["cycling", "sneakers", "trail", "winterCycling"], r: "common", find: "велотуфли" },
-    shoesCool:    { slot: "shoes", n: "Закрытая обувь под бахилы", types: ["trail", "winterCycling", "cycling", "sneakers"], r: "uncommon", find: "кроссовки мембранные", note: "Сетку на кроссовках продувает — сверху наденьте бахилы" },
+    shoesCool:    { slot: "shoes", n: "Закрытая обувь под бахилы", types: ["trail", "winterCycling", "cycling", "sneakers"], r: "uncommon", find: "кроссовки мембранные", note: "Сетку на кроссовках продувает, поэтому сверху наденьте бахилы" },
     shoesWinter:  { slot: "shoes", n: "Зимние ботинки", types: ["winterCycling", "winterBoots"], r: "legendary", warm: 2, wind: 2, note: "Берите на размер больше: так влезет тёплый носок и ничего не давит. Тёплые ботинки греют лучше, чем велотуфли с бахилами", find: "зимние велоботинки", alts: ["shoesCool"] },
     overshoes:    { slot: "overshoe", n: "Велобахилы", types: ["wind", "warm", "toe"], r: "epic", warm: 1, wind: 3, find: "велобахилы" },
     lights:       { slot: "vis", n: "Фонари спереди и сзади", types: ["lights"], r: "common", note: "Обязательно, как только стемнеет", find: "велофонарь передний и задний" },
@@ -670,7 +670,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     if (it) used.add(it.id);
     const notes = [];
     if (sub) notes.push("Замена: нет вещи «" + sub.n.toLowerCase() + "»");
-    if (it && (need.avoid || []).includes(it.mat)) notes.push(MATS[it.mat] + " мокнет и холодит — лучше синтетика или шерсть");
+    if (it && (need.avoid || []).includes(it.mat)) notes.push(MATS[it.mat] + " мокнет и холодит. Лучше синтетика или шерсть");
     if (need.note) notes.push(need.note);
     if (it && it.note) notes.push(it.note);
     return {
@@ -745,7 +745,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       : list.map(x => x.s === "missing"
         ? '<div class="need-row"><span class="iname need">' + esc(x.n) + '</span><button type="button" class="add-btn" data-add="' + x.nid + '">Добавить</button></div>'
         : x.s === "wardrobe"
-        ? '<div class="need-row"><span class="iname assumed" title="Подойдёт любая — добавьте свою, если хотите">' + esc(x.n) + '</span><button type="button" class="add-btn quiet" data-add="' + x.nid + '">Добавить</button></div>'
+        ? '<div class="need-row"><span class="iname assumed" title="Подойдёт любая. Добавьте свою, если хотите">' + esc(x.n) + '</span><button type="button" class="add-btn quiet" data-add="' + x.nid + '">Добавить</button></div>'
         : '<div class="iname' + (x.sub ? " sub" : "") + '">' + esc(x.n) + '</div>').join("");
     return '<div class="slot' + (empty ? " empty" : "") + (state.sel === slot.id ? " sel" : "") + '" data-slot="' + slot.id + '" tabindex="0" role="button" title="' + esc(title) + '">' +
       '<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + ICONS[slot.id] + '</svg></span>' +
@@ -861,7 +861,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     $("cafe").innerHTML = cafe.map(x => short(x)).join(", ");
     // Что сделать с вещью в гору и перед спуском — одной строкой
     const tips = all.filter(x => x.up || x.down).map(x => "<li><b>" + short(x) + ":</b> " +
-      [x.up ? "в гору — " + esc(x.up) : "", x.down ? "перед спуском — " + esc(x.down) : ""].filter(Boolean).join(", ") + "</li>");
+      [x.up ? "в гору " + esc(x.up) : "", x.down ? "перед спуском " + esc(x.down) : ""].filter(Boolean).join(", ") + "</li>");
     $("hdSec").hidden = !tips.length;
     $("hdList").innerHTML = tips.join("");
     renderGuide(e);
@@ -889,17 +889,17 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   function rules(e, hill) {
     const r = [];
     if (hill) r.push(
-      "<b>Одевайтесь так, чтобы не замёрзнуть на спуске.</b> В гору просто расстегнитесь — снимать ничего не нужно.",
+      "<b>Одевайтесь так, чтобы не замёрзнуть на спуске.</b> В гору просто расстегнитесь, снимать ничего не нужно.",
       "<b>Не доводите до пота в гору:</b> мокрая одежда на спуске сильно холодит. Расстегнитесь заранее.",
       "<b>Перед спуском остановитесь на 10 секунд:</b> застегнитесь до горла и натяните снуд на нос.");
     if (e > 16) r.push("<b>Куртка не нужна:</b> на ходу тело греется само.");
     else if (e > 12) r.push("<b>Хватит жилета:</b> он закрывает грудь от ветра, а руки и спина не потеют.");
-    else if (e > 8) r.push("<b>Нужна куртка с рукавами.</b> Кофту и флиску ветер продувает насквозь — мёрзнут плечи и руки.");
+    else if (e > 8) r.push("<b>Нужна куртка с рукавами.</b> Кофту и флиску ветер продувает насквозь, и мёрзнут плечи и руки.");
     else if (e > 0) r.push("<b>Три слоя:</b> тонкое бельё, тёплая кофта и сверху куртка от ветра.");
     else r.push("<b>Мороз:</b> балаклава, очки с прокладкой по краю и самые тёплые перчатки.", "<b>Без хлопка:</b> он намокает от пота и холодит.");
-    r.push("<b>На старте должно быть чуть прохладно</b> — через 5–10 минут разогреетесь.");
-    r.push("<b>Руки, уши и колени мёрзнут первыми</b> — их утепляйте сильнее, чем тело.");
-    if (!hill && e <= 12) r.push("<b>Жарко в гору</b> — расстегнитесь, а не снимайте вещи.");
+    r.push("<b>На старте должно быть чуть прохладно.</b> Через 5–10 минут разогреетесь.");
+    r.push("<b>Руки, уши и колени мёрзнут первыми.</b> Их утепляйте сильнее, чем тело.");
+    if (!hill && e <= 12) r.push("<b>Жарко в гору?</b> Расстегнитесь, а не снимайте вещи.");
     return r;
   }
 
@@ -1039,7 +1039,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   // Гайд: одна строка таблицы за раз, по умолчанию — под текущую погоду
   const GUIDE = [
     { k: "+20…+25", lo: 20, hi: 99, body: "велофутболка", legs: "велошорты", hands: "короткие перчатки или без них", feet: "обычные носки", head: "очки от солнца" },
-    { k: "+15…+20", lo: 15, hi: 20, body: "футболка, на старте — жилет", legs: "велошорты", hands: "короткие перчатки", feet: "обычные носки", head: "ничего" },
+    { k: "+15…+20", lo: 15, hi: 20, body: "футболка, на старте жилет", legs: "велошорты", hands: "короткие перчатки", feet: "обычные носки", head: "ничего" },
     { k: "+10…+15", lo: 10, hi: 15, body: "кофта с длинным рукавом или футболка с нарукавниками, сверху жилет", legs: "шорты с гетрами или тонкие велоштаны", hands: "тонкие перчатки с пальцами", feet: "обычные носки", head: "снуд на шее" },
     { k: "0…+10", lo: 0, hi: 10, body: "тонкое бельё, кофта и куртка от ветра", legs: "велоштаны с начёсом", hands: "перчатки, которые не продувает", feet: "шерстяные носки и бахилы", head: "шапочка под шлем и снуд" },
     { k: "−5…0", lo: -5, hi: 0, body: "бельё, флиска и тёплая куртка от ветра", legs: "зимние велоштаны", hands: "толстые тёплые перчатки", feet: "тёплые носки и утеплённые бахилы", head: "снуд или балаклава" },
@@ -1111,7 +1111,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         const res = d.results || [];
         $("cityRes").innerHTML = res.length ? res.map((c, i) => '<button type="button" class="city-opt" data-i="' + i + '">' + esc(c.name) + '<span>' + esc([c.admin1, c.country].filter(Boolean).join(", ")) + '</span></button>').join("") : '<p class="empty-note">Ничего не нашлось</p>';
         $("cityRes").querySelectorAll(".city-opt").forEach(b => b.onclick = () => { const c = res[Number(b.dataset.i)]; setPlace({ name: c.name, lat: c.latitude, lon: c.longitude }); });
-      } catch (err) { $("cityMsg").textContent = "Поиск недоступен — нет связи."; }
+      } catch (err) { $("cityMsg").textContent = "Поиск недоступен: нет связи."; }
     }, 300);
   });
   async function gotPosition(lat, lon) {
@@ -1124,7 +1124,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     setPlace({ name, lat, lon });
   }
   function noPosition(code) {
-    $("cityMsg").textContent = code === 1 ? "Доступ к местоположению запрещён — разрешите его в настройках или найдите город по названию." : "Не удалось определить — найдите город по названию.";
+    $("cityMsg").textContent = code === 1 ? "Доступ к местоположению запрещён. Разрешите его в настройках или найдите город по названию." : "Не удалось определить. Найдите город по названию.";
   }
   $("cityGeo").addEventListener("click", () => {
     $("cityMsg").textContent = "Определяю…";
@@ -1216,7 +1216,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       // Подбор следует за погодой, если ползунки не трогали последние 10 минут
       if (Date.now() - lastManual > 10 * 60 * 1000) applyWeather(c.temperature_2m, c.wind_speed_10m, c.weather_code);
     } catch (err) {
-      if (!weather) renderWeatherStub('<button type="button" class="city-btn" id="cityBtn" aria-haspopup="dialog">' + esc(place.name) + '</button>', "нет связи — повторю через минуту");
+      if (!weather) renderWeatherStub('<button type="button" class="city-btn" id="cityBtn" aria-haspopup="dialog">' + esc(place.name) + '</button>', "нет связи, повторю через минуту");
       retry = setTimeout(loadWeather, 60 * 1000);
     }
   }
