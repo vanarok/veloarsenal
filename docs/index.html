@@ -234,6 +234,14 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .ib { color: var(--muted); background: none; border: 0; border-radius: 3px; padding: 2px 6px; cursor: pointer; }
 .ib:hover { color: var(--ink); background: var(--sheet); }
 .io { display: grid; gap: 8px; }
+.body-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 14px; margin-bottom: 6px; }
+.body-form label { display: grid; gap: 3px; font-size: 14px; color: var(--muted); }
+.body-form .bf-in { display: flex; align-items: center; gap: 6px; }
+.body-form input { width: 100%; min-width: 0; padding: 6px 8px; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 3px; color: var(--ink); font-size: 15px; }
+.body-form .bf-u { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.body-howto { color: var(--muted); font-size: 14px; margin: 4px 0 14px; }
+.body-hint { margin: 0; color: var(--ink-2); font-size: 14px; }
+.body-hint:empty { display: none; }
 .io-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .io-file { position: relative; overflow: hidden; }
 .io-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
@@ -327,6 +335,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .page { overflow: visible; }
   .hd { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .inv-form { grid-template-columns: minmax(0, 1fr); }
+  .body-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gcard { grid-template-columns: 70px minmax(0, 1fr); }
 
   /* Окно добавления — лист снизу, до полей дотягивается большой палец */
@@ -425,6 +434,9 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   <section class="page" id="p-inv" aria-labelledby="h-inv" hidden>
     <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-inv">Мои вещи</h2><button type="button" class="btn pri plus-btn" id="addBtn" title="Добавить вещь" aria-label="Добавить вещь"><svg class="plus-ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="plus-txt">Добавить вещь</span></button></div>
     <div id="invList"></div>
+    <div class="sec-h">Мои мерки <span class="tip" tabindex="0" title="Нужны, чтобы подобрать размер. Сохраняются сами и попадают в файл выгрузки." aria-label="Нужны, чтобы подобрать размер. Сохраняются сами и попадают в файл выгрузки.">i</span></div>
+    <div class="body-form" id="bodyForm"></div>
+    <p class="body-howto">Мерьте без одежды, стоя ровно. Лента прилегает, но не врезается: под неё проходит палец. Перемерьте два-три раза и возьмите среднее.</p>
     <div class="sec-h">Выгрузка <span class="tip" tabindex="0" title="Импорт заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются." aria-label="Импорт заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.">i</span></div>
         <div class="io">
           <div class="io-row">
@@ -469,6 +481,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
           <label>Куда<select id="fSlot"></select></label>
           <label>Тип<select id="fType"></select></label>
           <label class="wide" id="fMatRow">Материал<select id="fMat"></select></label>
+          <p class="wide body-hint" id="fBodyHint"></p>
           <input class="wide" id="fNote" placeholder="Заметка: размер, как носить" aria-label="Заметка" maxlength="300">
           <input class="wide" id="fLink" placeholder="Ссылка на вещь (необязательно)" aria-label="Ссылка" type="url">
           <div class="inv-actions"><button type="submit" class="btn pri" id="fSave">Добавить</button><button type="button" class="btn" id="fCancel">Отмена</button></div>
@@ -929,6 +942,30 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     p.addEventListener("click", () => select(p.dataset.target));
   });
 
+  // Мерки тела: хранятся только здесь, нужны для подбора размера
+  const BODY = [
+    { k: "height", n: "Рост", u: "см", how: "Без обуви, спиной к стене" },
+    { k: "weight", n: "Вес", u: "кг", how: "Многие китайские бренды подбирают размер по росту и весу" },
+    { k: "chest", n: "Грудь", u: "см", how: "По самой широкой части под мышками, лента параллельно полу" },
+    { k: "waist", n: "Талия", u: "см", how: "По самой узкой части, живот не втягивать" },
+    { k: "hips", n: "Бёдра", u: "см", how: "По самой широкой части ягодиц" },
+    { k: "head", n: "Голова", u: "см", how: "Над бровями и по самой выпуклой части затылка" },
+    { k: "palm", n: "Ладонь", u: "см", how: "Обхват в самом широком месте, без большого пальца" },
+    { k: "foot", n: "Стопа", u: "см", how: "Стоя, от пятки до самого длинного пальца" },
+    { k: "shoe", n: "Обувь", u: "RU", how: "Ваш обычный размер, например 42–44", text: true }
+  ];
+  const BODY_FOR = { helmet: ["head"], head: ["head"], face: ["head"], base: ["height", "weight", "chest", "waist"], mid: ["height", "weight", "chest", "waist"], shell: ["height", "weight", "chest", "waist"], vis: ["chest"], hands: ["palm"], legs: ["height", "waist", "hips"], legOver: ["height", "waist", "hips"], socks: ["shoe", "foot"], shoes: ["shoe", "foot"], overshoe: ["shoe", "foot"] };
+  const BODY_KEY = "veloarsenal.body";
+  const cleanBody = (b) => { const o = {}; BODY.forEach(f => { const v = b && b[f.k]; if (v != null && String(v).trim() !== "") o[f.k] = f.text ? String(v).trim().slice(0, 20) : Number(String(v).replace(",", ".")); }); Object.keys(o).forEach(k => { if (typeof o[k] === "number" && !(o[k] > 0 && o[k] < 400)) delete o[k]; }); return o; };
+  let body = {};
+  try { const raw = localStorage.getItem(BODY_KEY); body = cleanBody(raw ? JSON.parse(raw) : window.VA_DEFAULT_BODY); } catch (err) { body = cleanBody(window.VA_DEFAULT_BODY); }
+  const saveBody = () => { try { localStorage.setItem(BODY_KEY, JSON.stringify(body)); } catch (err) { /* только в памяти */ } };
+  function renderBody() {
+    $("bodyForm").innerHTML = BODY.map(f => '<label title="' + esc(f.how) + '">' + f.n + '<span class="bf-in"><input data-body="' + f.k + '" ' + (f.text ? 'type="text" maxlength="20"' : 'type="number" inputmode="decimal" min="1" max="399" step="0.5"') + ' value="' + esc(body[f.k] != null ? body[f.k] : "") + '" placeholder="' + (f.text ? "42–44" : "") + '" aria-label="' + f.n + ', ' + f.u + '"><span class="bf-u">' + f.u + '</span></span></label>').join("");
+    $("bodyForm").querySelectorAll("[data-body]").forEach(inp => inp.addEventListener("input", () => { body = cleanBody({ ...body, [inp.dataset.body]: inp.value }); saveBody(); }));
+  }
+  const bodyLine = (slot) => (BODY_FOR[slot] || []).filter(k => body[k] != null).map(k => { const f = BODY.find(x => x.k === k); return f.n.toLowerCase() + " " + String(body[k]).replace(".", ",") + (f.u === "RU" ? "" : " " + f.u); }).join(" · ");
+
   // Вкладка «Вещи»: добавление, правка, удаление
   let editId = null;
   const fill = (sel, obj, val) => { sel.innerHTML = Object.entries(obj).map(([k, v]) => '<option value="' + k + '"' + (k === val ? " selected" : "") + '>' + esc(v) + '</option>').join(""); };
@@ -938,6 +975,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     const mats = SLOT_MATS[slot] || Object.keys(MATS);
     $("fMatRow").hidden = !mats.length;
     fill($("fMat"), Object.fromEntries(mats.map(k => [k, MATS[k]])), mats.includes(mat) ? mat : mats[0]);
+    const line = bodyLine(slot);
+    $("fBodyHint").textContent = line ? "Ваши мерки: " + line : "";
   }
   function resetForm() {
     editId = null;
@@ -1010,7 +1049,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   });
 
   // Выгрузка: экспорт и импорт файлом. Данные никуда не отправляются
-  const invJSON = () => JSON.stringify({ app: "veloarsenal", version: 1, items: inv.map(({ id, ...rest }) => rest) }, null, 2);
+  const invJSON = () => JSON.stringify({ app: "veloarsenal", version: 1, body, items: inv.map(({ id, ...rest }) => rest) }, null, 2);
   function importData(text) {
     let data;
     try { data = JSON.parse(text); } catch (err) { $("ioMsg").textContent = "Не получилось прочитать: это не JSON."; return; }
@@ -1020,6 +1059,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     if (!ok.length) { $("ioMsg").textContent = "Подходящих вещей в файле не нашлось."; return; }
     if (inv.length && !confirm("Заменить ваши вещи (" + inv.length + ") списком из файла (" + ok.length + ")?")) { $("ioMsg").textContent = ""; return; }
     inv = ok;
+    if (data && data.body && typeof data.body === "object") { body = cleanBody(data.body); saveBody(); renderBody(); }
     saveInv(); renderInv(); render();
     $("ioMsg").textContent = "Загружено вещей: " + ok.length + (items.length > ok.length ? ", пропущено: " + (items.length - ok.length) : "") + ".";
   }
@@ -1336,6 +1376,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
   resetForm();
   renderInv();
+  renderBody();
   showView("main");
   if (!SLOTS.some(s => s.id === state.sel)) state.sel = "shell";
   render();
