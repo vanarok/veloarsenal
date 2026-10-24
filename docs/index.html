@@ -460,6 +460,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   "use strict";
 
   const ICONS = {
+    helmet: '<path d="M3 15a9 8 0 0 1 18 0v1.5H3z"/><path d="M8 8.5l1.5 6.5M12 7v8M16 8.5l-1.5 6.5"/><path d="M5 16.5l1.5 3h3"/>',
     head: '<path d="M4 15a8 8 0 0 1 16 0v2H4z"/><path d="M7 10c2-2 8-2 10 0"/><path d="M12 7v3"/>',
     face: '<path d="M6 8h12l-1 9H7z"/><path d="M6 12h12"/><path d="M8 17l-1 3M16 17l1 3"/>',
     eyes: '<circle cx="7.5" cy="13" r="3.5"/><circle cx="16.5" cy="13" r="3.5"/><path d="M11 13h2M4 12l-1-2M20 12l1-2"/>',
@@ -470,12 +471,14 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     legs: '<path d="M6 3h12l1 18h-5l-2-11-2 11H5z"/><path d="M6 7h12"/>',
     legOver: '<path d="M7 3h10v18h-4v-9l-1-2-1 2v9H7z"/><path d="M7 7h10M7 15h4M13 15h4"/>',
     socks: '<path d="M9 3h6v9l3 3a3 3 0 0 1-2 5H9a3 3 0 0 1-3-3V3z"/><path d="M9 7h6"/>',
+    shoes: '<path d="M3 16l1.5-6h4l2 3 5 1.5c3 .8 5 1.5 5 3.5H3z"/><path d="M3 18h18"/><path d="M9 13l1-1.5M11.5 14l1-1.5"/>',
     overshoe: '<path d="M4 18h16v-2c0-2-3-3-6-4V5H8v9c-2 0-4 1-4 4z"/><path d="M8 9h6"/>',
     vis: '<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>'
   };
 
   // Типы вещей в каждом слоте: из них пользователь выбирает при добавлении своей вещи
   const TYPES = {
+    helmet:   { road: "Шоссейный", mtb: "МТБ с козырьком", urban: "Городской", winter: "Зимний (с утеплёнными ушами)" },
     head:     { thin: "Тонкая шапка", helmetCap: "Шапочка под шлем (ветрозащита)", earband: "Повязка на уши", cycCap: "Велокепка с козырьком", balaclava: "Балаклава" },
     face:     { snood: "Снуд / бафф", mask: "Ветрозащитная маска", scarf: "Шарф", balaclava: "Балаклава" },
     eyes:     { glasses: "Спортивные очки", sealed: "Очки с уплотнителем", goggles: "Маска" },
@@ -486,6 +489,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     legs:     { shorts: "Велошорты", knickers: "Бриджи 3/4", tights: "Тайтсы без утепления", winterTights: "Зимние тайтсы" },
     legOver:  { overpants: "Ветрозащитные брюки / самосбросы", warmPants: "Утеплённые брюки", legWarmers: "Велогетры / наколенники" },
     socks:    { regular: "Обычные", thinWool: "Тонкие шерстяные", thickWool: "Толстые шерстяные", waterproof: "Непромокаемые" },
+    shoes:    { cycling: "Велотуфли", sneakers: "Кроссовки / кеды", trail: "Треккинговые / мембранные", winterCycling: "Зимние велоботинки", winterBoots: "Тёплые зимние ботинки" },
     overshoe: { toe: "Носочки на туфли", wind: "Ветрозащитные бахилы", warm: "Утеплённые бахилы" },
     vis:      { lights: "Фонари", reflVest: "Светоотражающий жилет", reflBands: "Светоотражающие браслеты / полосы" }
   };
@@ -494,6 +498,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   // Что нужно надеть: каталог потребностей. Своя вещь подставляется по слоту и типу,
   // среди подходящих — сначала та, что уже есть, потом по предпочтительному материалу
   const NEEDS = {
+    helmet:       { slot: "helmet", n: "Велошлем", types: ["road", "mtb", "urban", "winter"], r: "rare", note: "Сидит ровно, ремешок под подбородком — палец проходит", find: "велошлем" },
+    helmetWinter: { slot: "helmet", n: "Зимний шлем", types: ["winter", "urban", "mtb", "road"], r: "epic", warm: 1, wind: 1, note: "Вентиляция обычного шлема в мороз продувает — под него шапочка или балаклава", find: "велошлем зимний" },
     capThin:      { slot: "head", n: "Тонкая шапка под шлем", types: ["thin", "helmetCap", "earband", "cycCap"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, find: "тонкая шапка под велошлем" },
     capWind:      { slot: "head", n: "Шапочка под шлем с ветрозащитой", types: ["helmetCap", "thin", "earband"], r: "rare", warm: 1, wind: 1, cafe: true, note: "Закрывает уши от ветра", find: "велошапочка под шлем ветрозащитная" },
     balaclava:    { slot: "head", n: "Балаклава", types: ["balaclava"], r: "epic", warm: 2, wind: 1, cafe: true, up: "сдвинуть с носа", down: "на нос", find: "балаклава тонкая под шлем", alts: ["capWind"] },
@@ -525,28 +531,32 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     socksReg:     { slot: "socks", n: "Обычные спортивные носки", types: ["regular", "thinWool"], r: "common", basic: true },
     socksThin:    { slot: "socks", n: "Тонкие шерстяные носки", types: ["thinWool", "waterproof", "thickWool"], mats: ["merino", "wool"], r: "rare", warm: 1, note: "Под штанину, без голой полоски на щиколотке", find: "носки меринос тонкие" },
     socksThick:   { slot: "socks", n: "Толстые шерстяные носки", types: ["thickWool", "waterproof"], mats: ["merino", "wool"], r: "epic", warm: 2, note: "Обувь не должна давить — иначе стопы мёрзнут сильнее", find: "носки меринос теплые", alts: ["socksThin"] },
+    shoesSummer:  { slot: "shoes", n: "Обычная обувь", types: ["cycling", "sneakers", "trail", "winterCycling"], r: "common", basic: true },
+    shoesCool:    { slot: "shoes", n: "Закрытая обувь под бахилы", types: ["trail", "winterCycling", "cycling", "sneakers"], r: "uncommon", basic: true, note: "Сетка на кроссовках продувается — сверху бахилы" },
+    shoesWinter:  { slot: "shoes", n: "Зимние ботинки", types: ["winterCycling", "winterBoots"], r: "legendary", warm: 2, wind: 2, note: "На размер больше обычного, чтобы влезли толстые носки и не давило. Тёплые ботинки греют лучше туфель с бахилами", find: "зимние велоботинки", alts: ["shoesCool"] },
     overshoes:    { slot: "overshoe", n: "Велобахилы", types: ["wind", "warm", "toe"], r: "epic", warm: 1, wind: 3, find: "велобахилы" },
     lights:       { slot: "vis", n: "Фонари спереди и сзади", types: ["lights"], r: "common", basic: true, note: "Обязательно после заката" },
     reflVest:     { slot: "vis", n: "Светоотражающий жилет", types: ["reflVest", "reflBands"], r: "uncommon", note: "Поверх всего", find: "светоотражающий жилет" }
   };
 
   const SLOTS = [
-    { id: "head", label: "Голова", side: "L" }, { id: "face", label: "Шея и лицо", side: "L" },
+    { id: "helmet", label: "Шлем", side: "L" }, { id: "head", label: "Голова", side: "L" }, { id: "face", label: "Шея и лицо", side: "L" },
     { id: "eyes", label: "Глаза", side: "L" }, { id: "base", label: "База", side: "L" },
     { id: "mid", label: "Средний слой", side: "L" }, { id: "shell", label: "Ветрозащита", side: "L" },
     { id: "hands", label: "Руки", side: "R" }, { id: "legs", label: "Ноги", side: "R" },
-    { id: "legOver", label: "Утепление ног", side: "R" }, { id: "socks", label: "Носки", side: "R" },
+    { id: "legOver", label: "Утепление ног", side: "R" }, { id: "socks", label: "Носки", side: "R" }, { id: "shoes", label: "Обувь", side: "R" },
     { id: "overshoe", label: "Бахилы", side: "R" }, { id: "vis", label: "Видимость", side: "R" }
   ];
 
   const HINT = {
     head: "Выше +12° не нужна", face: "Выше +15° по желанию", mid: "Выше +12° флис лишний",
     shell: "Выше +16° не нужна", legOver: "Выше −3° брюки поверх не нужны",
-    overshoe: "Выше +5° и в сухую погоду не нужны"
+    overshoe: "Не нужны: тепло и сухо или на ногах зимние ботинки"
   };
 
   function pick(e, dark, rain) {
     const o = {};
+    o.helmet = [e > -3 ? "helmet" : "helmetWinter"];
     o.head = e > 12 ? [] : e > 5 ? ["capThin"] : e > 0 ? ["capWind"] : ["balaclava"];
     o.face = e > 15 ? [] : e > 5 ? ["neck"] : e > 0 ? ["nose"] : ["under"];
     o.eyes = [e > 2 ? "glasses" : "glassesSeal"];
@@ -558,6 +568,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     o.legs = e > 18 ? ["shorts"] : e > 10 ? ["tights"] : ["winterTights"];
     o.legOver = e > -3 ? [] : ["overpants"];
     o.socks = e > 12 ? ["socksReg"] : e > 0 ? ["socksThin"] : ["socksThick"];
+    o.shoes = e > 5 && !rain ? ["shoesSummer"] : e > -3 ? ["shoesCool"] : ["shoesWinter"];
     o.overshoe = e > 5 && !rain ? [] : ["overshoes"];
     o.vis = dark ? ["lights", "reflVest"] : ["lights"];
     return o;
@@ -610,6 +621,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     // Нет тайтсов, но есть шорты и велогетры — их и надеваем в прохладу
     const has = (type) => inv.some(it => it.type === type);
     if (ids.legs[0] === "tights" && !findItem(NEEDS.tights, new Set()) && has("shorts") && has("legWarmers")) { ids.legs = ["shorts"]; ids.legOver = ["legWarm"].concat(ids.legOver); }
+    // Зимние ботинки в сухой мороз — бахилы не нужны
+    if (ids.shoes[0] === "shoesWinter" && !rain && (has("winterCycling") || has("winterBoots"))) ids.overshoe = [];
     // Утеплённая зимняя куртка в мороз заменяет и мембрану, и утеплённый жилет
     if (ids.shell.includes("frostShell") && has("winterJacket")) ids.shell = ids.shell.filter(n => n !== "warmVest");
     // Нет зимних тайтсов при +5° и ниже — обычные тайтсы и брюки поверх (их можно снять в помещении)
@@ -731,7 +744,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     if (z === "torso") return eq.shell.length ? "shell" : eq.mid.length ? "mid" : "base";
     if (z === "armL" || z === "armR") return eq.shell.some(x => x.sleeves !== false) ? "shell" : eq.mid.length ? "mid" : "base";
     if (z === "thighs" || z === "shins") return eq.legOver.length ? "legOver" : "legs";
-    if (z === "feet") return eq.overshoe.length ? "overshoe" : "socks";
+    if (z === "feet") return eq.overshoe.length ? "overshoe" : eq.shoes.length ? "shoes" : "socks";
     return z;
   }
 
