@@ -610,8 +610,18 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     // Первый раз неизвестно, что удалено вручную, — добавляем только в пустые слоты
     const firstRun = !Array.isArray(seen);
     const filled = new Set(inv.map(it => it.slot));
+    // Вещь из файла может заменить старую по имени («replaces»): переименование без дубля
+    def.forEach(it => {
+      if (!it.replaces || !TYPES[it.slot] || !TYPES[it.slot][it.type]) return;
+      const old = inv.find(x => x.slot === it.slot && String(x.name).toLowerCase() === String(it.replaces).toLowerCase());
+      if (!old) return;
+      const { replaces, status, ...fresh } = it;
+      Object.assign(old, { mat: "other", ...fresh });
+      have.add(key(old));
+      saveInv();
+    });
     const add = def.filter(it => TYPES[it.slot] && TYPES[it.slot][it.type] && !known.has(key(it)) && !have.has(key(it)) && !(firstRun && filled.has(it.slot)));
-    if (add.length) { inv = inv.concat(add.map(({ status, ...it }) => ({ mat: "other", ...it, id: newId() }))); saveInv(); }
+    if (add.length) { inv = inv.concat(add.map(({ status, replaces, ...it }) => ({ mat: "other", ...it, id: newId() }))); saveInv(); }
     try { localStorage.setItem("veloarsenal.defaultsSeen", JSON.stringify([...new Set([...known, ...def.map(key)])])); } catch (err) { /* ignore */ }
   })();
 
