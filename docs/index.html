@@ -291,7 +291,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 .ovs-x .ovs-thumb { height: 6px; margin-top: 2px; }
 .ovs-thumb:hover, .ovs-bar.drag .ovs-thumb { background: color-mix(in srgb, var(--ink) 55%, transparent); }
 
-@media (max-width: 1180px) {
+/* Раскладка окна приложения: сайт тоже не шире 942 px, поэтому она действует всегда, а не только на узком экране */
+@media all {
   /* Шапка: название, температура и переключатели в строку; ползунки и прогноз ниже на всю ширину */
   .bar { grid-template-columns: auto auto minmax(0, 1fr); gap: 10px 20px; }
   .toggles { grid-column: 3; grid-row: 1; }
