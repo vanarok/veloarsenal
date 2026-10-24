@@ -523,7 +523,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
   const HINT = {
     head: "Выше +12° не нужна", face: "Выше +15° по желанию", mid: "Выше +12° флис лишний",
-    shell: "Выше +16° не нужна", legOver: "Выше +5° брюки поверх жаркие",
+    shell: "Выше +16° не нужна", legOver: "Выше −3° брюки поверх не нужны",
     overshoe: "Выше +5° и в сухую погоду не нужны"
   };
 
@@ -536,8 +536,9 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     o.mid = e > 12 ? [] : ["mid"];
     o.shell = rain ? (e > 0 ? ["membrane"] : ["membrane", "warmVest"]) : e > 16 ? [] : e > 12 ? ["windVest"] : e > 0 ? ["windJacket"] : ["membrane", "warmVest"];
     o.hands = e > 15 ? ["gMesh"] : e > 8 ? ["gThin"] : e > 2 ? ["gWarm"] : ["gLobster"];
-    o.legs = e > 18 ? ["shorts"] : e > 10 ? ["tights"] : e > 5 ? ["winterTights"] : e > -5 ? ["tights"] : ["winterTights"];
-    o.legOver = e > 5 ? [] : ["overpants"];
+    // Ноги теплеют вместе с погодой: шорты → тайтсы → зимние тайтсы → зимние + брюки поверх
+    o.legs = e > 18 ? ["shorts"] : e > 10 ? ["tights"] : ["winterTights"];
+    o.legOver = e > -3 ? [] : ["overpants"];
     o.socks = e > 12 ? ["socksReg"] : e > 0 ? ["socksThin"] : ["socksThick"];
     o.overshoe = e > 5 && !rain ? [] : ["overshoes"];
     o.vis = dark ? ["lights", "reflVest"] : ["lights"];
@@ -588,6 +589,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     const ids = pick(e, dark, rain);
     // Без балаклавы лицо закрывает снуд на нос
     if (ids.head[0] === "balaclava" && !findItem(NEEDS.balaclava, new Set())) ids.face = ["nose"];
+    // Нет зимних тайтсов при +5° и ниже — обычные тайтсы и брюки поверх (их можно снять в кафе)
+    if (ids.legs[0] === "winterTights" && e <= 5 && !ids.legOver.length && !findItem(NEEDS.winterTights, new Set())) ids.legOver = ["overpants"];
     const used = new Set(), o = {};
     SLOTS.forEach(s => { o[s.id] = ids[s.id].map(nid => resolve(nid, used)).filter(Boolean); });
     return o;
