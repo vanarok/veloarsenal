@@ -102,7 +102,13 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .wx-now .wt { font: 500 26px var(--font-cond); color: var(--ink); }
 .w-apply { font-size: 15px; color: var(--ink); background: transparent; border: 1px solid var(--ink); border-radius: 3px; padding: 5px 12px; cursor: pointer; }
 .w-apply:hover { background: var(--ink); color: var(--paper); }
-.hours { display: flex; gap: 0; overflow-x: auto; min-width: 0; width: fit-content; max-width: 100%; justify-self: start; border: 1px solid var(--rule); border-radius: 3px; }
+.hours-wrap { position: relative; min-width: 0; justify-self: start; max-width: 100%; }
+.hours { display: flex; gap: 0; overflow-x: auto; min-width: 0; width: fit-content; max-width: 100%; border: 1px solid var(--rule); border-radius: 3px; }
+/* Подсказка «можно листать»: затухание у правого края и покачивающиеся стрелки */
+.swipe-cue { position: absolute; top: 1px; right: 1px; bottom: 1px; width: 56px; display: grid; place-items: center end; padding-right: 8px; pointer-events: none; border-radius: 0 3px 3px 0; background: linear-gradient(90deg, transparent, var(--paper) 70%); transition: opacity .4s; }
+.swipe-cue span { font: 600 22px/1 var(--font); color: var(--ink-2); animation: swipe-nudge 1.2s ease-in-out infinite; }
+.swipe-cue.gone { opacity: 0; }
+@keyframes swipe-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
 .hour { flex: 0 0 auto; display: grid; justify-items: center; background: transparent; border: 0; border-left: 1px solid var(--rule); padding: 5px 10px; cursor: pointer; min-width: 58px; }
 .hour:first-child { border-left: 0; }
 .hour:hover { background: var(--sheet); }
@@ -317,7 +323,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 @media (max-width: 420px) {
   .speed { flex-wrap: wrap; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } .swipe-cue span { animation: none; } }
 </style>
 
 <div class="app">
@@ -345,7 +351,10 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     <div class="wx" aria-label="Погода">
       <button type="button" class="m-only cond-btn" id="condBtn" aria-label="Другая погода или скорость"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button>
       <div class="wx-now" id="wNow"><span>Загружаю прогноз…</span></div>
-      <div class="hours" id="wHours" role="group" aria-label="Почасовой прогноз: нажмите, чтобы одеться на этот час"></div>
+      <div class="hours-wrap">
+        <div class="hours" id="wHours" role="group" aria-label="Почасовой прогноз: нажмите, чтобы одеться на этот час"></div>
+        <div class="swipe-cue" id="swipeCue" aria-hidden="true" hidden><span>››</span></div>
+      </div>
       <div class="city-pop" id="cityPanel" role="dialog" aria-label="Выбор города" hidden>
         <input id="cityQ" type="search" placeholder="Город, например «Алматы»" aria-label="Поиск города" autocomplete="off">
         <div class="city-res" id="cityRes"></div>
@@ -1107,18 +1116,20 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     $("wHours").querySelectorAll(".hour").forEach(b => b.onclick = () => { lastManual = Date.now(); const h = weather.hours[Number(b.dataset.i)]; applyWeather(h.t, h.wind, h.code); });
     swipeHint();
   }
-  // Телефон, первый показ: лента часов сама сдвигается и возвращается — подсказка, что её можно листать
+  // Телефон: при каждом заходе у ленты часов подсказка «можно листать»; гаснет после первой прокрутки
+  let swipeDone = false;
   function swipeHint() {
-    const el = $("wHours");
-    if (!phone.matches || el.scrollWidth <= el.clientWidth + 8) return;
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    try { if (localStorage.getItem("veloarsenal.swipeHint")) return; localStorage.setItem("veloarsenal.swipeHint", "1"); } catch (err) { return; }
-    const shift = Math.min(140, el.scrollWidth - el.clientWidth);
-    setTimeout(() => {
-      el.scrollTo({ left: shift, behavior: "smooth" });
-      setTimeout(() => el.scrollTo({ left: 0, behavior: "smooth" }), 900);
-    }, 700);
+    const el = $("wHours"), cue = $("swipeCue");
+    if (swipeDone || !phone.matches || el.scrollWidth <= el.clientWidth + 8) { cue.hidden = true; return; }
+    cue.hidden = false;
+    cue.classList.remove("gone");
   }
+  $("wHours").addEventListener("scroll", () => {
+    if (swipeDone || $("wHours").scrollLeft < 12) return;
+    swipeDone = true;
+    $("swipeCue").classList.add("gone");
+    setTimeout(() => { $("swipeCue").hidden = true; }, 400);
+  }, { passive: true });
   // Заготовка той же формы, что и прогноз: при загрузке ничего не прыгает
   function renderWeatherStub(city, msg) {
     $("wNow").innerHTML =
