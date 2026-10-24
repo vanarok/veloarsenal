@@ -584,6 +584,22 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   inv = (Array.isArray(inv) ? inv : []).filter(it => it && TYPES[it.slot] && TYPES[it.slot][it.type] && it.status !== "wanted").map(({ status, ...it }) => ({ mat: "other", ...it, id: it.id || newId() }));
   function newId() { return "i" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
   const saveInv = () => { try { localStorage.setItem(INV_KEY, JSON.stringify(inv)); } catch (err) { /* только в памяти */ } };
+  // Стартовый список из сборки: новые вещи дописываются один раз, удалённые вручную не возвращаются
+  (function mergeDefaults() {
+    const def = Array.isArray(window.VA_DEFAULT_INVENTORY) ? window.VA_DEFAULT_INVENTORY : [];
+    if (!def.length) return;
+    const key = (it) => it.slot + "|" + it.type + "|" + String(it.name).toLowerCase();
+    let seen = null;
+    try { seen = JSON.parse(localStorage.getItem("veloarsenal.defaultsSeen") || "null"); } catch (err) { seen = null; }
+    const have = new Set(inv.map(key));
+    const known = new Set(Array.isArray(seen) ? seen : []);
+    // Первый раз неизвестно, что удалено вручную, — добавляем только в пустые слоты
+    const firstRun = !Array.isArray(seen);
+    const filled = new Set(inv.map(it => it.slot));
+    const add = def.filter(it => TYPES[it.slot] && TYPES[it.slot][it.type] && !known.has(key(it)) && !have.has(key(it)) && !(firstRun && filled.has(it.slot)));
+    if (add.length) { inv = inv.concat(add.map(({ status, ...it }) => ({ mat: "other", ...it, id: newId() }))); saveInv(); }
+    try { localStorage.setItem("veloarsenal.defaultsSeen", JSON.stringify([...new Set([...known, ...def.map(key)])])); } catch (err) { /* ignore */ }
+  })();
 
   const matRank = (need, it) => { const i = (need.mats || []).indexOf(it.mat); return i < 0 ? 9 : i; };
   function findItem(need, used) {
