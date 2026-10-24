@@ -248,7 +248,6 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .body-form .bf-in { display: flex; align-items: center; gap: 6px; }
 .body-form input { width: 100%; min-width: 0; padding: 6px 8px; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 3px; color: var(--ink); font-size: 15px; }
 .body-form .bf-u { color: var(--muted); font-size: 14px; white-space: nowrap; }
-.body-howto { color: var(--muted); font-size: 14px; margin: 4px 0 14px; }
 .body-hint { margin: 0; color: var(--ink-2); font-size: 14px; }
 .body-sum { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin: 0 0 12px; color: var(--ink-2); font-size: 15px; }
 .modal .body-form { margin-top: 8px; }
@@ -499,9 +498,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
 
   <div class="modal-bg" id="bodyDlg" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="bodyTitle">
-      <h2 id="bodyTitle">Мои мерки</h2>
+      <h2 id="bodyTitle">Мои мерки <span class="tip" tabindex="0" title="Мерьте без одежды, стоя ровно. Лента прилегает, но не врезается: под неё проходит палец. Перемерьте два-три раза и возьмите среднее. Сохраняется само и попадает в файл выгрузки." aria-label="Мерьте без одежды, стоя ровно. Лента прилегает, но не врезается: под неё проходит палец. Перемерьте два-три раза и возьмите среднее. Сохраняется само и попадает в файл выгрузки.">i</span></h2>
       <div class="body-form" id="bodyForm"></div>
-      <p class="body-howto">Мерьте без одежды, стоя ровно. Лента прилегает, но не врезается: под неё проходит палец. Перемерьте два-три раза и возьмите среднее. Сохраняется само и попадает в файл выгрузки.</p>
       <div class="inv-actions"><button type="button" class="btn pri" id="bodyDone">Готово</button></div>
     </div>
   </div>
