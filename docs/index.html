@@ -314,7 +314,9 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .iname { white-space: normal; }
   .slot { padding: 12px 6px 12px 10px; }
 
-  .page-h { position: sticky; top: 0; z-index: 5; background: var(--paper); }
+  .page-h { position: sticky; top: 0; z-index: 5; background: var(--paper); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }
+  .page-h .back { grid-column: 1 / -1; justify-self: start; }
+  .page-h .btn.pri { margin-left: 0; }
   .page { overflow: visible; }
   .hd { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .inv-form { grid-template-columns: minmax(0, 1fr); }
@@ -414,7 +416,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   </section>
 
   <section class="page" id="p-inv" aria-labelledby="h-inv" hidden>
-    <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-inv">Мои вещи</h2><button type="button" class="btn pri" id="addBtn">Добавить вещь</button></div>
+    <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-inv">Мои вещи</h2><button type="button" class="btn pri" id="addBtn">Добавить</button></div>
     <div id="invList"></div>
     <div class="sec-h">Перенос <span class="tip" tabindex="0" title="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются." aria-label="Загрузка заменяет весь список. Вещи хранятся только в этом браузере или приложении и никуда не отправляются.">i</span></div>
         <div class="io">
@@ -969,7 +971,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         '<div class="inv-txt"><div class="inv-n">' + esc(it.name) + '</div><div class="inv-m">' + esc(TYPES[it.slot][it.type]) + (it.mat && it.mat !== "other" ? " · " + esc(MATS[it.mat] || "") : "") + '</div></div>' +
         '<button type="button" class="ib" data-edit="' + it.id + '" aria-label="Изменить">✎</button><button type="button" class="ib" data-del="' + it.id + '" aria-label="Удалить">✕</button></div>').join("") + '</div>';
     }).join("");
-    $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Нажмите «Добавить вещь» или загрузите файл ниже, в «Переносе».</p>';
+    $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Нажмите «Добавить» или загрузите файл ниже, в «Переносе».</p>';
     $("invCount").textContent = inv.length ? String(inv.length) : "";
     $("invList").querySelectorAll("[data-edit]").forEach(b => b.onclick = () => startEdit(b.dataset.edit));
     $("invList").querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
