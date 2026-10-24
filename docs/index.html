@@ -200,6 +200,20 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .gprin { margin: 0; padding-left: 16px; display: grid; gap: 4px; font-size: 15px; color: var(--ink-2); }
 .gprin b { color: var(--ink); font-weight: 600; }
 
+/* Полосы прокрутки поверх содержимого: место не занимают, видны только при прокрутке и наведении */
+html, .tabpanel, .hours { scrollbar-width: none; }
+html::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar { display: none; }
+.tabs { position: relative; }
+.ovs-bar { position: absolute; z-index: 15; opacity: 0; transition: opacity .3s; pointer-events: none; }
+.ovs-bar.on, .ovs-bar:hover { opacity: 1; }
+.ovs-page { position: fixed; top: 0; right: 0; height: 100vh; }
+.ovs-y { width: 10px; }
+.ovs-x { height: 10px; }
+.ovs-thumb { pointer-events: auto; border-radius: 5px; background: color-mix(in srgb, var(--ink) 32%, transparent); }
+.ovs-y .ovs-thumb { width: 6px; margin-left: 2px; }
+.ovs-x .ovs-thumb { height: 6px; margin-top: 2px; }
+.ovs-thumb:hover, .ovs-bar.drag .ovs-thumb { background: color-mix(in srgb, var(--ink) 55%, transparent); }
+
 @media (max-width: 1180px) {
   .main { grid-template-columns: minmax(0, 1fr) 180px minmax(0, 1fr); }
   .tabs { grid-column: 1 / -1; max-height: none; margin-top: 18px; }
@@ -883,6 +897,68 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
   $("spdCalm").addEventListener("click", () => { state.hill = false; render(); });
   $("dark").addEventListener("click", () => { state.dark = !state.dark; render(); });
   $("rain").addEventListener("click", () => { state.rain = !state.rain; render(); });
+
+
+  // Полосы прокрутки поверх содержимого
+  function overlayScroll(el, axis) {
+    const page = el === document.scrollingElement;
+    const host = page ? document.body : el.parentElement;
+    const X = axis === "x";
+    const bar = document.createElement("div");
+    bar.className = "ovs-bar ovs-" + axis + (page ? " ovs-page" : "");
+    bar.setAttribute("aria-hidden", "true");
+    const thumb = document.createElement("div");
+    thumb.className = "ovs-thumb";
+    bar.appendChild(thumb);
+    host.appendChild(bar);
+    let hideT = null, drag = null;
+    const view = () => X ? el.clientWidth : page ? innerHeight : el.clientHeight;
+    const full = () => X ? el.scrollWidth : el.scrollHeight;
+    const pos = () => X ? el.scrollLeft : el.scrollTop;
+    const track = () => X ? bar.clientWidth : bar.clientHeight;
+    function place() {
+      if (full() <= view() + 1) { bar.hidden = true; return; }
+      bar.hidden = false;
+      if (!page) {
+        const r = el.getBoundingClientRect(), h = host.getBoundingClientRect();
+        if (X) Object.assign(bar.style, { left: (r.left - h.left) + "px", top: (r.bottom - h.top - 10) + "px", width: r.width + "px" });
+        else Object.assign(bar.style, { top: (r.top - h.top) + "px", left: (r.right - h.left - 10) + "px", height: r.height + "px" });
+      }
+      const size = Math.max(32, track() * view() / full());
+      const off = (track() - size) * pos() / (full() - view());
+      thumb.style[X ? "width" : "height"] = size + "px";
+      thumb.style.transform = (X ? "translateX(" : "translateY(") + off + "px)";
+    }
+    function flash() {
+      place();
+      bar.classList.add("on");
+      clearTimeout(hideT);
+      hideT = setTimeout(() => { if (!drag) bar.classList.remove("on"); }, 1000);
+    }
+    (page ? window : el).addEventListener("scroll", flash, { passive: true });
+    if (!page) el.addEventListener("mouseenter", flash);
+    window.addEventListener("resize", place);
+    new MutationObserver(place).observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
+    thumb.addEventListener("pointerdown", (ev) => {
+      drag = { from: X ? ev.clientX : ev.clientY, at: pos() };
+      thumb.setPointerCapture(ev.pointerId);
+      bar.classList.add("on", "drag");
+      ev.preventDefault();
+    });
+    thumb.addEventListener("pointermove", (ev) => {
+      if (!drag) return;
+      const size = X ? thumb.offsetWidth : thumb.offsetHeight;
+      const v = drag.at + ((X ? ev.clientX : ev.clientY) - drag.from) * (full() - view()) / Math.max(1, track() - size);
+      if (X) el.scrollLeft = v; else el.scrollTop = v;
+    });
+    const end = () => { drag = null; bar.classList.remove("drag"); flash(); };
+    thumb.addEventListener("pointerup", end);
+    thumb.addEventListener("pointercancel", end);
+    place();
+  }
+  overlayScroll(document.scrollingElement, "y");
+  overlayScroll($("wHours"), "x");
+  document.querySelectorAll(".tabpanel").forEach(el => overlayScroll(el, "y"));
 
   resetForm();
   renderInv();
