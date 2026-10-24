@@ -55,9 +55,12 @@ body {
   color: var(--ink);
   font: 16px/1.5 var(--font);
   font-variant-numeric: tabular-nums;
-  padding: 18px 16px 24px;
+  padding: 18px 16px 16px;
 }
-.app { max-width: 1480px; margin: 0 auto; display: grid; gap: 18px; }
+/* Окно приложения: страница не прокручивается, прокручиваются колонки и вкладки */
+html, body { height: 100%; }
+body { overflow: hidden; }
+.app { max-width: 1480px; height: 100%; margin: 0 auto; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 18px; }
 button, input, select { font: inherit; color: inherit; }
 button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, .slot:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
 a { color: var(--ink); text-decoration-color: var(--rule-strong); text-underline-offset: 2px; }
@@ -109,8 +112,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .pop-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
 
 /* Основной лист */
-.main { display: grid; grid-template-columns: minmax(0, 1fr) 200px minmax(0, 1fr) minmax(340px, 1.25fr); gap: 0 28px; align-items: start; }
-.col { display: grid; min-width: 0; border-top: 1px solid var(--ink); }
+.main { position: relative; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 200px minmax(0, 1fr) minmax(340px, 1.25fr); gap: 0 28px; align-items: stretch; }
+.col { display: grid; align-content: start; min-width: 0; min-height: 0; overflow-y: auto; border-top: 1px solid var(--ink); }
 .slot { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; align-items: start; padding: 10px 4px 10px 2px; border-bottom: 1px solid var(--rule); cursor: pointer; }
 .slot:hover, .slot.hl { background: var(--sheet); }
 .slot.sel { box-shadow: inset 3px 0 0 var(--ink); background: var(--sheet); }
@@ -124,7 +127,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .iname.need::after { content: " — нужно найти"; font-weight: 400; font-size: 14px; }
 .iname.sub { color: var(--ink-2); }
 
-.center { display: grid; gap: 14px; min-width: 0; }
+.center { display: grid; align-content: start; gap: 14px; min-width: 0; min-height: 0; overflow-y: auto; }
 #figure { width: 100%; max-width: 170px; height: auto; justify-self: center; }
 #figure .part { stroke: var(--ink-2); stroke-width: 1.2; transition: fill .2s; cursor: pointer; }
 #figure .part.miss { stroke: var(--signal); stroke-dasharray: 4 3; stroke-width: 2; }
@@ -142,7 +145,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .insp-hd b { color: var(--ink); }
 
 /* Правая колонка: вкладки */
-.tabs { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; max-height: 720px; border-top: 1px solid var(--ink); }
+.tabs { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; min-height: 0; border-top: 1px solid var(--ink); }
 .tablist { display: flex; gap: 18px; border-bottom: 1px solid var(--rule); overflow-x: auto; }
 .tab { font-size: 16px; color: var(--muted); background: transparent; border: 0; border-bottom: 2px solid transparent; padding: 8px 0 7px; cursor: pointer; white-space: nowrap; }
 .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
@@ -201,8 +204,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .gprin b { color: var(--ink); font-weight: 600; }
 
 /* Полосы прокрутки поверх содержимого: место не занимают, видны только при прокрутке и наведении */
-html, .tabpanel, .hours { scrollbar-width: none; }
-html::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar { display: none; }
+html, .main, .col, .center, .tabpanel, .hours { scrollbar-width: none; }
+html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .center::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar { display: none; }
 .tabs { position: relative; }
 .ovs-bar { position: absolute; z-index: 15; opacity: 0; transition: opacity .3s; pointer-events: none; }
 .ovs-bar.on, .ovs-bar:hover { opacity: 1; }
@@ -215,10 +218,18 @@ html::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar
 .ovs-thumb:hover, .ovs-bar.drag .ovs-thumb { background: color-mix(in srgb, var(--ink) 55%, transparent); }
 
 @media (max-width: 1180px) {
-  .main { grid-template-columns: minmax(0, 1fr) 180px minmax(0, 1fr); }
-  .tabs { grid-column: 1 / -1; max-height: none; margin-top: 18px; }
+  /* Вкладки уходят вниз — прокручивается вся рабочая область целиком */
+  .main { grid-template-columns: minmax(0, 1fr) 180px minmax(0, 1fr); overflow-y: auto; align-items: start; }
+  .col, .center { overflow: visible; }
+  .tabs { grid-column: 1 / -1; margin-top: 18px; }
+  .tabpanel { overflow: visible; }
 }
 @media (max-width: 760px) {
+  /* Телефон: обычная прокрутка страницы */
+  html, body { height: auto; }
+  body { overflow: auto; }
+  .app { height: auto; }
+  .main { overflow: visible; }
   .bar { grid-template-columns: auto minmax(0, 1fr); }
   .brand { grid-column: 1 / -1; }
   .toggles { grid-column: 1 / -1; justify-content: flex-start; }
@@ -962,7 +973,7 @@ html::-webkit-scrollbar, .tabpanel::-webkit-scrollbar, .hours::-webkit-scrollbar
   }
   overlayScroll(pageEl, "y");
   overlayScroll($("wHours"), "x");
-  document.querySelectorAll(".tabpanel").forEach(el => overlayScroll(el, "y"));
+  document.querySelectorAll(".tabpanel, .main, .col, .center").forEach(el => overlayScroll(el, "y"));
 
   resetForm();
   renderInv();
