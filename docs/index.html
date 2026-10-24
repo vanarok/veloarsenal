@@ -750,7 +750,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
         x.notes.map(t => '<div class="insp-note">' + esc(t) + '</div>').join("") +
         (x.up || x.down ? '<div class="insp-hd">' + (x.up ? '<b>↑</b> ' + esc(x.up) : '') + (x.up && x.down ? ' · ' : '') + (x.down ? '<b>↓</b> ' + esc(x.down) : '') + '</div>' : '') +
         (x.it ? '<div class="insp-note"><button type="button" class="lnk" data-edit-item="' + x.it.id + '">Изменить</button>' + (x.link ? ' · <a href="' + esc(x.link) + '" target="_blank" rel="noopener">Ссылка на вещь</a>' : '') + '</div>' : '') +
-        (x.s === "missing" || x.s === "wardrobe" ? '<div class="insp-note"><button type="button" class="lnk" data-add="' + x.nid + '">Добавить свою</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : '') + '</div>' : '') +
+        (x.s === "missing" || x.s === "wardrobe" ? '<div class="insp-note"><button type="button" class="lnk" data-add="' + x.nid + '">Добавить</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : '') + '</div>' : '') +
         '</div>';
     }).join("") : '<div class="insp-note">' + esc(HINT[slot.id] || "При этой температуре не нужно") + '</div>';
     return body;
@@ -862,8 +862,8 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     const missing = all.filter(x => x.s === "missing");
     const subs = all.filter(x => x.sub && x.s !== "missing");
     const q = (cls, title, note) => '<div class="quest' + cls + '"><div class="qt">' + title + '</div><div class="qn">' + note + '</div></div>';
-    let html = inv.length ? "" : '<p class="hint">Добавьте свои вещи во вкладке «Мои вещи» — подбор сам подставит их по типу и материалу. Или загрузите файл со списком через «Перенос».</p>';
-    html += missing.map(x => q(" miss", esc(x.n), '<button type="button" class="lnk" data-add="' + x.nid + '">Добавить свою</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : ''))).join("");
+    let html = "";
+    html += missing.map(x => q(" miss", esc(x.n), '<button type="button" class="lnk" data-add="' + x.nid + '">Добавить</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : ''))).join("");
     if (subs.length) html += '<div class="sec-h">Заменено тем, что есть</div>' + subs.map(x => q("", esc(x.n), "вместо «" + esc(x.sub.n.toLowerCase()) + "»")).join("");
     $("questsBody").innerHTML = html || '<p class="empty-note">Для этой погоды всё есть.</p>';
     $("goMissing").hidden = !missing.length;
