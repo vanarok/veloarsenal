@@ -1,0 +1,985 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Велоарсенал</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Rubik:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: компактный экран персонажа — панель условий сверху, ниже в один экран: слоты | силуэт с инспектором | слоты | вкладки. Одна тёмная тема намеренно. */
+:root {
+  color-scheme: dark;
+  --bg: #15131d;
+  --panel: #1f1c2a;
+  --panel-2: #282437;
+  --line: #3d3753;
+  --fg: #ede6d4;
+  --muted: #a49cba;
+  --gold: #d6a648;
+  --gold-dim: #8a6c33;
+  --r-common: #9ba1a8;
+  --r-uncommon: #52c46f;
+  --r-rare: #4d93e6;
+  --r-epic: #a970ff;
+  --r-legendary: #ff9b3d;
+  --s-owned: #52c46f;
+  --s-transit: #4d93e6;
+  --s-missing: #e8574e;
+  --s-wardrobe: #9ba1a8;
+  --font-display: "Russo One", "Arial Black", system-ui, sans-serif;
+  --font-body: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.35;
+  padding-inline: 16px;
+  padding-block: 12px 16px;
+}
+.app { max-width: 1400px; margin: 0 auto; display: grid; gap: 10px; }
+button { font-family: var(--font-body); }
+button:focus-visible, input:focus-visible, a:focus-visible, .slot:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* Верхняя панель: условия + погода в две строки */
+.bar {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: auto auto minmax(180px, 1fr) auto;
+  gap: 8px 16px;
+  align-items: center;
+}
+.brand { font-family: var(--font-display); color: var(--gold); font-size: 20px; letter-spacing: 0.02em; text-shadow: 0 0 14px color-mix(in srgb, var(--gold) 30%, transparent); white-space: nowrap; }
+.temp-big { font-family: var(--font-display); font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; min-width: 3.4ch; text-align: right; }
+.sliders { display: grid; gap: 2px; min-width: 0; }
+.sl-row { display: grid; grid-template-columns: 54px minmax(0, 1fr) 58px; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; }
+.sl-row output { font-family: var(--font-mono); color: var(--fg); text-align: right; font-size: 12px; }
+input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin: 0; }
+.eff { font-size: 12px; color: var(--muted); }
+.eff b { color: var(--fg); font-weight: 500; }
+.toggles { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.tg {
+  font: 500 12px var(--font-body); color: var(--muted); background: var(--panel-2);
+  border: 1px solid var(--line); border-radius: 4px; padding: 6px 9px; cursor: pointer; white-space: nowrap;
+}
+.tg[aria-pressed="true"] { background: color-mix(in srgb, var(--gold) 22%, var(--panel-2)); color: var(--fg); border-color: var(--gold-dim); }
+
+.wx { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 12px; align-items: center; border-top: 1px solid var(--line); padding-top: 8px; }
+.wx-now { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 12px; color: var(--muted); }
+.wx-now b { color: var(--fg); font-weight: 500; font-variant-numeric: tabular-nums; }
+.wx-now .wt { font-family: var(--font-display); font-size: 18px; color: var(--fg); }
+.w-apply { font: 500 12px var(--font-body); color: var(--bg); background: var(--gold); border: 0; border-radius: 4px; padding: 6px 10px; cursor: pointer; }
+.hours { display: flex; gap: 4px; overflow-x: auto; min-width: 0; padding-bottom: 2px; }
+.hour {
+  flex: 0 0 auto; display: grid; justify-items: center; gap: 0;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px;
+  padding: 3px 7px; cursor: pointer; color: var(--fg); font: 400 11px var(--font-body); min-width: 48px;
+}
+.hour:hover { border-color: var(--gold); }
+.hour .h { font-family: var(--font-mono); color: var(--muted); font-size: 10px; }
+.hour .t { font-family: var(--font-display); font-size: 13px; font-variant-numeric: tabular-nums; }
+.hour .w { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+.hour.wet .t { color: var(--r-rare); }
+.wx-upd { font: 500 10px var(--font-mono); color: var(--muted); }
+
+/* Основной экран */
+.main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px minmax(0, 1fr) minmax(300px, 1.25fr);
+  gap: 10px;
+  align-items: start;
+}
+.col { display: grid; gap: 6px; min-width: 0; }
+.slot {
+  --rc: var(--r-common);
+  display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 8px; align-items: center;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line); border-radius: 5px; padding: 5px 7px 5px 5px;
+  min-height: 52px; cursor: pointer;
+}
+.slot.hl, .slot.sel { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold-dim); }
+.icon {
+  width: 40px; height: 40px; border-radius: 4px; display: grid; place-items: center; position: relative;
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--rc) 35%, var(--panel-2)), var(--bg) 80%);
+  border: 2px solid var(--rc); color: var(--rc);
+  box-shadow: inset 0 0 8px #000, 0 0 8px color-mix(in srgb, var(--rc) 40%, transparent);
+}
+.icon svg { width: 22px; height: 22px; }
+.icon .count { position: absolute; right: 1px; bottom: -1px; font: 500 10px var(--font-mono); color: var(--fg); text-shadow: 0 1px 2px #000; }
+.slot.empty .icon { border-style: dashed; border-color: var(--line); color: var(--line); background: var(--bg); box-shadow: inset 0 0 8px #000; }
+.slabel { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.iline { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.iname { font-weight: 500; color: var(--rcol, var(--fg)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.slot.empty .iname { color: var(--muted); font-weight: 400; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px; background: currentColor; box-shadow: 0 0 5px currentColor; }
+.st-owned { color: var(--s-owned); }
+.st-transit { color: var(--s-transit); }
+.st-missing { color: var(--s-missing); }
+.st-wardrobe { color: var(--s-wardrobe); }
+
+.center { display: grid; gap: 8px; min-width: 0; }
+.figure-card {
+  background: radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--gold) 8%, var(--panel)), var(--bg) 75%);
+  border: 1px solid var(--gold-dim); border-radius: 6px; padding: 8px; display: grid; gap: 6px; justify-items: center;
+}
+#figure { width: 100%; max-width: 150px; height: auto; }
+#figure .part { stroke: var(--gold-dim); stroke-width: 1.5; transition: fill .2s; cursor: pointer; }
+#figure .part.miss { stroke: var(--s-missing); stroke-dasharray: 4 3; stroke-width: 2; }
+#figure .part.hl { stroke: var(--gold); stroke-width: 2.5; }
+.stats { width: 100%; display: grid; gap: 4px; }
+.stat { display: grid; grid-template-columns: 74px minmax(0, 1fr) 32px; gap: 6px; align-items: center; font-size: 11px; }
+.stat .lbl { color: var(--muted); }
+.stat .bar2 { height: 6px; background: var(--bg); border: 1px solid var(--line); border-radius: 2px; overflow: hidden; }
+.stat .fill { height: 100%; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); transition: width .25s; }
+.stat .val { font-family: var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+
+.inspector { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; min-height: 96px; }
+.inspector .slabel { margin-bottom: 4px; }
+.insp-item + .insp-item { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); }
+.insp-name { font-weight: 500; color: var(--rcol, var(--fg)); }
+.insp-meta { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin-top: 2px; font-size: 11px; }
+.chip { font: 500 10px var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em; padding: 0 5px; border: 1px solid currentColor; border-radius: 3px; }
+.insp-note { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.insp-note a { color: var(--r-rare); }
+
+/* Вкладки */
+.tabs { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; max-height: 600px; }
+.tablist { display: flex; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab {
+  flex: 1 0 auto; font: 500 12px var(--font-body); color: var(--muted); background: transparent; border: 0;
+  border-bottom: 2px solid transparent; padding: 9px 10px; cursor: pointer; white-space: nowrap;
+}
+.tab[aria-selected="true"] { color: var(--gold); border-bottom-color: var(--gold); }
+.tab .badge { font: 500 10px var(--font-mono); background: var(--s-missing); color: #fff; border-radius: 8px; padding: 0 5px; margin-left: 4px; }
+.tabpanel { padding: 10px 12px; overflow-y: auto; min-height: 0; }
+.quest { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 8px; padding: 6px 0; border-top: 1px solid var(--line); }
+.quest:first-child { border-top: 0; padding-top: 0; }
+.quest .mark { width: 10px; height: 10px; border: 2px solid var(--s-missing); transform: rotate(45deg); margin-top: 4px; }
+.quest.done .mark { border-color: var(--s-transit); }
+.quest .qt { font-weight: 500; }
+.quest .qn { color: var(--muted); font-size: 12px; }
+.quest a { color: var(--r-rare); }
+.sec-h { font: 500 10px var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin: 10px 0 6px; }
+.sec-h:first-child { margin-top: 0; }
+.rules { margin: 0; padding-left: 16px; display: grid; gap: 4px; }
+.rules li::marker { color: var(--gold); }
+.rules li { color: var(--muted); }
+.rules li b { color: var(--fg); font-weight: 500; }
+.hd { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.hd > div { border: 1px solid var(--line); border-radius: 4px; padding: 5px 7px; background: var(--panel-2); }
+.hd h4 { margin: 0 0 3px; font-size: 11px; font-weight: 500; color: var(--gold); text-transform: uppercase; letter-spacing: .04em; }
+.hd ul { margin: 0; padding-left: 14px; display: grid; gap: 2px; font-size: 11.5px; color: var(--muted); }
+.hd li b { color: var(--fg); font-weight: 500; }
+.insp-hd { font-size: 12px; margin-top: 3px; color: var(--muted); }
+.insp-hd b { color: var(--gold); font-weight: 500; }
+.cafe { display: flex; flex-wrap: wrap; gap: 4px; }
+.cafe span { font-size: 11px; border: 1px solid var(--line); border-radius: 3px; padding: 2px 6px; background: var(--panel-2); }
+.empty-note { color: var(--muted); }
+.gtbl { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.gtbl th, .gtbl td { text-align: left; vertical-align: top; padding: 5px 6px; border-top: 1px solid var(--line); }
+.gtbl thead th { font: 500 10px var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border-top: 0; }
+.gtbl tbody th { font-family: var(--font-mono); font-weight: 500; white-space: nowrap; color: var(--gold); }
+.gtbl tr.now { background: color-mix(in srgb, var(--gold) 12%, transparent); box-shadow: inset 3px 0 0 var(--gold); }
+.gchips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.gchip { font: 500 11px var(--font-mono); color: var(--muted); background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 3px 6px; cursor: pointer; }
+.gchip[aria-pressed="true"] { color: var(--bg); background: var(--gold); border-color: var(--gold); }
+.gchip.now:not([aria-pressed="true"]) { border-color: var(--gold); color: var(--fg); }
+.gcard { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 4px 10px; margin: 0; font-size: 12.5px; }
+.gcard dt { color: var(--muted); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; padding-top: 2px; }
+.gcard dd { margin: 0; }
+.gprin { margin: 0; padding-left: 14px; display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
+.gprin b { color: var(--fg); font-weight: 500; }
+.src { font-size: 11px; color: var(--muted); margin-top: 8px; }
+.src a { color: var(--r-rare); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; }
+.legend span { display: inline-flex; align-items: center; gap: 4px; }
+.legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+
+.iname.need { color: var(--muted); font-weight: 400; font-style: italic; }
+.st-wanted { color: var(--gold); }
+.lnk { font: inherit; color: var(--r-rare); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+.hint { color: var(--muted); font-size: 12px; margin: 0 0 8px; padding: 6px 8px; border: 1px dashed var(--gold-dim); border-radius: 4px; }
+.quest.want .mark { border-color: var(--gold); }
+.quest.sub .mark { border-color: var(--r-common); }
+.inv-form { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+.inv-form input, .inv-form select, .io textarea, .io select, .city-panel input {
+  font: 12px var(--font-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 5px 7px; min-width: 0; width: 100%;
+}
+.inv-form .wide { grid-column: 1 / -1; }
+.btn { font: 500 12px var(--font-body); color: var(--fg); background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; cursor: pointer; }
+.btn.pri { color: var(--bg); background: var(--gold); border-color: var(--gold); }
+.inv-actions { grid-column: 1 / -1; display: flex; gap: 6px; }
+.inv-row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto auto; gap: 6px; align-items: center; padding: 4px 0; border-top: 1px solid var(--line); }
+.inv-g .sec-h { margin: 8px 0 2px; }
+.inv-n { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inv-m { color: var(--muted); font-size: 11px; }
+.ib { font: 12px var(--font-body); color: var(--muted); background: none; border: 1px solid transparent; border-radius: 3px; padding: 2px 5px; cursor: pointer; }
+.ib:hover { color: var(--fg); border-color: var(--line); }
+.io { display: grid; gap: 6px; margin-top: 4px; }
+.io-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.io textarea { min-height: 70px; font-family: var(--font-mono); font-size: 11px; resize: vertical; }
+.io-file { position: relative; overflow: hidden; }
+.io-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.io-msg { color: var(--muted); font-size: 12px; min-height: 1em; }
+.city-btn { font: 500 12px var(--font-body); color: var(--fg); background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; cursor: pointer; }
+.city-btn:hover { border-color: var(--gold); }
+.city-panel { grid-column: 1 / -1; display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 8px; }
+.city-panel .io-row input { flex: 1 1 200px; width: auto; }
+.city-res { display: flex; flex-wrap: wrap; gap: 4px; }
+.city-opt { font: 500 12px var(--font-body); color: var(--fg); background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; cursor: pointer; text-align: left; }
+.city-opt span { display: block; font-weight: 400; font-size: 10px; color: var(--muted); }
+.city-opt:hover { border-color: var(--gold); }
+
+@media (max-width: 1180px) {
+  .main { grid-template-columns: minmax(0, 1fr) 210px minmax(0, 1fr); }
+  .tabs { grid-column: 1 / -1; max-height: none; }
+}
+@media (max-width: 760px) {
+  .bar { grid-template-columns: auto minmax(0, 1fr); }
+  .brand { grid-column: 1 / -1; }
+  .toggles { grid-column: 1 / -1; justify-content: flex-start; }
+  .wx { grid-template-columns: minmax(0, 1fr); }
+  .main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .center { grid-column: 1 / -1; grid-row: 1; grid-template-columns: 140px minmax(0, 1fr); align-items: start; }
+  .tabs { grid-column: 1 / -1; }
+}
+@media (max-width: 460px) {
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .center { grid-template-columns: 120px minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <section class="bar" aria-label="Условия поездки">
+    <div class="brand">Велоарсенал</div>
+    <div class="temp-big" id="tempBig">+10°</div>
+    <div class="sliders">
+      <div class="sl-row"><label for="temp">Воздух</label><input type="range" id="temp" min="-10" max="25" step="1" value="10"><output id="tempOut" for="temp"></output></div>
+      <div class="sl-row"><label for="wind">Ветер</label><input type="range" id="wind" min="0" max="15" step="0.5" value="0"><output id="windOut" for="wind">0 м/с</output></div>
+      <div class="eff" id="effText"></div>
+    </div>
+    <div class="toggles">
+      <button type="button" class="tg" id="spdCalm" aria-pressed="false">Ровно 15 км/ч</button>
+      <button type="button" class="tg" id="spdFast" aria-pressed="true" title="Одеваемся под спуск 40 км/ч, на подъёме расстёгиваемся">Подъём ↔ спуск 40</button>
+      <button type="button" class="tg" id="dark" aria-pressed="true">Темно</button>
+      <button type="button" class="tg" id="rain" aria-pressed="false">Осадки</button>
+    </div>
+    <div class="wx" aria-label="Погода">
+      <div class="wx-now" id="wNow"><span>Загружаю прогноз…</span></div>
+      <div class="hours" id="wHours" role="group" aria-label="Почасовой прогноз: нажмите, чтобы одеться на этот час"></div>
+    </div>
+    <div class="city-panel" id="cityPanel" hidden>
+      <div class="io-row">
+        <input id="cityQ" type="search" placeholder="Город, например «Алматы»" aria-label="Поиск города" autocomplete="off">
+        <button type="button" class="btn" id="cityGeo">Определить по местоположению</button>
+        <button type="button" class="btn" id="cityClose">Закрыть</button>
+      </div>
+      <div class="city-res" id="cityRes"></div>
+      <div class="io-msg" id="cityMsg" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="main" aria-label="Экипировка">
+    <div class="col" id="colLeft"></div>
+    <div class="center">
+      <div class="figure-card">
+        <svg id="figure" viewBox="0 0 200 430" role="img" aria-label="Силуэт велосипедиста, зоны окрашены по надетым вещам">
+          <ellipse class="part" data-slot="head" cx="100" cy="44" rx="25" ry="28"/>
+          <rect class="part" data-slot="eyes" x="80" y="38" width="40" height="11" rx="5"/>
+          <path class="part" data-slot="face" d="M86 70 h28 l4 20 h-36 z"/>
+          <path class="part" data-zone="torso" d="M60 92 Q100 82 140 92 L150 150 L142 222 Q100 232 58 222 L50 150 Z"/>
+          <path class="part" data-zone="armL" d="M58 96 L42 102 L28 176 L24 228 L40 230 L48 180 L60 140 Z"/>
+          <path class="part" data-zone="armR" d="M142 96 L158 102 L172 176 L176 228 L160 230 L152 180 L140 140 Z"/>
+          <path class="part" data-slot="hands" d="M22 230 h20 l2 22 q-11 10 -24 0 z"/>
+          <path class="part" data-slot="hands" d="M158 230 h20 l2 22 q-13 10 -24 0 z"/>
+          <path class="part" data-zone="thighs" d="M58 224 Q100 236 142 224 L140 300 L106 300 L100 262 L94 300 L60 300 Z"/>
+          <path class="part" data-zone="shins" d="M60 302 h34 l-3 86 h-26 z"/>
+          <path class="part" data-zone="shins" d="M106 302 h34 l-5 86 h-26 z"/>
+          <path class="part" data-zone="feet" d="M64 390 h28 l2 22 h-40 q-2 -14 10 -22 z"/>
+          <path class="part" data-zone="feet" d="M108 390 h28 q12 8 10 22 h-40 z"/>
+        </svg>
+        <div class="stats" aria-label="Характеристики комплекта">
+          <div class="stat"><span class="lbl">Тепло</span><div class="bar2"><div class="fill" id="stWarm"></div></div><span class="val" id="stWarmV"></span></div>
+          <div class="stat"><span class="lbl">Ветрозащита</span><div class="bar2"><div class="fill" id="stWind"></div></div><span class="val" id="stWindV"></span></div>
+          <div class="stat"><span class="lbl">Готовность</span><div class="bar2"><div class="fill" id="stReady"></div></div><span class="val" id="stReadyV"></span></div>
+        </div>
+      </div>
+      <div class="inspector" id="inspector" aria-live="polite"></div>
+    </div>
+    <div class="col" id="colRight"></div>
+
+    <div class="tabs">
+      <div class="tablist" role="tablist" aria-label="Подробности">
+        <button type="button" class="tab" role="tab" id="tab-quests" aria-controls="p-quests" aria-selected="true">Квесты<span class="badge" id="qBadge" hidden></span></button>
+        <button type="button" class="tab" role="tab" id="tab-inv" aria-controls="p-inv" aria-selected="false">Вещи<span class="badge" id="invCount" style="background:var(--gold-dim)"></span></button>
+        <button type="button" class="tab" role="tab" id="tab-tips" aria-controls="p-tips" aria-selected="false">Советы</button>
+        <button type="button" class="tab" role="tab" id="tab-guide" aria-controls="p-guide" aria-selected="false">Гайд</button>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="p-quests" aria-labelledby="tab-quests"></div>
+      <div class="tabpanel" role="tabpanel" id="p-inv" aria-labelledby="tab-inv" hidden>
+        <form class="inv-form" id="invForm" autocomplete="off">
+          <input class="wide" id="fName" placeholder="Название, например «Флиска Helly Hansen»" aria-label="Название" maxlength="120" required>
+          <select id="fSlot" aria-label="Слот"></select>
+          <select id="fType" aria-label="Тип"></select>
+          <select id="fMat" aria-label="Материал"></select>
+          <select id="fStatus" aria-label="Статус"></select>
+          <input class="wide" id="fNote" placeholder="Заметка: размер, когда приедет" aria-label="Заметка" maxlength="300">
+          <input class="wide" id="fLink" placeholder="Ссылка на вещь (необязательно)" aria-label="Ссылка" type="url">
+          <div class="inv-actions"><button type="submit" class="btn pri" id="fSave">Добавить</button><button type="button" class="btn" id="fCancel" hidden>Отмена</button></div>
+        </form>
+        <div id="invList"></div>
+        <div class="sec-h">Перенос</div>
+        <div class="io">
+          <div class="io-row">
+            <button type="button" class="btn" id="ioDownload">Скачать файл</button>
+            <button type="button" class="btn" id="ioCopy">Скопировать</button>
+          </div>
+          <div class="io-row">
+            <select id="ioMode" aria-label="Как загрузить" style="width:auto"><option value="merge">Добавить к моим</option><option value="replace">Заменить мои</option></select>
+            <label class="btn io-file">Загрузить файл<input type="file" id="ioFile" accept="application/json,.json"></label>
+            <button type="button" class="btn" id="ioPaste">Загрузить из поля</button>
+          </div>
+          <textarea id="ioText" aria-label="Список вещей в JSON" placeholder="Сюда можно вставить список вещей (JSON)"></textarea>
+          <div class="io-msg" id="ioMsg" aria-live="polite"></div>
+          <p class="src">Вещи хранятся только в этом браузере или приложении и никуда не отправляются.</p>
+        </div>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="p-tips" aria-labelledby="tab-tips" hidden>
+        <div class="sec-h" id="hdHead">Подъём → спуск</div>
+        <div class="hd" id="hd"></div>
+        <div class="sec-h">Правила этой температуры</div>
+        <ul class="rules" id="rules"></ul>
+        <div class="sec-h">Привал в кафе: снять сразу</div>
+        <div class="cafe" id="cafe"></div>
+        <div class="sec-h">Редкость предметов</div>
+        <div class="legend">
+          <span style="color:var(--r-common)"><i style="background:var(--r-common)"></i>Обычный</span>
+          <span style="color:var(--r-uncommon)"><i style="background:var(--r-uncommon)"></i>Лёгкий</span>
+          <span style="color:var(--r-rare)"><i style="background:var(--r-rare)"></i>Ветрозащита</span>
+          <span style="color:var(--r-epic)"><i style="background:var(--r-epic)"></i>Утеплённый</span>
+          <span style="color:var(--r-legendary)"><i style="background:var(--r-legendary)"></i>Зимний</span>
+        </div>
+        <div class="sec-h">Статус</div>
+        <div class="legend">
+          <span class="st-owned"><i style="background:var(--s-owned);border-radius:50%"></i>Есть</span>
+          <span class="st-transit"><i style="background:var(--s-transit);border-radius:50%"></i>В пути</span>
+          <span class="st-wanted"><i style="background:var(--gold);border-radius:50%"></i>Хочу купить</span>
+          <span class="st-missing"><i style="background:var(--s-missing);border-radius:50%"></i>Нет</span>
+          <span class="st-wardrobe"><i style="background:var(--s-wardrobe);border-radius:50%"></i>Есть у всех</span>
+        </div>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="p-guide" aria-labelledby="tab-guide" hidden>
+        <div class="gchips" role="group" aria-label="Диапазон температуры" id="gChips"></div>
+        <dl class="gcard" id="gCard"></dl>
+        <div class="sec-h">Принципы</div>
+        <ul class="gprin">
+          <li><b>Три слоя:</b> шерсть, утеплитель, дышащая ветрозащита</li>
+          <li><b>Старт:</b> чуть прохладно, разогрелись — расстёгивайте</li>
+          <li><b>Ветер</b> на скорости холодит сильнее мороза</li>
+          <li><b>Руки, стопы, голова</b> — утеплять первыми</li>
+          <li><b>Стопы:</b> меринос, сверху ветро- и водозащита</li>
+          <li><b>Мороз:</b> муфты на руль — тонкие перчатки внутри</li>
+        </ul>
+        <p class="src">Усреднено по <a href="https://www.britishcycling.org.uk/knowledge/article/izn20150127-Cycling-Winter-Clothing-Guide-0" target="_blank" rel="noopener">British Cycling</a>, <a href="https://www.cyclinguk.org/cycle/wear-cycling-winter-cold" target="_blank" rel="noopener">Cycling UK</a>, <a href="https://45nrth.com/blogs/blog/what-to-wear-winter-cycling-at-10%C2%BA-0%C2%BAf" target="_blank" rel="noopener">45NRTH</a>, <a href="https://join.cc/cycling-tips/cycling-what-to-wear-temperature-guide" target="_blank" rel="noopener">Join.cc</a>, <a href="https://www.roadbikerider.com/what-to-wear-in-various-weather/" target="_blank" rel="noopener">RoadBikeRider</a>. Таблица — для спортивного темпа.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- VA_DEFAULT_INVENTORY -->
+<script>
+(function () {
+  "use strict";
+
+  const ICONS = {
+    head: '<path d="M4 15a8 8 0 0 1 16 0v2H4z"/><path d="M7 10c2-2 8-2 10 0"/><path d="M12 7v3"/>',
+    face: '<path d="M6 8h12l-1 9H7z"/><path d="M6 12h12"/><path d="M8 17l-1 3M16 17l1 3"/>',
+    eyes: '<circle cx="7.5" cy="13" r="3.5"/><circle cx="16.5" cy="13" r="3.5"/><path d="M11 13h2M4 12l-1-2M20 12l1-2"/>',
+    base: '<path d="M8 4l-5 4 2 4 3-2v10h8V10l3 2 2-4-5-4c-1 2-5 2-6 0z"/>',
+    mid: '<path d="M8 4l-5 4 2 4 3-2v10h8V10l3 2 2-4-5-4"/><path d="M12 5v15"/><path d="M9 4c1 1.5 5 1.5 6 0"/>',
+    shell: '<path d="M8 3l-5 5 2 5 3-2v10h8V11l3 2 2-5-5-5-2 3h-4z"/><path d="M12 6v15"/><path d="M5 13l3-2M19 13l-3-2"/>',
+    hands: '<path d="M7 21v-8l-2-3 2-1 2 2V5a1.3 1.3 0 0 1 2.6 0v5-6a1.3 1.3 0 0 1 2.6 0v6-5a1.3 1.3 0 0 1 2.6 0v8c0 4-2 7-4 7z"/>',
+    legs: '<path d="M6 3h12l1 18h-5l-2-11-2 11H5z"/><path d="M6 7h12"/>',
+    legOver: '<path d="M7 3h10v18h-4v-9l-1-2-1 2v9H7z"/><path d="M7 7h10M7 15h4M13 15h4"/>',
+    socks: '<path d="M9 3h6v9l3 3a3 3 0 0 1-2 5H9a3 3 0 0 1-3-3V3z"/><path d="M9 7h6"/>',
+    overshoe: '<path d="M4 18h16v-2c0-2-3-3-6-4V5H8v9c-2 0-4 1-4 4z"/><path d="M8 9h6"/>',
+    vis: '<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>'
+  };
+
+  // Типы вещей в каждом слоте: из них пользователь выбирает при добавлении своей вещи
+  const TYPES = {
+    head:     { thin: "Тонкая шапка", helmetCap: "Шапочка под шлем (ветрозащита)", balaclava: "Балаклава" },
+    face:     { snood: "Снуд / бафф", scarf: "Шарф", balaclava: "Балаклава" },
+    eyes:     { glasses: "Спортивные очки", sealed: "Очки с уплотнителем", goggles: "Маска" },
+    base:     { tee: "Футболка", longsleeve: "Лонгслив / термобельё", sleeves: "Нарукавники" },
+    mid:      { grid: "Сеточный флис (Power Grid)", jersey: "Термоджерси", fleece: "Флиска", sweater: "Свитер / кофта" },
+    shell:    { windVest: "Ветрожилет", windJacket: "Ветровка", softshell: "Софтшелл / тёплая велокуртка", membrane: "Мембранная куртка", warmVest: "Утеплённый жилет" },
+    hands:    { mesh: "Летние / сетчатые", thin: "Тонкие длиннопалые", insulated: "Утеплённые", lobster: "Лобстеры", muffs: "Муфты на руль" },
+    legs:     { shorts: "Велошорты", tights: "Тайтсы без утепления", winterTights: "Зимние тайтсы" },
+    legOver:  { overpants: "Ветрозащитные брюки / самосбросы", warmPants: "Утеплённые брюки" },
+    socks:    { regular: "Обычные", thinWool: "Тонкие шерстяные", thickWool: "Толстые шерстяные" },
+    overshoe: { wind: "Ветрозащитные бахилы", warm: "Утеплённые бахилы" },
+    vis:      { lights: "Фонари", reflVest: "Светоотражающий жилет" }
+  };
+  const MATS = { merino: "Меринос", wool: "Шерсть", synthetic: "Синтетика", fleece: "Флис", softshell: "Софтшелл", membrane: "Мембрана", nylon: "Нейлон / ветрозащита", neoprene: "Неопрен", cotton: "Хлопок", other: "Другое" };
+  const STATUSES = { owned: "есть", transit: "в пути", wanted: "хочу купить" };
+
+  // Что нужно надеть: каталог потребностей. Своя вещь подставляется по слоту и типу,
+  // среди подходящих — сначала та, что уже есть, потом по предпочтительному материалу
+  const NEEDS = {
+    capThin:      { slot: "head", n: "Тонкая шапка под шлем", types: ["thin", "helmetCap"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, find: "тонкая шапка под велошлем" },
+    capWind:      { slot: "head", n: "Шапочка под шлем с ветрозащитой", types: ["helmetCap", "thin"], r: "rare", warm: 1, wind: 1, cafe: true, note: "Закрывает уши от ветра", find: "велошапочка под шлем ветрозащитная" },
+    balaclava:    { slot: "head", n: "Балаклава", types: ["balaclava"], r: "epic", warm: 2, wind: 1, cafe: true, up: "сдвинуть с носа", down: "на нос", find: "балаклава тонкая под шлем", alts: ["capWind"] },
+    neck:         { slot: "face", n: "Снуд на шее", types: ["snood", "scarf", "balaclava"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, down: "поднять на подбородок", find: "снуд бафф меринос" },
+    nose:         { slot: "face", n: "Снуд на подбородок и нос", types: ["snood", "balaclava", "scarf"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, note: "В кафе снять, чтобы просох. Вплотную под очки не натягивать — запотеют", up: "спустить на шею", down: "натянуть на нос", find: "снуд бафф меринос" },
+    under:        { slot: "face", n: "Тонкий снуд под балаклаву", types: ["snood"], mats: ["merino", "synthetic"], r: "uncommon", warm: 1, optional: true },
+    glasses:      { slot: "eyes", n: "Спортивные очки", types: ["glasses", "sealed"], r: "rare", wind: 1, note: "Вечером — прозрачные линзы", down: "обязательно: на 40 км/ч слезятся глаза", find: "велоочки прозрачная линза" },
+    glassesSeal:  { slot: "eyes", n: "Очки с уплотнителем", types: ["sealed", "goggles"], r: "epic", wind: 2, note: "Поролон закрывает щель — холодный воздух не задувает сбоку, глаза не слезятся", down: "обязательно", find: "спортивные очки с уплотнителем прозрачная линза", alts: ["glasses"] },
+    tee:          { slot: "base", n: "Футболка", types: ["tee"], mats: ["merino", "synthetic"], avoid: ["cotton"], r: "uncommon", warm: 1, find: "велофутболка", alts: ["longsleeve"] },
+    sleeves:      { slot: "base", n: "Нарукавники", types: ["sleeves"], r: "uncommon", warm: 1, note: "Жарко — стяните к запястью на ходу", find: "велонарукавники", optional: true },
+    longsleeve:   { slot: "base", n: "Термобельё с длинным рукавом", types: ["longsleeve"], mats: ["merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 2, note: "Заправить в велоштаны, лямки поверх", find: "лонгслив меринос термобелье" },
+    teeUnder:     { slot: "base", n: "Футболка под термобельё", types: ["tee"], mats: ["merino", "wool", "synthetic"], avoid: ["cotton"], r: "uncommon", warm: 1, note: "Второй слой на корпус в мороз", optional: true },
+    mid:          { slot: "mid", n: "Средний слой: сеточный флис или термоджерси", types: ["grid", "jersey", "fleece", "sweater"], mats: ["fleece", "merino", "wool", "synthetic"], avoid: ["cotton"], r: "rare", warm: 3, cafe: true, up: "ворот расстегнуть", down: "ворот застегнуть", note: "Облегающий лучше: под ветровкой не выпирает. Флис ветер не держит — сверху нужна ветрозащита с рукавами", find: "Polartec Power Grid кофта" },
+    windVest:     { slot: "shell", n: "Ветрожилет", types: ["windVest"], r: "rare", wind: 2, sleeves: false, cafe: true, up: "расстегнуть", down: "застегнуть", note: "Не греет, только режет ветер на груди", find: "велосипедный ветрожилет", alts: ["windJacket"] },
+    windJacket:   { slot: "shell", n: "Ветровка", types: ["windJacket", "softshell"], r: "rare", warm: 1, wind: 3, cafe: true, up: "молния до середины груди", down: "застегнуть до горла", note: "Тонкая ветровка не греет — тепло дают слои под ней. Зябко на спуске при 0…+5° — сверху ветрожилет", find: "веловетровка мужская", alts: ["membrane"] },
+    membrane:     { slot: "shell", n: "Мембранная куртка", types: ["membrane", "softshell"], r: "epic", warm: 1, wind: 3, cafe: true, up: "молнию открыть до груди", down: "застегнуть до горла", note: "На подъёме под мембраной сыро — проветривайте", find: "мембранная велокуртка", alts: ["windJacket"] },
+    warmVest:     { slot: "shell", n: "Утеплённый жилет", types: ["warmVest"], r: "epic", warm: 1, wind: 2, sleeves: false, cafe: true, up: "расстегнуть", down: "застегнуть", note: "В мороз — под куртку или поверх неё", find: "утеплённый веложилет", alts: ["windVest"] },
+    gMesh:        { slot: "hands", n: "Летние перчатки", types: ["mesh", "thin"], r: "uncommon", find: "велоперчатки летние" },
+    gThin:        { slot: "hands", n: "Тонкие длиннопалые перчатки", types: ["thin", "insulated"], r: "uncommon", warm: 1, find: "велоперчатки длинный палец" },
+    gWarm:        { slot: "hands", n: "Утеплённые велоперчатки", types: ["insulated"], r: "epic", warm: 2, wind: 2, up: "манжет расстегнуть", down: "манжет затянуть", note: "Обычно комфортны примерно до +2…+4 °C", find: "велоперчатки утепленные ветрозащитные", alts: ["gLobster"] },
+    gLobster:     { slot: "hands", n: "Лобстеры", types: ["lobster", "muffs"], r: "legendary", warm: 3, wind: 3, note: "Тормоза и шифтеры — двумя пальцами. Сильный мороз — тонкая перчатка внутрь", find: "лобстеры перчатки беговые лыжи", alts: ["gWarm"] },
+    shorts:       { slot: "legs", n: "Велошорты", types: ["shorts"], r: "uncommon", find: "велошорты с памперсом", alts: ["tights"] },
+    tights:       { slot: "legs", n: "Велотайтсы без утепления", types: ["tights", "winterTights"], r: "uncommon", warm: 1, find: "велоштаны с памперсом" },
+    winterTights: { slot: "legs", n: "Зимние велотайтсы", types: ["winterTights"], r: "legendary", warm: 3, wind: 2, note: "Флис внутри, ветрозащитный перед", find: "велоштаны утепленные с памперсом", alts: ["tights"] },
+    overpants:    { slot: "legOver", n: "Ветрозащитные брюки поверх", types: ["overpants", "warmPants"], r: "epic", warm: 2, wind: 3, cafe: true, up: "боковые молнии сверху приоткрыть", down: "молнии закрыть", note: "Самосбросы снимаются, не разуваясь", find: "самосбросы брюки ветрозащитные" },
+    socksReg:     { slot: "socks", n: "Обычные спортивные носки", types: ["regular", "thinWool"], r: "common", basic: true },
+    socksThin:    { slot: "socks", n: "Тонкие шерстяные носки", types: ["thinWool", "thickWool"], mats: ["merino", "wool"], r: "rare", warm: 1, note: "Под штанину, без голой полоски на щиколотке", find: "носки меринос тонкие" },
+    socksThick:   { slot: "socks", n: "Толстые шерстяные носки", types: ["thickWool"], mats: ["merino", "wool"], r: "epic", warm: 2, note: "Обувь не должна давить — иначе стопы мёрзнут сильнее", find: "носки меринос теплые", alts: ["socksThin"] },
+    overshoes:    { slot: "overshoe", n: "Велобахилы", types: ["wind", "warm"], r: "epic", warm: 1, wind: 3, find: "велобахилы" },
+    lights:       { slot: "vis", n: "Фонари спереди и сзади", types: ["lights"], r: "common", basic: true, note: "Обязательно после заката" },
+    reflVest:     { slot: "vis", n: "Светоотражающий жилет", types: ["reflVest"], r: "uncommon", note: "Поверх всего", find: "светоотражающий жилет" }
+  };
+
+  const SLOTS = [
+    { id: "head", label: "Голова", side: "L" }, { id: "face", label: "Шея и лицо", side: "L" },
+    { id: "eyes", label: "Глаза", side: "L" }, { id: "base", label: "База", side: "L" },
+    { id: "mid", label: "Средний слой", side: "L" }, { id: "shell", label: "Ветрозащита", side: "L" },
+    { id: "hands", label: "Руки", side: "R" }, { id: "legs", label: "Ноги", side: "R" },
+    { id: "legOver", label: "Утепление ног", side: "R" }, { id: "socks", label: "Носки", side: "R" },
+    { id: "overshoe", label: "Бахилы", side: "R" }, { id: "vis", label: "Видимость", side: "R" }
+  ];
+
+  const HINT = {
+    head: "Выше +12° не нужна", face: "Выше +15° по желанию", mid: "Выше +12° флис лишний",
+    shell: "Выше +16° не нужна", legOver: "Выше +5° брюки поверх жаркие",
+    overshoe: "Выше +5° и в сухую погоду не нужны"
+  };
+
+  function pick(e, dark, rain) {
+    const o = {};
+    o.head = e > 12 ? [] : e > 5 ? ["capThin"] : e > 0 ? ["capWind"] : ["balaclava"];
+    o.face = e > 15 ? [] : e > 5 ? ["neck"] : e > 0 ? ["nose"] : ["under"];
+    o.eyes = [e > 2 ? "glasses" : "glassesSeal"];
+    o.base = e > 20 ? ["tee"] : e > 12 ? ["tee", "sleeves"] : e > -5 ? ["longsleeve"] : ["teeUnder", "longsleeve"];
+    o.mid = e > 12 ? [] : ["mid"];
+    o.shell = rain ? (e > 0 ? ["membrane"] : ["membrane", "warmVest"]) : e > 16 ? [] : e > 12 ? ["windVest"] : e > 0 ? ["windJacket"] : ["membrane", "warmVest"];
+    o.hands = e > 15 ? ["gMesh"] : e > 8 ? ["gThin"] : e > 2 ? ["gWarm"] : ["gLobster"];
+    o.legs = e > 18 ? ["shorts"] : e > 10 ? ["tights"] : e > 5 ? ["winterTights"] : e > -5 ? ["tights"] : ["winterTights"];
+    o.legOver = e > 5 ? [] : ["overpants"];
+    o.socks = e > 12 ? ["socksReg"] : e > 0 ? ["socksThin"] : ["socksThick"];
+    o.overshoe = e > 5 && !rain ? [] : ["overshoes"];
+    o.vis = dark ? ["lights", "reflVest"] : ["lights"];
+    return o;
+  }
+
+  // Инвентарь пользователя: хранится только в этом браузере или приложении
+  const INV_KEY = "veloarsenal.inventory";
+  let inv = [];
+  try {
+    const raw = localStorage.getItem(INV_KEY);
+    inv = raw ? JSON.parse(raw) : (Array.isArray(window.VA_DEFAULT_INVENTORY) ? window.VA_DEFAULT_INVENTORY : []);
+  } catch (err) { inv = Array.isArray(window.VA_DEFAULT_INVENTORY) ? window.VA_DEFAULT_INVENTORY : []; }
+  inv = (Array.isArray(inv) ? inv : []).filter(it => it && TYPES[it.slot] && TYPES[it.slot][it.type]).map(it => ({ status: "owned", mat: "other", ...it, id: it.id || newId() }));
+  function newId() { return "i" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  const saveInv = () => { try { localStorage.setItem(INV_KEY, JSON.stringify(inv)); } catch (err) { /* только в памяти */ } };
+
+  const SRANK = { owned: 0, transit: 1, wanted: 2 };
+  const matRank = (need, it) => { const i = (need.mats || []).indexOf(it.mat); return i < 0 ? 9 : i; };
+  function findItem(need, used, withWanted) {
+    const c = inv.filter(it => it.slot === need.slot && need.types.includes(it.type) && (withWanted || it.status !== "wanted"));
+    c.sort((a, b) => (SRANK[a.status] - SRANK[b.status]) || (need.types.indexOf(a.type) - need.types.indexOf(b.type)) || (matRank(need, a) - matRank(need, b)));
+    return c.find(it => !used.has(it.id)) || null;
+  }
+  // Потребность → запись слота: своя вещь, замена или «нужно найти»
+  function resolve(nid, used) {
+    const want = NEEDS[nid];
+    // Порядок: своё (есть или едет) → замена из своего → то, что хочу купить
+    let it = findItem(want, used), need = want, sub = null;
+    if (!it) for (const a of want.alts || []) { const ai = findItem(NEEDS[a], used); if (ai) { it = ai; need = NEEDS[a]; sub = want; break; } }
+    if (!it) it = findItem(want, used, true);
+    if (!it && want.optional) return null;
+    if (it) used.add(it.id);
+    const notes = [];
+    if (sub) notes.push("Замена: нет вещи «" + sub.n.toLowerCase() + "»");
+    if (it && (need.avoid || []).includes(it.mat)) notes.push(MATS[it.mat] + " мокнет и холодит — лучше синтетика или шерсть");
+    if (need.note) notes.push(need.note);
+    if (it && it.note) notes.push(it.note);
+    return {
+      nid, want, need, it, sub,
+      n: it ? it.name : want.n,
+      s: it ? it.status : want.basic ? "wardrobe" : "missing",
+      r: need.r, warm: need.warm || 0, wind: need.wind || 0, sleeves: need.sleeves, cafe: need.cafe,
+      up: need.up, down: need.down, notes,
+      meta: it ? TYPES[it.slot][it.type] + (it.mat && it.mat !== "other" ? " · " + MATS[it.mat] : "") : "",
+      find: want.find, link: it && it.link
+    };
+  }
+  function outfit(e, dark, rain) {
+    const ids = pick(e, dark, rain);
+    // Без балаклавы лицо закрывает снуд на нос
+    if (ids.head[0] === "balaclava" && !findItem(NEEDS.balaclava, new Set(), true)) ids.face = ["nose"];
+    const used = new Set(), o = {};
+    SLOTS.forEach(s => { o[s.id] = ids[s.id].map(nid => resolve(nid, used)).filter(Boolean); });
+    return o;
+  }
+
+  const RV = { common: "--r-common", uncommon: "--r-uncommon", rare: "--r-rare", epic: "--r-epic", legendary: "--r-legendary" };
+  const RANK = { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4 };
+  const ST = { owned: "есть", transit: "в пути", wanted: "хочу", missing: "нет", wardrobe: "гардероб" };
+  const css = getComputedStyle(document.documentElement);
+  const col = (v) => css.getPropertyValue(v).trim();
+  const topR = (list) => list.reduce((b, x) => (!b || RANK[x.r] > RANK[b]) ? x.r : b, null);
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  const fmt = (t) => (t > 0 ? "+" : t < 0 ? "−" : "") + Math.abs(t) + "°";
+  const r1 = (x) => Math.round(x * 2) / 2;
+  const ms = (x) => String(r1(x)).replace(".", ",");
+  const ozon = (q) => "https://www.ozon.ru/search/?text=" + encodeURIComponent(q);
+
+  const state = { t: 10, hill: true, dark: true, wind: 0, rain: false, tab: "quests", sel: "shell" };
+  try { const s = JSON.parse(localStorage.getItem("veloarsenal") || "null"); if (s && typeof s.t === "number") { delete s.fast; Object.assign(state, s); } } catch (err) { /* без сохранения */ }
+  const save = () => { try { localStorage.setItem("veloarsenal", JSON.stringify(state)); } catch (err) { /* ignore */ } };
+
+  const windPenalty = (w) => Math.min(5, Math.max(0, Math.round((w - 2) * 0.6)));
+  let eq = {};
+  let curE = 10;
+
+  function slotHTML(slot) {
+    const list = eq[slot.id];
+    const empty = !list.length;
+    const r = empty ? null : topR(list);
+    const title = empty ? (HINT[slot.id] || "Не нужно") : list.map(x => x.n + (x.notes.length ? " — " + x.notes.join(". ") : "")).join("\n");
+    const line = empty
+      ? '<div class="iline"><span class="iname">' + esc(HINT[slot.id] || "Не нужно") + '</span></div>'
+      : list.map(x => '<div class="iline"><span class="dot st-' + x.s + '" title="' + ST[x.s] + '"></span><span class="iname' + (x.s === "missing" ? " need" : "") + '" style="--rcol:var(' + RV[x.r] + ')">' + esc(x.n) + '</span></div>').join("");
+    return '<div class="slot' + (empty ? " empty" : "") + (state.sel === slot.id ? " sel" : "") + '" data-slot="' + slot.id + '" style="--rc:' + (r ? "var(" + RV[r] + ")" : "var(--line)") + '" tabindex="0" role="button" title="' + esc(title) + '">' +
+      '<div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + ICONS[slot.id] + '</svg>' +
+      (list.length > 1 ? '<span class="count">×' + list.length + '</span>' : '') + '</div>' +
+      '<div style="min-width:0"><div class="slabel">' + slot.label + '</div>' + line + '</div></div>';
+  }
+
+  function inspect(sid) {
+    const slot = SLOTS.find(s => s.id === sid) || SLOTS[0];
+    const list = eq[slot.id] || [];
+    const body = list.length ? list.map(x =>
+      '<div class="insp-item"><div class="insp-name" style="--rcol:var(' + RV[x.r] + ')">' + esc(x.n) + '</div>' +
+      '<div class="insp-meta"><span class="chip st-' + x.s + '">' + ST[x.s] + '</span>' + (x.meta ? '<span>' + esc(x.meta) + '</span>' : '') +
+      (x.warm ? '<span>тепло +' + x.warm + '</span>' : '') + (x.wind ? '<span>ветер +' + x.wind + '</span>' : '') + '</div>' +
+      x.notes.map(t => '<div class="insp-note">' + esc(t) + '</div>').join("") +
+      (x.up || x.down ? '<div class="insp-hd">' + (x.up ? '<b>↑</b> ' + esc(x.up) : '') + (x.up && x.down ? ' · ' : '') + (x.down ? '<b>↓</b> ' + esc(x.down) : '') + '</div>' : '') +
+      (x.link ? '<div class="insp-note"><a href="' + esc(x.link) + '" target="_blank" rel="noopener">Ссылка на вещь</a></div>' : '') +
+      (x.s === "missing" ? '<div class="insp-note"><button type="button" class="lnk" data-add="' + x.nid + '">+ Добавить свою</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : '') + '</div>' : '') +
+      '</div>').join("") : '<div class="insp-note">' + esc(HINT[slot.id] || "При этой температуре слот пуст") + '</div>';
+    $("inspector").innerHTML = '<div class="slabel">' + slot.label + '</div>' + body;
+    bindAdd($("inspector"));
+  }
+
+  function zoneSlot(z) {
+    if (z === "torso") return eq.shell.length ? "shell" : eq.mid.length ? "mid" : "base";
+    if (z === "armL" || z === "armR") return eq.shell.some(x => x.sleeves !== false) ? "shell" : eq.mid.length ? "mid" : "base";
+    if (z === "thighs" || z === "shins") return eq.legOver.length ? "legOver" : "legs";
+    if (z === "feet") return eq.overshoe.length ? "overshoe" : "socks";
+    return z;
+  }
+
+  function render() {
+    const wa = windPenalty(state.wind);
+    const e = state.t + (state.hill ? -3 : 3) - wa;
+    curE = e;
+    eq = outfit(e, state.dark, state.rain);
+
+    $("tempBig").textContent = fmt(state.t);
+    $("tempOut").textContent = fmt(state.t);
+    $("temp").value = state.t;
+    $("wind").value = state.wind;
+    $("windOut").textContent = ms(state.wind) + " м/с";
+    $("effText").innerHTML = (state.hill ? "Под спуск 40 км/ч, −3°" : "Ровно 15 км/ч, +3°") + (wa ? ", ветер −" + wa + "°" : "") + " → одеваемся на <b>" + fmt(e) + "</b>";
+    $("spdFast").setAttribute("aria-pressed", String(state.hill));
+    $("spdCalm").setAttribute("aria-pressed", String(!state.hill));
+    $("dark").setAttribute("aria-pressed", String(state.dark));
+    $("rain").setAttribute("aria-pressed", String(state.rain));
+
+    $("colLeft").innerHTML = SLOTS.filter(s => s.side === "L").map(slotHTML).join("");
+    $("colRight").innerHTML = SLOTS.filter(s => s.side === "R").map(slotHTML).join("");
+
+    document.querySelectorAll("#figure .part").forEach(p => {
+      const sid = p.dataset.slot || zoneSlot(p.dataset.zone);
+      p.dataset.target = sid;
+      const list = eq[sid] || [];
+      if (!list.length) { p.style.fill = col("--panel-2"); p.style.fillOpacity = sid === "eyes" ? "0" : "1"; p.classList.remove("miss"); }
+      else {
+        p.style.fill = col(RV[topR(list)]);
+        p.style.fillOpacity = sid === "eyes" ? "0.95" : "0.55";
+        p.classList.toggle("miss", list.some(x => x.s === "missing"));
+      }
+    });
+
+    const all = Object.values(eq).flat();
+    const warm = all.reduce((a, x) => a + x.warm, 0);
+    const wind = all.reduce((a, x) => a + x.wind, 0);
+    const warmPct = Math.min(100, Math.round(warm / Math.max(3, Math.round(4 + (20 - e) * 0.55)) * 100));
+    const windPct = Math.min(100, Math.round(wind / (e > 16 ? 1 : e > 8 ? 3 : e > 0 ? 8 : 12) * 100));
+    const real = all.filter(x => x.s !== "wardrobe");
+    const readyPct = real.length ? Math.round(real.filter(x => x.s === "owned").length / real.length * 100) : 100;
+    [["stWarm", warmPct], ["stWind", windPct], ["stReady", readyPct]].forEach(([id, v]) => { $(id).style.width = v + "%"; $(id + "V").textContent = v + "%"; });
+
+    renderQuests(all);
+    $("rules").innerHTML = rules(e, state.hill).map(x => "<li>" + x + "</li>").join("");
+    const short = (x) => esc(x.n.split(/,| — /)[0]);
+    const cafe = all.filter(x => x.cafe && x.s !== "missing");
+    $("cafe").innerHTML = cafe.length ? cafe.map(x => "<span>" + short(x) + "</span>").join("") : '<span class="empty-note" style="border:0;background:none">Снимать нечего</span>';
+    const li = (k) => all.filter(x => x[k]).map(x => "<li><b>" + short(x) + ":</b> " + esc(x[k]) + "</li>").join("");
+    $("hdHead").textContent = state.hill ? "Подъём → спуск" : "Если будет горка";
+    $("hd").innerHTML = '<div><h4>На подъёме</h4><ul>' + (li("up") || "<li>Ничего не трогать</li>") + '</ul></div><div><h4>Перед спуском</h4><ul>' + (li("down") || "<li>Ничего не трогать</li>") + '</ul></div>';
+    renderGuide(e);
+
+    inspect(state.sel);
+    bindSlots();
+    save();
+  }
+
+  function renderQuests(all) {
+    const missing = all.filter(x => x.s === "missing");
+    const wanted = all.filter(x => x.s === "wanted");
+    const subs = all.filter(x => x.sub && x.s !== "missing");
+    const transit = all.filter(x => x.s === "transit");
+    const q = (cls, title, note) => '<div class="quest' + cls + '"><span class="mark" aria-hidden="true"></span><div><div class="qt">' + title + '</div><div class="qn">' + note + '</div></div></div>';
+    let html = inv.length ? "" : '<p class="hint">Добавьте свои вещи во вкладке «Вещи» — подбор сам подставит их по типу и материалу. Или загрузите готовый список через «Перенос».</p>';
+    html += missing.map(x => q("", esc(x.n), '<button type="button" class="lnk" data-add="' + x.nid + '">+ Добавить свою</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : ''))).join("");
+    html += wanted.map(x => q(" want", esc(x.n), "Хочу купить" + (x.link ? ' · <a href="' + esc(x.link) + '" target="_blank" rel="noopener">ссылка</a>' : ''))).join("");
+    html += subs.map(x => q(" sub", esc(x.n), "Вместо «" + esc(x.sub.n.toLowerCase()) + "»")).join("");
+    html += transit.map(x => q(" done", esc(x.n), esc(x.it && x.it.note ? x.it.note : "В пути"))).join("");
+    $("p-quests").innerHTML = html || '<p class="empty-note">Для этой погоды всё уже в инвентаре.</p>';
+    $("qBadge").hidden = !missing.length;
+    $("qBadge").textContent = missing.length;
+    bindAdd($("p-quests"));
+  }
+
+  function rules(e, hill) {
+    const r = [];
+    if (hill) r.push("<b>Одевайтесь под спуск,</b> на подъёме расстёгивайтесь, а не снимайте слои.", "<b>Мокрая спина на спуске холодит</b> — проветривайтесь на подъёме заранее, до пота.", "<b>Наверху перед спуском</b> 10 секунд: всё застегнуть, снуд на нос.");
+    if (e > 16) r.push("<b>Ветрозащита не нужна:</b> тело на ходу греется само.");
+    else if (e > 12) r.push("<b>Жилет</b> закрывает грудь от ветра, спина и руки дышат.");
+    else if (e > 8) r.push("<b>Ветровка с рукавами:</b> флис и кофты ветер не держат — плечи и руки продувает.");
+    else if (e > 0) r.push("<b>Три слоя:</b> шерсть, флис, ветрозащита с рукавами.", "<b>Руки, стопы, уши, колени</b> утепляйте раньше корпуса.");
+    else r.push("<b>Балаклава</b> вместо снуда, очки с уплотнителем, лобстеры.", "<b>Ничего хлопкового</b> — хлопок мокнет и холодит.");
+    r.push("<b>Выезжайте чуть прохладно:</b> первые 5–10 минут должно быть свежо.");
+    r.push("<b>Корпус — по средней скорости,</b> руки и уши — на ступень теплее.");
+    if (!hill && e <= 12) r.push("<b>Жарко на подъёме</b> — расстегните молнии, а не снимайте слои.");
+    return r;
+  }
+
+  function highlight(sid, on) {
+    document.querySelectorAll('.slot[data-slot="' + sid + '"]').forEach(s => s.classList.toggle("hl", on));
+    document.querySelectorAll("#figure .part").forEach(p => { if (p.dataset.target === sid) p.classList.toggle("hl", on); });
+    if (on) inspect(sid); else inspect(state.sel);
+  }
+  function select(sid) { state.sel = sid; render(); }
+  function bindSlots() {
+    document.querySelectorAll(".slot").forEach(s => {
+      const sid = s.dataset.slot;
+      s.onmouseenter = () => highlight(sid, true);
+      s.onmouseleave = () => highlight(sid, false);
+      s.onclick = () => select(sid);
+      s.onkeydown = (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(sid); } };
+    });
+  }
+  document.querySelectorAll("#figure .part").forEach(p => {
+    p.addEventListener("mouseenter", () => highlight(p.dataset.target, true));
+    p.addEventListener("mouseleave", () => highlight(p.dataset.target, false));
+    p.addEventListener("click", () => select(p.dataset.target));
+  });
+
+  // Вкладка «Вещи»: добавление, правка, удаление
+  let editId = null;
+  const fill = (sel, obj, val) => { sel.innerHTML = Object.entries(obj).map(([k, v]) => '<option value="' + k + '"' + (k === val ? " selected" : "") + '>' + esc(v) + '</option>').join(""); };
+  function fillTypes(type) { fill($("fType"), TYPES[$("fSlot").value], type); }
+  function resetForm() {
+    editId = null;
+    $("invForm").reset();
+    fill($("fSlot"), Object.fromEntries(SLOTS.map(s => [s.id, s.label])), "shell");
+    fillTypes();
+    fill($("fMat"), MATS, "synthetic");
+    fill($("fStatus"), STATUSES, "owned");
+    $("fSave").textContent = "Добавить";
+    $("fCancel").hidden = true;
+  }
+  function startAdd(nid) {
+    const need = NEEDS[nid];
+    resetForm();
+    $("fSlot").value = need.slot;
+    fillTypes(need.types[0]);
+    if (need.mats) $("fMat").value = need.mats[0];
+    showTab("inv");
+    $("fName").focus();
+  }
+  function startEdit(id) {
+    const it = inv.find(x => x.id === id);
+    if (!it) return;
+    editId = id;
+    $("fName").value = it.name;
+    $("fSlot").value = it.slot; fillTypes(it.type);
+    $("fMat").value = it.mat; $("fStatus").value = it.status;
+    $("fNote").value = it.note || ""; $("fLink").value = it.link || "";
+    $("fSave").textContent = "Сохранить";
+    $("fCancel").hidden = false;
+    $("fName").focus();
+  }
+  function bindAdd(root) { root.querySelectorAll("[data-add]").forEach(b => b.onclick = () => startAdd(b.dataset.add)); }
+  function renderInv() {
+    const groups = SLOTS.map(s => {
+      const items = inv.filter(it => it.slot === s.id);
+      if (!items.length) return "";
+      return '<div class="inv-g"><div class="sec-h">' + s.label + '</div>' + items.map(it =>
+        '<div class="inv-row"><span class="dot st-' + it.status + '" title="' + STATUSES[it.status] + '"></span>' +
+        '<div class="inv-txt"><div class="inv-n">' + esc(it.name) + '</div><div class="inv-m">' + esc(TYPES[it.slot][it.type]) + " · " + esc(MATS[it.mat] || "") + (it.status !== "owned" ? " · " + STATUSES[it.status] : "") + '</div></div>' +
+        '<button type="button" class="ib" data-edit="' + it.id + '" aria-label="Изменить">✎</button><button type="button" class="ib" data-del="' + it.id + '" aria-label="Удалить">✕</button></div>').join("") + '</div>';
+    }).join("");
+    $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Добавьте вещь выше или загрузите список в «Переносе».</p>';
+    $("invCount").textContent = inv.length ? String(inv.length) : "";
+    $("invList").querySelectorAll("[data-edit]").forEach(b => b.onclick = () => startEdit(b.dataset.edit));
+    $("invList").querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
+      const it = inv.find(x => x.id === b.dataset.del);
+      if (it && confirm("Удалить «" + it.name + "»?")) { inv = inv.filter(x => x !== it); saveInv(); renderInv(); render(); }
+    });
+  }
+  $("fSlot").addEventListener("change", () => fillTypes());
+  $("fCancel").addEventListener("click", resetForm);
+  $("invForm").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const name = $("fName").value.trim();
+    if (!name) return;
+    const data = { name, slot: $("fSlot").value, type: $("fType").value, mat: $("fMat").value, status: $("fStatus").value, note: $("fNote").value.trim(), link: $("fLink").value.trim() };
+    if (data.link && !/^https?:\/\//i.test(data.link)) data.link = "";
+    if (editId) inv = inv.map(x => x.id === editId ? { ...x, ...data } : x);
+    else inv.push({ id: newId(), ...data });
+    saveInv(); resetForm(); renderInv(); render();
+  });
+
+  // Перенос: файл или текст. Данные никуда не отправляются
+  const invJSON = () => JSON.stringify({ app: "veloarsenal", version: 1, items: inv.map(({ id, ...rest }) => rest) }, null, 2);
+  function importData(text, mode) {
+    let data;
+    try { data = JSON.parse(text); } catch (err) { $("ioMsg").textContent = "Не получилось прочитать: это не JSON."; return; }
+    const items = (Array.isArray(data) ? data : data && data.items) || [];
+    const ok = items.filter(it => it && typeof it.name === "string" && TYPES[it.slot] && TYPES[it.slot][it.type])
+      .map(it => ({ id: newId(), name: it.name.slice(0, 120), slot: it.slot, type: it.type, mat: MATS[it.mat] ? it.mat : "other", status: STATUSES[it.status] ? it.status : "owned", note: String(it.note || "").slice(0, 300), link: /^https?:\/\//i.test(it.link || "") ? it.link : "" }));
+    if (!ok.length) { $("ioMsg").textContent = "Подходящих вещей в файле не нашлось."; return; }
+    if (mode === "replace") inv = ok;
+    else { const key = (x) => x.slot + "|" + x.type + "|" + x.name.toLowerCase(); const have = new Set(inv.map(key)); inv = inv.concat(ok.filter(x => !have.has(key(x)))); }
+    saveInv(); renderInv(); render();
+    $("ioMsg").textContent = "Загружено вещей: " + ok.length + (items.length > ok.length ? ", пропущено: " + (items.length - ok.length) : "") + ".";
+  }
+  $("ioDownload").addEventListener("click", () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([invJSON()], { type: "application/json" }));
+    a.download = "veloarsenal-inventory.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    $("ioMsg").textContent = "Файл сохранён в «Загрузки».";
+  });
+  $("ioCopy").addEventListener("click", async () => {
+    $("ioText").value = invJSON();
+    try { await navigator.clipboard.writeText($("ioText").value); $("ioMsg").textContent = "Скопировано в буфер обмена."; }
+    catch (err) { $("ioText").select(); $("ioMsg").textContent = "Текст в поле ниже — скопируйте его ⌘C."; }
+  });
+  $("ioFile").addEventListener("change", async (ev) => {
+    const f = ev.target.files && ev.target.files[0];
+    if (f) importData(await f.text(), $("ioMode").value);
+    ev.target.value = "";
+  });
+  $("ioPaste").addEventListener("click", () => importData($("ioText").value, $("ioMode").value));
+
+  // Гайд: одна строка таблицы за раз, по умолчанию — под текущую погоду
+  const GUIDE = [
+    { k: "+20…+25", lo: 20, hi: 99, body: "велофутболка", legs: "велошорты", hands: "короткие перчатки или без", feet: "обычные носки", head: "очки" },
+    { k: "+15…+20", lo: 15, hi: 20, body: "футболка, на старт жилет", legs: "велошорты", hands: "короткие перчатки", feet: "обычные носки", head: "—" },
+    { k: "+10…+15", lo: 10, hi: 15, body: "длинный рукав или футболка с нарукавниками + жилет", legs: "шорты с утеплителями колен или тонкие рейтузы", hands: "тонкие длинные", feet: "обычные носки", head: "снуд на шее" },
+    { k: "0…+10", lo: 0, hi: 10, body: "термобаза + длинный рукав + ветрозащитная куртка", legs: "рейтузы с начёсом", hands: "ветрозащитные", feet: "шерстяные носки + бахилы", head: "шапочка под шлем, снуд" },
+    { k: "−5…0", lo: -5, hi: 0, body: "термобаза + флис + утеплённая ветрозащита", legs: "зимние рейтузы", hands: "толстые утеплённые", feet: "тёплые носки + утеплённые бахилы", head: "снуд или балаклава" },
+    { k: "−10…−5", lo: -99, hi: -5, body: "шерстяная база + утеплитель + ветрозащита", legs: "зимние рейтузы + ветрозащитные брюки", hands: "зимние или муфты на руль", feet: "шерстяные носки, зимние ботинки или бахилы", head: "балаклава, очки" }
+  ];
+  let guidePick = null;
+  function renderGuide(e) {
+    const nowI = GUIDE.findIndex(g => e >= g.lo && e < g.hi);
+    const i = guidePick === null ? nowI : guidePick;
+    const g = GUIDE[i];
+    $("gChips").innerHTML = GUIDE.map((x, j) => '<button type="button" class="gchip' + (j === nowI ? " now" : "") + '" data-j="' + j + '" aria-pressed="' + (j === i) + '">' + x.k + '</button>').join("");
+    $("gChips").querySelectorAll(".gchip").forEach(b => b.onclick = () => { const j = Number(b.dataset.j); guidePick = j === nowI ? null : j; renderGuide(e); });
+    $("gCard").innerHTML = [["Корпус", g.body], ["Ноги", g.legs], ["Руки", g.hands], ["Стопы", g.feet], ["Голова", g.head]]
+      .map(([a, b]) => "<dt>" + a + "</dt><dd>" + b + "</dd>").join("");
+  }
+
+  // Вкладки
+  const TABS = ["quests", "inv", "tips", "guide"];
+  function showTab(name) {
+    state.tab = name;
+    TABS.forEach(t => { $("tab-" + t).setAttribute("aria-selected", String(t === name)); $("p-" + t).hidden = t !== name; });
+    save();
+  }
+  TABS.forEach(t => $("tab-" + t).addEventListener("click", () => showTab(t)));
+
+  // Город: по умолчанию Бишкек; можно найти по названию или определить по местоположению
+  const PLACE_KEY = "veloarsenal.place";
+  let place = { name: "Бишкек", lat: 42.87, lon: 74.59 };
+  try { const p = JSON.parse(localStorage.getItem(PLACE_KEY) || "null"); if (p && isFinite(p.lat) && isFinite(p.lon)) place = p; } catch (err) { /* по умолчанию */ }
+  function setPlace(p) {
+    place = { name: String(p.name || "Моё место").slice(0, 60), lat: Math.round(p.lat * 100) / 100, lon: Math.round(p.lon * 100) / 100 };
+    try { localStorage.setItem(PLACE_KEY, JSON.stringify(place)); } catch (err) { /* в памяти */ }
+    $("cityPanel").hidden = true;
+    weather = null; renderWeather(); lastManual = 0; loadWeather();
+  }
+  function toggleCity(open) {
+    $("cityPanel").hidden = !open;
+    if (open) { $("cityQ").value = ""; $("cityRes").innerHTML = ""; $("cityMsg").textContent = ""; $("cityQ").focus(); }
+  }
+  let cityTimer = null;
+  $("cityQ").addEventListener("input", () => {
+    clearTimeout(cityTimer);
+    const q = $("cityQ").value.trim();
+    if (q.length < 2) { $("cityRes").innerHTML = ""; return; }
+    cityTimer = setTimeout(async () => {
+      try {
+        const r = await fetch("https://geocoding-api.open-meteo.com/v1/search?count=6&language=ru&name=" + encodeURIComponent(q));
+        const d = await r.json();
+        const res = d.results || [];
+        $("cityRes").innerHTML = res.length ? res.map((c, i) => '<button type="button" class="city-opt" data-i="' + i + '">' + esc(c.name) + '<span>' + esc([c.admin1, c.country].filter(Boolean).join(", ")) + '</span></button>').join("") : '<p class="empty-note">Ничего не нашлось</p>';
+        $("cityRes").querySelectorAll(".city-opt").forEach(b => b.onclick = () => { const c = res[Number(b.dataset.i)]; setPlace({ name: c.name, lat: c.latitude, lon: c.longitude }); });
+      } catch (err) { $("cityMsg").textContent = "Поиск недоступен — нет связи."; }
+    }, 300);
+  });
+  async function gotPosition(lat, lon) {
+    let name = "Моё место";
+    try {
+      const r = await fetch("https://api.bigdatacloud.net/data/reverse-geocode-client?localityLanguage=ru&latitude=" + lat + "&longitude=" + lon);
+      const d = await r.json();
+      name = d.city || d.locality || d.principalSubdivision || name;
+    } catch (err) { /* без названия */ }
+    setPlace({ name, lat, lon });
+  }
+  function noPosition(code) {
+    $("cityMsg").textContent = code === 1 ? "Доступ к местоположению запрещён — разрешите его в настройках или найдите город по названию." : "Не удалось определить — найдите город по названию.";
+  }
+  $("cityGeo").addEventListener("click", () => {
+    $("cityMsg").textContent = "Определяю…";
+    // В приложении для Mac местоположение спрашивает сама macOS
+    const native = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.geo;
+    if (native) {
+      window.vaGeoResult = (lat, lon, code) => code ? noPosition(code) : gotPosition(lat, lon);
+      native.postMessage("locate");
+      return;
+    }
+    if (!navigator.geolocation) { noPosition(2); return; }
+    navigator.geolocation.getCurrentPosition((pos) => gotPosition(pos.coords.latitude, pos.coords.longitude), (err) => noPosition(err.code), { timeout: 10000, maximumAge: 600000 });
+  });
+  $("cityClose").addEventListener("click", () => toggleCity(false));
+
+  const WMO = { 0: "ясно", 1: "малооблачно", 2: "переменная облачность", 3: "пасмурно", 45: "туман", 48: "изморозь", 51: "морось", 53: "морось", 55: "морось", 56: "ледяная морось", 57: "ледяная морось", 61: "дождь", 63: "дождь", 65: "сильный дождь", 66: "ледяной дождь", 67: "ледяной дождь", 71: "снег", 73: "снег", 75: "сильный снег", 77: "снежная крупа", 80: "ливень", 81: "ливень", 82: "сильный ливень", 85: "снегопад", 86: "сильный снегопад", 95: "гроза", 96: "гроза с градом", 99: "гроза с градом" };
+  const WET = (c) => c >= 51;
+  let weather = null;
+  function applyWeather(t, w, code) {
+    state.t = Math.max(-10, Math.min(25, Math.round(t)));
+    state.wind = Math.max(0, Math.min(15, r1(w)));
+    state.rain = WET(code);
+    render();
+  }
+  function renderWeather() {
+    const city = '<button type="button" class="city-btn" id="cityBtn" title="Сменить город">' + esc(place.name) + ' ▾</button>';
+    if (!weather || !weather.current) {
+      $("wNow").innerHTML = city + "<span>загружаю прогноз…</span>";
+      $("wHours").innerHTML = "";
+      $("cityBtn").onclick = () => toggleCity($("cityPanel").hidden);
+      return;
+    }
+    const c = weather.current;
+    const when = new Date(weather.updatedAt);
+    const old = (Date.now() - when.getTime()) / 3600000 > 1;
+    $("wNow").innerHTML =
+      city + '<span class="wt">' + fmt(Math.round(c.t)) + '</span>' +
+      '<span>ощущ. <b>' + fmt(Math.round(c.feels)) + '</b></span>' +
+      '<span>ветер <b>' + ms(c.wind) + '</b>, порывы <b>' + Math.round(c.gust) + '</b> м/с</span>' +
+      '<span><b>' + (WMO[c.code] || "—") + '</b></span>' +
+      '<button type="button" class="w-apply" id="wApply">Одеться на сейчас</button>' +
+      '<span class="wx-upd">' + when.toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + (old ? " · устарело" : "") + '</span>';
+    $("cityBtn").onclick = () => toggleCity($("cityPanel").hidden);
+    $("wApply").onclick = () => { lastManual = 0; applyWeather(c.t, c.wind, c.code); };
+    $("wHours").innerHTML = (weather.hours || []).map((h, i) =>
+      '<button type="button" class="hour' + (WET(h.code) ? " wet" : "") + '" data-i="' + i + '" title="' + (WMO[h.code] || "") + (h.pop ? ", осадки " + h.pop + "%" : "") + ', ощущается ' + fmt(Math.round(h.feels)) + '">' +
+      '<span class="h">' + h.time.slice(11, 16) + '</span><span class="t">' + fmt(Math.round(h.t)) + '</span><span class="w">' + ms(h.wind) + '</span></button>').join("");
+    $("wHours").querySelectorAll(".hour").forEach(b => b.onclick = () => { lastManual = Date.now(); const h = weather.hours[Number(b.dataset.i)]; applyWeather(h.t, h.wind, h.code); });
+  }
+  // Погода с Open-Meteo: обновляется сама каждые 15 минут
+  const api = () => "https://api.open-meteo.com/v1/forecast?latitude=" + place.lat + "&longitude=" + place.lon + "&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_gusts_10m,weather_code&hourly=temperature_2m,apparent_temperature,wind_speed_10m,weather_code,precipitation_probability&wind_speed_unit=ms&timezone=auto&forecast_hours=12";
+  let lastManual = 0;
+  let retry = null;
+  async function loadWeather() {
+    clearTimeout(retry);
+    const forPlace = place;
+    try {
+      const r = await fetch(api(), { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const w = await r.json();
+      if (forPlace !== place) return;
+      const c = w.current, h = w.hourly;
+      weather = {
+        updatedAt: new Date().toISOString(),
+        current: { t: c.temperature_2m, feels: c.apparent_temperature, wind: c.wind_speed_10m, gust: c.wind_gusts_10m, code: c.weather_code },
+        hours: h.time.map((time, i) => ({ time, t: h.temperature_2m[i], feels: h.apparent_temperature[i], wind: h.wind_speed_10m[i], code: h.weather_code[i], pop: h.precipitation_probability[i] }))
+      };
+      renderWeather();
+      // Подбор следует за погодой, если ползунки не трогали последние 10 минут
+      if (Date.now() - lastManual > 10 * 60 * 1000) applyWeather(c.temperature_2m, c.wind_speed_10m, c.weather_code);
+    } catch (err) {
+      if (!weather) { $("wNow").innerHTML = '<button type="button" class="city-btn" id="cityBtn">' + esc(place.name) + ' ▾</button><span>нет связи с прогнозом — повторю через минуту</span>'; $("cityBtn").onclick = () => toggleCity($("cityPanel").hidden); }
+      retry = setTimeout(loadWeather, 60 * 1000);
+    }
+  }
+  renderWeather();
+  loadWeather();
+  setInterval(loadWeather, 15 * 60 * 1000);
+  window.addEventListener("focus", () => { if (!weather || Date.now() - new Date(weather.updatedAt).getTime() > 10 * 60 * 1000) loadWeather(); });
+
+  $("temp").addEventListener("input", (ev) => { lastManual = Date.now(); state.t = Number(ev.target.value); render(); });
+  $("wind").addEventListener("input", (ev) => { lastManual = Date.now(); state.wind = Number(ev.target.value); render(); });
+  $("spdFast").addEventListener("click", () => { state.hill = true; render(); });
+  $("spdCalm").addEventListener("click", () => { state.hill = false; render(); });
+  $("dark").addEventListener("click", () => { state.dark = !state.dark; render(); });
+  $("rain").addEventListener("click", () => { state.rain = !state.rain; render(); });
+
+  resetForm();
+  renderInv();
+  showTab(TABS.includes(state.tab) ? state.tab : "quests");
+  if (!SLOTS.some(s => s.id === state.sel)) state.sel = "shell";
+  render();
+})();
+</script>
