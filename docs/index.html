@@ -144,13 +144,14 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .iname.sub { color: var(--ink-2); }
 
 .center { display: grid; align-content: start; gap: 14px; min-width: 0; min-height: 0; overflow-y: auto; }
-/* Силуэт с легендой слева в свободном месте, кнопка «Не хватает» под ними */
-.figure { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "leg fig" "btn btn"; gap: 12px 6px; align-items: end; }
-#figure { grid-area: fig; width: 100%; max-width: 170px; height: auto; justify-self: center; }
+/* Силуэт во всю ширину колонки; легенда лежит поверх свободного места слева от головы */
+.figure { display: grid; gap: 12px; }
+.fig-wrap { position: relative; display: grid; justify-items: center; }
+#figure { width: 100%; max-width: 170px; height: auto; }
 #figure .part { stroke: var(--ink-2); stroke-width: 1.2; transition: fill .2s; cursor: pointer; }
 #figure .part.miss { stroke: var(--signal); stroke-dasharray: 4 3; stroke-width: 2; }
 #figure .part.hl { stroke: var(--ink); stroke-width: 2.4; }
-.fig-legend { grid-area: leg; display: flex; flex-direction: column; gap: 6px; padding-bottom: 8px; font-size: 13px; color: var(--muted); }
+.fig-legend { position: absolute; left: 0; top: 4px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; pointer-events: none; color: var(--muted); }
 .fig-legend i { display: inline-block; width: 12px; height: 12px; border: 1px solid var(--ink-2); vertical-align: -1px; margin-right: 4px; }
 
 .inspector { border-top: 1px solid var(--ink); padding-top: 8px; min-height: 90px; }
@@ -171,7 +172,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .back { font-size: 15px; color: var(--ink-2); background: none; border: 0; padding: 4px 0; cursor: pointer; }
 .back:hover { color: var(--ink); }
 .more { margin: 18px 0 0; }
-.fig-actions { grid-area: btn; display: grid; justify-items: center; gap: 8px; }
+.fig-actions { display: grid; justify-items: center; gap: 8px; }
 .miss-btn { justify-self: center; font-size: 15px; color: var(--signal); background: transparent; border: 1px solid var(--signal); border-radius: 3px; padding: 5px 12px; cursor: pointer; }
 .miss-btn:hover { background: var(--signal); color: var(--signal-ink); }
 .modal-bg { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / 0.3); }
@@ -250,7 +251,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .toggles { grid-column: 3; grid-row: 1; }
   .sliders { grid-column: 1 / -1; grid-row: 2; }
   /* Вкладки уходят вниз — прокручивается вся рабочая область целиком */
-  .main { grid-template-columns: minmax(0, 1fr) 180px minmax(0, 1fr); grid-auto-rows: max-content; overflow-y: auto; align-items: start; }
+  .main { grid-template-columns: minmax(0, 1fr) 220px minmax(0, 1fr); grid-auto-rows: max-content; overflow-y: auto; align-items: start; }
   .col, .center { min-height: auto; overflow: visible; }
 }
 @media (max-width: 760px) {
@@ -267,8 +268,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .main { grid-template-columns: minmax(0, 1fr); overflow: visible; }
   .center { grid-column: 1; grid-row: auto; grid-template-columns: 110px minmax(0, 1fr); align-items: start; margin: 16px 0; }
   .center .inspector { border-top: 0; padding-top: 0; }
-  .figure { grid-template-columns: minmax(0, 1fr); grid-template-areas: "fig" "leg" "btn"; }
-  .fig-legend { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 10px; padding-bottom: 0; }
+  .fig-legend { position: static; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 10px; margin-top: 6px; }
   .col + .col { border-top: 0; }
   .page { overflow: visible; }
   .hd { grid-template-columns: minmax(0, 1fr); gap: 10px; }
@@ -320,26 +320,29 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     <div class="col" id="colLeft"></div>
     <div class="center">
       <div class="figure">
+        <div class="fig-wrap">
         <svg id="figure" viewBox="0 0 200 430" role="img" aria-label="Силуэт велосипедиста, зоны окрашены по надетым вещам">
-          <ellipse class="part" data-slot="head" cx="100" cy="44" rx="25" ry="28"/>
-          <rect class="part" data-slot="eyes" x="80" y="38" width="40" height="11" rx="5"/>
-          <path class="part" data-slot="face" d="M86 70 h28 l4 20 h-36 z"/>
-          <path class="part" data-zone="torso" d="M60 92 Q100 82 140 92 L150 150 L142 222 Q100 232 58 222 L50 150 Z"/>
-          <path class="part" data-zone="armL" d="M58 96 L42 102 L28 176 L24 228 L40 230 L48 180 L60 140 Z"/>
-          <path class="part" data-zone="armR" d="M142 96 L158 102 L172 176 L176 228 L160 230 L152 180 L140 140 Z"/>
-          <path class="part" data-slot="hands" d="M22 230 h20 l2 22 q-11 10 -24 0 z"/>
-          <path class="part" data-slot="hands" d="M158 230 h20 l2 22 q-13 10 -24 0 z"/>
-          <path class="part" data-zone="thighs" d="M58 224 Q100 236 142 224 L140 300 L106 300 L100 262 L94 300 L60 300 Z"/>
-          <path class="part" data-zone="shins" d="M60 302 h34 l-3 86 h-26 z"/>
-          <path class="part" data-zone="shins" d="M106 302 h34 l-5 86 h-26 z"/>
-          <path class="part" data-zone="feet" d="M64 390 h28 l2 22 h-40 q-2 -14 10 -22 z"/>
-          <path class="part" data-zone="feet" d="M108 390 h28 q12 8 10 22 h-40 z"/>
-        </svg>
+            <ellipse class="part" data-slot="head" cx="100" cy="44" rx="25" ry="28"/>
+            <rect class="part" data-slot="eyes" x="80" y="38" width="40" height="11" rx="5"/>
+            <path class="part" data-slot="face" d="M86 70 h28 l4 20 h-36 z"/>
+            <path class="part" data-zone="torso" d="M60 92 Q100 82 140 92 L150 150 L142 222 Q100 232 58 222 L50 150 Z"/>
+            <path class="part" data-zone="armL" d="M58 96 L42 102 L28 176 L24 228 L40 230 L48 180 L60 140 Z"/>
+            <path class="part" data-zone="armR" d="M142 96 L158 102 L172 176 L176 228 L160 230 L152 180 L140 140 Z"/>
+            <path class="part" data-slot="hands" d="M22 230 h20 l2 22 q-11 10 -24 0 z"/>
+            <path class="part" data-slot="hands" d="M158 230 h20 l2 22 q-13 10 -24 0 z"/>
+            <path class="part" data-zone="thighs" d="M58 224 Q100 236 142 224 L140 300 L106 300 L100 262 L94 300 L60 300 Z"/>
+            <path class="part" data-zone="shins" d="M60 302 h34 l-3 86 h-26 z"/>
+            <path class="part" data-zone="shins" d="M106 302 h34 l-5 86 h-26 z"/>
+            <path class="part" data-zone="feet" d="M64 390 h28 l2 22 h-40 q-2 -14 10 -22 z"/>
+            <path class="part" data-zone="feet" d="M108 390 h28 q12 8 10 22 h-40 z"/>
+          </svg>
+          <div class="fig-legend" aria-hidden="true"><span><i style="background:var(--layer-1)"></i>лёгкое</span><span><i style="background:var(--layer-2)"></i>тёплое</span><span><i style="background:var(--layer-3)"></i>зимнее</span></div>
+        </div>
         <div class="fig-actions">
           <button type="button" class="miss-btn" id="goMissing" hidden>Не хватает: <span id="qBadge"></span></button>
           <button type="button" class="lnk all-items" id="goInv">Все мои вещи <span class="cnt" id="invCount"></span></button>
         </div>
-        <div class="fig-legend" aria-hidden="true"><span><i style="background:var(--layer-1)"></i>лёгкое</span><span><i style="background:var(--layer-2)"></i>тёплое</span><span><i style="background:var(--layer-3)"></i>зимнее</span></div>
+
       </div>
       <div class="inspector" id="inspector" aria-live="polite"></div>
     </div>
