@@ -460,7 +460,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
           <input class="wide" id="fName" placeholder="Название, например «Флиска Helly Hansen»" aria-label="Название" maxlength="120" required>
           <label>Куда<select id="fSlot"></select></label>
           <label>Тип<select id="fType"></select></label>
-          <label class="wide">Материал<select id="fMat"></select></label>
+          <label class="wide" id="fMatRow">Материал<select id="fMat"></select></label>
           <input class="wide" id="fNote" placeholder="Заметка: размер, как носить" aria-label="Заметка" maxlength="300">
           <input class="wide" id="fLink" placeholder="Ссылка на вещь (необязательно)" aria-label="Ссылка" type="url">
           <div class="inv-actions"><button type="submit" class="btn pri" id="fSave">Добавить</button><button type="button" class="btn" id="fCancel">Отмена</button></div>
@@ -509,6 +509,21 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     vis:      { lights: "Фонари", reflVest: "Светоотражающий жилет", reflBands: "Светоотражающие браслеты / полосы" }
   };
   const MATS = { merino: "Меринос", wool: "Шерсть", synthetic: "Синтетика", fleece: "Флис", softshell: "Софтшелл", membrane: "Мембрана", nylon: "Нейлон / ветрозащита", down: "Пух", insulation: "Синтетический утеплитель", neoprene: "Неопрен", leather: "Кожа", cotton: "Хлопок", other: "Другое" };
+  // Материалы, которые имеют смысл в каждом слоте; у фонарей, очков и шлема материала нет
+  const SLOT_MATS = {
+    helmet: [], eyes: [], vis: [],
+    head: ["merino", "wool", "synthetic", "fleece", "softshell", "cotton"],
+    face: ["merino", "wool", "synthetic", "fleece", "softshell", "cotton"],
+    base: ["merino", "wool", "synthetic", "cotton"],
+    mid: ["fleece", "merino", "wool", "synthetic", "down", "insulation", "cotton"],
+    shell: ["nylon", "membrane", "softshell", "insulation", "down", "synthetic"],
+    hands: ["synthetic", "softshell", "fleece", "merino", "wool", "leather", "insulation"],
+    legs: ["synthetic", "fleece", "merino"],
+    legOver: ["softshell", "nylon", "membrane", "fleece", "synthetic", "insulation"],
+    socks: ["merino", "wool", "synthetic", "cotton"],
+    shoes: ["synthetic", "leather", "membrane"],
+    overshoe: ["neoprene", "nylon", "softshell", "synthetic"]
+  };
 
   // Что нужно надеть: каталог потребностей. Своя вещь подставляется по слоту и типу,
   // среди подходящих — сначала та, что уже есть, потом по предпочтительному материалу
@@ -898,13 +913,18 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   // Вкладка «Вещи»: добавление, правка, удаление
   let editId = null;
   const fill = (sel, obj, val) => { sel.innerHTML = Object.entries(obj).map(([k, v]) => '<option value="' + k + '"' + (k === val ? " selected" : "") + '>' + esc(v) + '</option>').join(""); };
-  function fillTypes(type) { fill($("fType"), TYPES[$("fSlot").value], type); }
+  function fillTypes(type, mat) {
+    const slot = $("fSlot").value;
+    fill($("fType"), TYPES[slot], type);
+    const mats = SLOT_MATS[slot] || Object.keys(MATS);
+    $("fMatRow").hidden = !mats.length;
+    fill($("fMat"), Object.fromEntries(mats.map(k => [k, MATS[k]])), mats.includes(mat) ? mat : mats[0]);
+  }
   function resetForm() {
     editId = null;
     $("invForm").reset();
     fill($("fSlot"), Object.fromEntries(SLOTS.map(s => [s.id, s.label])), "shell");
     fillTypes();
-    fill($("fMat"), MATS, "synthetic");
     $("fSave").textContent = "Добавить";
     $("addTitle").textContent = "Добавить вещь";
   }
@@ -925,8 +945,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     const need = NEEDS[nid];
     resetForm();
     $("fSlot").value = need.slot;
-    fillTypes(need.types[0]);
-    if (need.mats) $("fMat").value = need.mats[0];
+    fillTypes(need.types[0], need.mats && need.mats[0]);
     openAdd();
   }
   function startEdit(id) {
@@ -934,8 +953,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     if (!it) return;
     editId = id;
     $("fName").value = it.name;
-    $("fSlot").value = it.slot; fillTypes(it.type);
-    $("fMat").value = it.mat;
+    $("fSlot").value = it.slot; fillTypes(it.type, it.mat);
     $("fNote").value = it.note || ""; $("fLink").value = it.link || "";
     $("fSave").textContent = "Сохранить";
     $("addTitle").textContent = "Изменить вещь";
@@ -948,7 +966,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       if (!items.length) return "";
       return '<div class="inv-g"><div class="sec-h">' + s.label + '</div>' + items.map(it =>
         '<div class="inv-row">' +
-        '<div class="inv-txt"><div class="inv-n">' + esc(it.name) + '</div><div class="inv-m">' + esc(TYPES[it.slot][it.type]) + " · " + esc(MATS[it.mat] || "") + '</div></div>' +
+        '<div class="inv-txt"><div class="inv-n">' + esc(it.name) + '</div><div class="inv-m">' + esc(TYPES[it.slot][it.type]) + (it.mat && it.mat !== "other" ? " · " + esc(MATS[it.mat] || "") : "") + '</div></div>' +
         '<button type="button" class="ib" data-edit="' + it.id + '" aria-label="Изменить">✎</button><button type="button" class="ib" data-del="' + it.id + '" aria-label="Удалить">✕</button></div>').join("") + '</div>';
     }).join("");
     $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Нажмите «Добавить вещь» или загрузите файл ниже, в «Переносе».</p>';
@@ -965,7 +983,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     ev.preventDefault();
     const name = $("fName").value.trim();
     if (!name) return;
-    const data = { name, slot: $("fSlot").value, type: $("fType").value, mat: $("fMat").value, note: $("fNote").value.trim(), link: $("fLink").value.trim() };
+    const data = { name, slot: $("fSlot").value, type: $("fType").value, mat: $("fMatRow").hidden ? "other" : $("fMat").value, note: $("fNote").value.trim(), link: $("fLink").value.trim() };
     if (data.link && !/^https?:\/\//i.test(data.link)) data.link = "";
     if (editId) inv = inv.map(x => x.id === editId ? { ...x, ...data } : x);
     else inv.push({ id: newId(), ...data });
