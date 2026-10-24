@@ -291,10 +291,12 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .col + .col, .col { border-top: 0; }
   #colLeft { border-top: 1px solid var(--rule); }
   .center { order: -1; margin-bottom: 12px; }
-  .figure { grid-template-columns: 104px minmax(0, 1fr); align-items: center; gap: 16px; }
-  .fig-wrap { justify-items: start; }
-  #figure { max-width: 104px; }
-  .fig-legend { position: static; flex-direction: column; gap: 4px; margin-top: 8px; font-size: 13px; }
+  /* Силуэт слева, справа сверху легенда, под ней «Одеваемся на …» и кнопки */
+  .figure { grid-template-columns: 104px minmax(0, 1fr); grid-template-areas: "svg leg" "svg act"; align-items: center; gap: 10px 16px; }
+  .fig-wrap { display: contents; }
+  #figure { grid-area: svg; max-width: 104px; }
+  .fig-legend { grid-area: leg; align-self: end; position: static; flex-direction: row; flex-wrap: wrap; gap: 2px 12px; font-size: 13px; }
+  .fig-actions { grid-area: act; align-self: start; }
   .fig-actions { justify-items: start; gap: 10px; }
   .kit-h { font: 500 22px var(--font-cond); }
   .kit-h b { font-weight: 600; }
@@ -1103,6 +1105,19 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
       '<button type="button" class="hour' + (WET(h.code) ? " wet" : "") + '" data-i="' + i + '" title="' + (WMO[h.code] || "") + (h.pop ? ", осадки " + h.pop + "%" : "") + ', ощущается ' + fmt(Math.round(h.feels)) + '">' +
       '<span class="h">' + h.time.slice(11, 16) + '</span><span class="t">' + fmt(Math.round(h.t)) + '</span><span class="w">' + ms(h.wind) + '</span></button>').join("");
     $("wHours").querySelectorAll(".hour").forEach(b => b.onclick = () => { lastManual = Date.now(); const h = weather.hours[Number(b.dataset.i)]; applyWeather(h.t, h.wind, h.code); });
+    swipeHint();
+  }
+  // Телефон, первый показ: лента часов сама сдвигается и возвращается — подсказка, что её можно листать
+  function swipeHint() {
+    const el = $("wHours");
+    if (!phone.matches || el.scrollWidth <= el.clientWidth + 8) return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    try { if (localStorage.getItem("veloarsenal.swipeHint")) return; localStorage.setItem("veloarsenal.swipeHint", "1"); } catch (err) { return; }
+    const shift = Math.min(140, el.scrollWidth - el.clientWidth);
+    setTimeout(() => {
+      el.scrollTo({ left: shift, behavior: "smooth" });
+      setTimeout(() => el.scrollTo({ left: 0, behavior: "smooth" }), 900);
+    }, 700);
   }
   // Заготовка той же формы, что и прогноз: при загрузке ничего не прыгает
   function renderWeatherStub(city, msg) {
