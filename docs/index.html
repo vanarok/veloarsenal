@@ -184,7 +184,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .insp-hd b { color: var(--ink); }
 
 /* Отдельные экраны: «Не хватает», «Мои вещи», «Советы», таблица */
-.page { position: relative; min-height: 0; overflow-y: auto; }
+/* Справа место под полосу прокрутки, чтобы она не ложилась на кнопки */
+.page { position: relative; min-height: 0; overflow-y: auto; padding-right: 14px; }
 .page > * { max-width: 860px; }
 /* Списки вещей тянутся на всю ширину; текстовые страницы остаются узкими для чтения */
 #p-inv > *, #p-quests > * { max-width: none; }
@@ -342,7 +343,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   .btn.plus-btn { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; line-height: 0; }
   .plus-btn .plus-ico { display: block; }
   .plus-btn .plus-txt { display: none; }
-  .page { overflow: visible; }
+  .page { overflow: visible; padding-right: 0; }
   .hd { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .inv-form { grid-template-columns: minmax(0, 1fr); }
   .body-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
