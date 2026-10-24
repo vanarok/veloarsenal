@@ -205,10 +205,8 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
 .legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
 
 .iname.need { color: var(--muted); font-weight: 400; font-style: italic; }
-.st-wanted { color: var(--gold); }
 .lnk { font: inherit; color: var(--r-rare); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
 .hint { color: var(--muted); font-size: 12px; margin: 0 0 8px; padding: 6px 8px; border: 1px dashed var(--gold-dim); border-radius: 4px; }
-.quest.want .mark { border-color: var(--gold); }
 .quest.sub .mark { border-color: var(--r-common); }
 .inv-form { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
 .inv-form input, .inv-form select, .io textarea, .io select, .city-panel input {
@@ -332,8 +330,7 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
           <select id="fSlot" aria-label="Слот"></select>
           <select id="fType" aria-label="Тип"></select>
           <select id="fMat" aria-label="Материал"></select>
-          <select id="fStatus" aria-label="Статус"></select>
-          <input class="wide" id="fNote" placeholder="Заметка: размер, когда приедет" aria-label="Заметка" maxlength="300">
+          <input class="wide" id="fNote" placeholder="Заметка: размер, как носить" aria-label="Заметка" maxlength="300">
           <input class="wide" id="fLink" placeholder="Ссылка на вещь (необязательно)" aria-label="Ссылка" type="url">
           <div class="inv-actions"><button type="submit" class="btn pri" id="fSave">Добавить</button><button type="button" class="btn" id="fCancel" hidden>Отмена</button></div>
         </form>
@@ -371,10 +368,8 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
         </div>
         <div class="sec-h">Статус</div>
         <div class="legend">
-          <span class="st-owned"><i style="background:var(--s-owned);border-radius:50%"></i>Есть</span>
-          <span class="st-transit"><i style="background:var(--s-transit);border-radius:50%"></i>В пути</span>
-          <span class="st-wanted"><i style="background:var(--gold);border-radius:50%"></i>Хочу купить</span>
-          <span class="st-missing"><i style="background:var(--s-missing);border-radius:50%"></i>Нет</span>
+          <span class="st-owned"><i style="background:var(--s-owned);border-radius:50%"></i>Своя вещь</span>
+                    <span class="st-missing"><i style="background:var(--s-missing);border-radius:50%"></i>Нужно найти</span>
           <span class="st-wardrobe"><i style="background:var(--s-wardrobe);border-radius:50%"></i>Есть у всех</span>
         </div>
       </div>
@@ -432,7 +427,6 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
     vis:      { lights: "Фонари", reflVest: "Светоотражающий жилет" }
   };
   const MATS = { merino: "Меринос", wool: "Шерсть", synthetic: "Синтетика", fleece: "Флис", softshell: "Софтшелл", membrane: "Мембрана", nylon: "Нейлон / ветрозащита", neoprene: "Неопрен", cotton: "Хлопок", other: "Другое" };
-  const STATUSES = { owned: "есть", transit: "в пути", wanted: "хочу купить" };
 
   // Что нужно надеть: каталог потребностей. Своя вещь подставляется по слоту и типу,
   // среди подходящих — сначала та, что уже есть, потом по предпочтительному материалу
@@ -509,24 +503,22 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
     const raw = localStorage.getItem(INV_KEY);
     inv = raw ? JSON.parse(raw) : (Array.isArray(window.VA_DEFAULT_INVENTORY) ? window.VA_DEFAULT_INVENTORY : []);
   } catch (err) { inv = Array.isArray(window.VA_DEFAULT_INVENTORY) ? window.VA_DEFAULT_INVENTORY : []; }
-  inv = (Array.isArray(inv) ? inv : []).filter(it => it && TYPES[it.slot] && TYPES[it.slot][it.type]).map(it => ({ status: "owned", mat: "other", ...it, id: it.id || newId() }));
+  inv = (Array.isArray(inv) ? inv : []).filter(it => it && TYPES[it.slot] && TYPES[it.slot][it.type] && it.status !== "wanted").map(({ status, ...it }) => ({ mat: "other", ...it, id: it.id || newId() }));
   function newId() { return "i" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
   const saveInv = () => { try { localStorage.setItem(INV_KEY, JSON.stringify(inv)); } catch (err) { /* только в памяти */ } };
 
-  const SRANK = { owned: 0, transit: 1, wanted: 2 };
   const matRank = (need, it) => { const i = (need.mats || []).indexOf(it.mat); return i < 0 ? 9 : i; };
-  function findItem(need, used, withWanted) {
-    const c = inv.filter(it => it.slot === need.slot && need.types.includes(it.type) && (withWanted || it.status !== "wanted"));
-    c.sort((a, b) => (SRANK[a.status] - SRANK[b.status]) || (need.types.indexOf(a.type) - need.types.indexOf(b.type)) || (matRank(need, a) - matRank(need, b)));
+  function findItem(need, used) {
+    const c = inv.filter(it => it.slot === need.slot && need.types.includes(it.type));
+    c.sort((a, b) => (need.types.indexOf(a.type) - need.types.indexOf(b.type)) || (matRank(need, a) - matRank(need, b)));
     return c.find(it => !used.has(it.id)) || null;
   }
   // Потребность → запись слота: своя вещь, замена или «нужно найти»
   function resolve(nid, used) {
     const want = NEEDS[nid];
-    // Порядок: своё (есть или едет) → замена из своего → то, что хочу купить
+    // Порядок: своя вещь нужного типа → замена из своих → «нужно найти»
     let it = findItem(want, used), need = want, sub = null;
     if (!it) for (const a of want.alts || []) { const ai = findItem(NEEDS[a], used); if (ai) { it = ai; need = NEEDS[a]; sub = want; break; } }
-    if (!it) it = findItem(want, used, true);
     if (!it && want.optional) return null;
     if (it) used.add(it.id);
     const notes = [];
@@ -537,7 +529,7 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
     return {
       nid, want, need, it, sub,
       n: it ? it.name : want.n,
-      s: it ? it.status : want.basic ? "wardrobe" : "missing",
+      s: it ? "owned" : want.basic ? "wardrobe" : "missing",
       r: need.r, warm: need.warm || 0, wind: need.wind || 0, sleeves: need.sleeves, cafe: need.cafe,
       up: need.up, down: need.down, notes,
       meta: it ? TYPES[it.slot][it.type] + (it.mat && it.mat !== "other" ? " · " + MATS[it.mat] : "") : "",
@@ -547,7 +539,7 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
   function outfit(e, dark, rain) {
     const ids = pick(e, dark, rain);
     // Без балаклавы лицо закрывает снуд на нос
-    if (ids.head[0] === "balaclava" && !findItem(NEEDS.balaclava, new Set(), true)) ids.face = ["nose"];
+    if (ids.head[0] === "balaclava" && !findItem(NEEDS.balaclava, new Set())) ids.face = ["nose"];
     const used = new Set(), o = {};
     SLOTS.forEach(s => { o[s.id] = ids[s.id].map(nid => resolve(nid, used)).filter(Boolean); });
     return o;
@@ -555,7 +547,7 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
 
   const RV = { common: "--r-common", uncommon: "--r-uncommon", rare: "--r-rare", epic: "--r-epic", legendary: "--r-legendary" };
   const RANK = { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4 };
-  const ST = { owned: "есть", transit: "в пути", wanted: "хочу", missing: "нет", wardrobe: "гардероб" };
+  const ST = { owned: "есть", missing: "нет", wardrobe: "есть у всех" };
   const css = getComputedStyle(document.documentElement);
   const col = (v) => css.getPropertyValue(v).trim();
   const topR = (list) => list.reduce((b, x) => (!b || RANK[x.r] > RANK[b]) ? x.r : b, null);
@@ -670,15 +662,11 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
 
   function renderQuests(all) {
     const missing = all.filter(x => x.s === "missing");
-    const wanted = all.filter(x => x.s === "wanted");
     const subs = all.filter(x => x.sub && x.s !== "missing");
-    const transit = all.filter(x => x.s === "transit");
     const q = (cls, title, note) => '<div class="quest' + cls + '"><span class="mark" aria-hidden="true"></span><div><div class="qt">' + title + '</div><div class="qn">' + note + '</div></div></div>';
     let html = inv.length ? "" : '<p class="hint">Добавьте свои вещи во вкладке «Вещи» — подбор сам подставит их по типу и материалу. Или загрузите готовый список через «Перенос».</p>';
     html += missing.map(x => q("", esc(x.n), '<button type="button" class="lnk" data-add="' + x.nid + '">+ Добавить свою</button>' + (x.find ? ' · <a href="' + ozon(x.find) + '" target="_blank" rel="noopener">Искать на Ozon</a>' : ''))).join("");
-    html += wanted.map(x => q(" want", esc(x.n), "Хочу купить" + (x.link ? ' · <a href="' + esc(x.link) + '" target="_blank" rel="noopener">ссылка</a>' : ''))).join("");
     html += subs.map(x => q(" sub", esc(x.n), "Вместо «" + esc(x.sub.n.toLowerCase()) + "»")).join("");
-    html += transit.map(x => q(" done", esc(x.n), esc(x.it && x.it.note ? x.it.note : "В пути"))).join("");
     $("p-quests").innerHTML = html || '<p class="empty-note">Для этой погоды всё уже в инвентаре.</p>';
     $("qBadge").hidden = !missing.length;
     $("qBadge").textContent = missing.length;
@@ -730,7 +718,6 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
     fill($("fSlot"), Object.fromEntries(SLOTS.map(s => [s.id, s.label])), "shell");
     fillTypes();
     fill($("fMat"), MATS, "synthetic");
-    fill($("fStatus"), STATUSES, "owned");
     $("fSave").textContent = "Добавить";
     $("fCancel").hidden = true;
   }
@@ -749,7 +736,7 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
     editId = id;
     $("fName").value = it.name;
     $("fSlot").value = it.slot; fillTypes(it.type);
-    $("fMat").value = it.mat; $("fStatus").value = it.status;
+    $("fMat").value = it.mat;
     $("fNote").value = it.note || ""; $("fLink").value = it.link || "";
     $("fSave").textContent = "Сохранить";
     $("fCancel").hidden = false;
@@ -761,8 +748,8 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
       const items = inv.filter(it => it.slot === s.id);
       if (!items.length) return "";
       return '<div class="inv-g"><div class="sec-h">' + s.label + '</div>' + items.map(it =>
-        '<div class="inv-row"><span class="dot st-' + it.status + '" title="' + STATUSES[it.status] + '"></span>' +
-        '<div class="inv-txt"><div class="inv-n">' + esc(it.name) + '</div><div class="inv-m">' + esc(TYPES[it.slot][it.type]) + " · " + esc(MATS[it.mat] || "") + (it.status !== "owned" ? " · " + STATUSES[it.status] : "") + '</div></div>' +
+        '<div class="inv-row"><span class="dot st-owned"></span>' +
+        '<div class="inv-txt"><div class="inv-n">' + esc(it.name) + '</div><div class="inv-m">' + esc(TYPES[it.slot][it.type]) + " · " + esc(MATS[it.mat] || "") + '</div></div>' +
         '<button type="button" class="ib" data-edit="' + it.id + '" aria-label="Изменить">✎</button><button type="button" class="ib" data-del="' + it.id + '" aria-label="Удалить">✕</button></div>').join("") + '</div>';
     }).join("");
     $("invList").innerHTML = groups || '<p class="empty-note">Пока пусто. Добавьте вещь выше или загрузите список в «Переносе».</p>';
@@ -779,7 +766,7 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
     ev.preventDefault();
     const name = $("fName").value.trim();
     if (!name) return;
-    const data = { name, slot: $("fSlot").value, type: $("fType").value, mat: $("fMat").value, status: $("fStatus").value, note: $("fNote").value.trim(), link: $("fLink").value.trim() };
+    const data = { name, slot: $("fSlot").value, type: $("fType").value, mat: $("fMat").value, note: $("fNote").value.trim(), link: $("fLink").value.trim() };
     if (data.link && !/^https?:\/\//i.test(data.link)) data.link = "";
     if (editId) inv = inv.map(x => x.id === editId ? { ...x, ...data } : x);
     else inv.push({ id: newId(), ...data });
@@ -792,8 +779,8 @@ input[type=range] { width: 100%; accent-color: var(--gold); height: 20px; margin
     let data;
     try { data = JSON.parse(text); } catch (err) { $("ioMsg").textContent = "Не получилось прочитать: это не JSON."; return; }
     const items = (Array.isArray(data) ? data : data && data.items) || [];
-    const ok = items.filter(it => it && typeof it.name === "string" && TYPES[it.slot] && TYPES[it.slot][it.type])
-      .map(it => ({ id: newId(), name: it.name.slice(0, 120), slot: it.slot, type: it.type, mat: MATS[it.mat] ? it.mat : "other", status: STATUSES[it.status] ? it.status : "owned", note: String(it.note || "").slice(0, 300), link: /^https?:\/\//i.test(it.link || "") ? it.link : "" }));
+    const ok = items.filter(it => it && typeof it.name === "string" && TYPES[it.slot] && TYPES[it.slot][it.type] && it.status !== "wanted")
+      .map(it => ({ id: newId(), name: it.name.slice(0, 120), slot: it.slot, type: it.type, mat: MATS[it.mat] ? it.mat : "other", note: String(it.note || "").slice(0, 300), link: /^https?:\/\//i.test(it.link || "") ? it.link : "" }));
     if (!ok.length) { $("ioMsg").textContent = "Подходящих вещей в файле не нашлось."; return; }
     if (mode === "replace") inv = ok;
     else { const key = (x) => x.slot + "|" + x.type + "|" + x.name.toLowerCase(); const have = new Set(inv.map(key)); inv = inv.concat(ok.filter(x => !have.has(key(x)))); }
