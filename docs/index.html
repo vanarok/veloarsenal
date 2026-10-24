@@ -1460,16 +1460,24 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     if (url) { $("toastUrl").focus(); $("toastUrl").select(); }
   }
   $("toastClose").addEventListener("click", () => { clearTimeout(toastT); $("toast").hidden = true; });
-  async function shareKit(fresh) {
+  async function shareKit() {
     const msg = { set textContent(t) { if (t) toast(t, null, true); else $("toast").hidden = true; } };
     const kit = { v: 1, place, t: state.t, wind: state.wind, rain: state.rain, dark: state.dark, cruise: state.cruise, vmax: state.vmax, items: inv.map(({ id, ...rest }) => rest) };
     let url;
-    // Те же вещи — та же ссылка: новая создаётся, только если список вещей изменился (или прошёл почти год)
+    // Те же вещи — та же ссылка. Прежнюю ссылку проверяем по содержимому на dpaste: если её там нет
+    // или вещи не совпадают, молча создаём новую
     const body = JSON.stringify(kit);
     let last = null;
     try { last = JSON.parse(localStorage.getItem("veloarsenal.share") || "null"); } catch (err) { last = null; }
     const key = JSON.stringify(kit.items);
-    const reused = !fresh && last && last.key === key && Date.now() - last.at < 350 * 864e5;
+    let reused = false;
+    if (last && last.key === key && Date.now() - last.at < 350 * 864e5) {
+      try {
+        const r = await fetch("https://dpaste.com/" + last.id + ".txt");
+        const kept = r.ok && JSON.parse(await r.text());
+        reused = !!kept && JSON.stringify(kept.items) === key;
+      } catch (err) { reused = false; }
+    }
     if (reused) url = SITE + "#k=" + last.id;
     else try {
       msg.textContent = "Создаю ссылку…";
@@ -1484,12 +1492,10 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     }
     let copied = false;
     try { await navigator.clipboard.writeText(url); copied = true; } catch (err) { /* без буфера обмена */ }
-    const again = { label: "Создать новую", run: () => shareKit(true) };
-    if (reused) toast(copied ? "Ссылка на эту сборку уже есть и скопирована" : "Ссылка на эту сборку уже есть:", copied ? null : url, true, again);
-    else if (copied) toast("Ссылка скопирована", null, false);
+    if (copied) toast("Ссылка скопирована", null, false);
     else toast("Скопируйте ссылку:", url, true);
   }
-  $("shareBtn").addEventListener("click", () => shareKit(false));
+  $("shareBtn").addEventListener("click", shareKit);
   async function openShared(id) {
     let kit;
     try {
