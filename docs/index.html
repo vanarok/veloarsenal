@@ -438,12 +438,14 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     <div class="page-h"><button type="button" class="back" data-back>← Экипировка</button><h2 id="h-tips">Советы на эту погоду</h2></div>
         <div class="sec-h">Главное на эту погоду</div>
     <ul class="rules" id="rules"></ul>
-    <div class="sec-h" id="hdUpH">В гору</div>
-    <ul class="rules" id="hdUp"></ul>
-    <div class="sec-h" id="hdDownH">Перед спуском</div>
-    <ul class="rules" id="hdDown"></ul>
-    <div class="sec-h">Что снять в помещении</div>
-    <div class="cafe" id="cafe"></div>
+    <div id="cafeSec">
+      <div class="sec-h">Что снять в помещении</div>
+      <div class="cafe" id="cafe"></div>
+    </div>
+    <div id="hdSec">
+      <div class="sec-h">Другие советы</div>
+      <ul class="rules" id="hdList"></ul>
+    </div>
     <p class="more"><button type="button" class="lnk" data-go="guide">Что надеть при другой температуре →</button></p>
   </section>
 
@@ -546,7 +548,7 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     neck:         { slot: "face", n: "Снуд на шее", types: ["snood", "scarf", "balaclava", "mask"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, down: "подтянуть до подбородка", find: "снуд бафф меринос" },
     nose:         { slot: "face", n: "Снуд на подбородок и нос", types: ["snood", "mask", "balaclava", "scarf"], mats: ["merino", "wool", "synthetic"], r: "uncommon", warm: 1, cafe: true, note: "В помещении снимите, чтобы высох. Не натягивайте до самых очков — запотеют", up: "опустить на шею", down: "натянуть на нос", find: "снуд бафф меринос" },
     under:        { slot: "face", n: "Тонкий снуд под балаклаву", types: ["snood", "mask"], mats: ["merino", "synthetic"], r: "uncommon", warm: 1, optional: true },
-    glasses:      { slot: "eyes", n: "Спортивные очки", types: ["glasses", "sealed"], r: "rare", wind: 1, note: "Вечером — с прозрачными стёклами", down: "надеть: на скорости от ветра слезятся глаза", find: "велоочки прозрачная линза" },
+    glasses:      { slot: "eyes", n: "Спортивные очки", types: ["glasses", "sealed"], r: "rare", wind: 1, note: "Вечером — с прозрачными стёклами", down: "надеть, иначе от ветра слезятся глаза", find: "велоочки прозрачная линза" },
     glassesSeal:  { slot: "eyes", n: "Очки с уплотнителем", types: ["sealed", "goggles"], r: "epic", wind: 2, note: "Мягкая прокладка по краю не пускает холодный воздух сбоку — глаза не слезятся", down: "надеть", find: "спортивные очки с уплотнителем прозрачная линза", alts: ["glasses"] },
     tee:          { slot: "base", n: "Футболка", types: ["tee"], mats: ["merino", "synthetic"], avoid: ["cotton"], r: "uncommon", warm: 1, find: "велофутболка", alts: ["longsleeve"] },
     sleeves:      { slot: "base", n: "Нарукавники", types: ["sleeves"], r: "uncommon", warm: 1, note: "Стало жарко — спустите к запястью прямо на ходу", find: "велонарукавники", optional: true },
@@ -855,12 +857,13 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
     $("rules").innerHTML = rules(e, hilly()).map(x => "<li>" + x + "</li>").join("");
     const short = (x) => esc(x.n.split(/,| — /)[0]);
     const cafe = all.filter(x => x.cafe && x.s !== "missing");
-    $("cafe").innerHTML = cafe.length ? cafe.map(x => short(x)).join(", ") : '<span class="empty-note">Снимать нечего</span>';
-    const li = (k) => all.filter(x => x[k]).map(x => "<li><b>" + short(x) + ":</b> " + esc(x[k]) + "</li>").join("");
-    $("hdUpH").textContent = hilly() ? "В гору" : "Если будет подъём";
-    $("hdDownH").textContent = hilly() ? "Перед спуском" : "Если будет спуск";
-    $("hdUp").innerHTML = li("up") || "<li>Ничего менять не нужно</li>";
-    $("hdDown").innerHTML = li("down") || "<li>Ничего менять не нужно</li>";
+    $("cafeSec").hidden = !cafe.length;
+    $("cafe").innerHTML = cafe.map(x => short(x)).join(", ");
+    // Что сделать с вещью в гору и перед спуском — одной строкой
+    const tips = all.filter(x => x.up || x.down).map(x => "<li><b>" + short(x) + ":</b> " +
+      [x.up ? "в гору — " + esc(x.up) : "", x.down ? "перед спуском — " + esc(x.down) : ""].filter(Boolean).join(", ") + "</li>");
+    $("hdSec").hidden = !tips.length;
+    $("hdList").innerHTML = tips.join("");
     renderGuide(e);
 
     bindSlots();
