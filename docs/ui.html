@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Велоарсенал UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap">
+<script>try { var th = localStorage.getItem("veloarsenal.theme"); if (th && th !== "auto") document.documentElement.dataset.theme = th; } catch (e) {}</script>
+<link rel="stylesheet" href="ui.css?v=9fbec4bf">
+<style>
+/* Только для витрины: обычная прокрутка страницы и раскладка образцов */
+html, body { height: auto; }
+body { overflow: auto; }
+.gal { max-width: 942px; margin: 0 auto; display: grid; gap: 28px; padding-bottom: 40px; }
+.gal-h { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+.gal-h h1 { margin: 0; font: 600 26px var(--font-cond); letter-spacing: .04em; text-transform: uppercase; }
+.gal-h p { margin: 0; color: var(--muted); font-size: 15px; flex-basis: 100%; }
+.gs { display: grid; gap: 10px; }
+.gs > h2 { margin: 0; font: 600 13px var(--font-cond); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.gs > .note { margin: 0; color: var(--muted); font-size: 14px; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.sw { display: grid; gap: 4px; width: 112px; font-size: 13px; color: var(--ink-2); }
+.sw i { display: block; height: 44px; border: 1px solid var(--rule-strong); border-radius: 3px; }
+.sw code { font-size: 12px; color: var(--muted); }
+.box { border: 1px solid var(--rule); border-radius: 4px; padding: 14px; background: var(--paper); }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; }
+.gal .card, .gal .toast, .gal .shared-bar, .gal .modal { position: static; transform: none; box-shadow: none; }
+.gal .modal-bg { position: static; background: none; padding: 0; display: block; }
+code { font-size: 13px; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div class="gal">
+
+  <header class="gal-h">
+    <h1>Велоарсенал UI</h1>
+    <select class="theme-sel" id="themeSel" aria-label="Тема оформления">
+      <option value="auto">Тема: авто</option><option value="light">Светлая</option><option value="dark">Тёмная</option><option value="dnb">Ночной DnB</option><option value="aurora">Аврора</option>
+    </select>
+    <a class="lnk" href="./">Открыть приложение →</a>
+    <p>Компоненты приложения из <code>ui.css</code>. Подключите файл и используйте классы ниже. Тема задаётся атрибутом <code>data-theme</code> у <code>&lt;html&gt;</code>: <code>light</code>, <code>dark</code>, <code>dnb</code>, <code>aurora</code>; без него — как в системе.</p>
+  </header>
+
+  <section class="gs">
+    <h2>Цвета</h2>
+    <p class="note">Все цвета — переменные на <code>:root</code>, каждая тема переопределяет их.</p>
+    <div class="row" id="swatches"></div>
+  </section>
+
+  <section class="gs">
+    <h2>Шрифт</h2>
+    <div class="box">
+      <div class="brand">Велоарсенал</div>
+      <div class="temp-big" style="margin:6px 0">+7°</div>
+      <div class="sec-h" style="margin:8px 0 4px">Заголовок раздела · .sec-h</div>
+      <p style="margin:0">Основной текст: IBM Plex Sans 16 px. Узкий IBM Plex Sans Condensed — для заголовков и подписей.</p>
+      <p style="margin:6px 0 0;color:var(--muted)">Второстепенный текст · <code>var(--muted)</code></p>
+    </div>
+  </section>
+
+  <section class="gs">
+    <h2>Кнопки</h2>
+    <div class="row">
+      <button type="button" class="btn">Обычная · .btn</button>
+      <button type="button" class="btn pri">Главная · .btn.pri</button>
+      <button type="button" class="lnk">Ссылка · .lnk</button>
+      <button type="button" class="add-btn">Добавить · .add-btn</button>
+      <button type="button" class="add-btn quiet">Тихая · .add-btn.quiet</button>
+      <button type="button" class="miss-btn">Не хватает: 3 вещи · .miss-btn</button>
+      <button type="button" class="ib" aria-label="Изменить">✎</button><button type="button" class="ib" aria-label="Удалить">✕</button>
+      <span>Подсказка<span class="tip" tabindex="0" title="Всплывающая подсказка · .tip">i</span></span>
+    </div>
+    <div class="row">
+      <button type="button" class="tg flag" aria-pressed="true">Темно</button>
+      <button type="button" class="tg flag" aria-pressed="false">Осадки</button>
+      <span class="note" style="color:var(--muted);font-size:14px">Переключатели · .tg.flag с aria-pressed</span>
+    </div>
+  </section>
+
+  <section class="gs">
+    <h2>Поля</h2>
+    <div class="box" style="display:grid;gap:12px">
+      <div class="sl-row"><label for="g-temp">Воздух</label><input type="range" id="g-temp" min="-10" max="30" value="7"><output for="g-temp">+7°</output></div>
+      <div class="speed"><label>Скорость <input type="number" value="15" aria-label="Скорость"></label><label>до <input type="number" value="40" aria-label="Максимум"> км/ч</label></div>
+      <form class="inv-form" onsubmit="return false">
+        <input class="wide" placeholder="Название, например «Флиска Helly Hansen»" aria-label="Название">
+        <label>Куда<select><option>Ветрозащита</option></select></label>
+        <label>Тип<select><option>Ветровка</option></select></label>
+      </form>
+      <div class="body-form">
+        <label>Рост<span class="bf-in"><input type="number" value="175" aria-label="Рост"><span class="bf-u">см</span></span></label>
+        <label>Грудь<span class="bf-in"><input type="number" value="100" aria-label="Грудь"><span class="bf-u">см</span></span></label>
+        <label>Обувь<span class="bf-in"><input type="text" value="40" aria-label="Обувь"><span class="bf-u">RU</span></span></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="gs">
+    <h2>Строки вещей · .slot</h2>
+    <p class="note">Есть своя вещь, замена, не хватает, не нужно, выбрана.</p>
+    <div class="two">
+      <div class="col">
+        <div class="slot" tabindex="0"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15a9 8 0 0 1 18 0v1.5H3z"/><path d="M8 8.5l1.5 6.5M12 7v8M16 8.5l-1.5 6.5"/></svg></span><div style="min-width:0"><div class="slabel">Шлем</div><div class="iname">Велошлем</div></div></div>
+        <div class="slot sel" tabindex="0"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3l-5 5 2 5 3-2v10h8V11l3 2 2-5-5-5-2 3h-4z"/></svg></span><div style="min-width:0"><div class="slabel">Ветрозащита · .sel</div><div class="iname">Тёплая велокуртка</div></div></div>
+        <div class="slot" tabindex="0"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l1 18h-5l-2-11-2 11H5z"/></svg></span><div style="min-width:0"><div class="slabel">Ноги</div><div class="iname sub">Велоштаны осенние · замена</div></div></div>
+      </div>
+      <div class="col">
+        <div class="slot" tabindex="0"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21v-8l-2-3 2-1 2 2V5a1.3 1.3 0 0 1 2.6 0v5-6a1.3 1.3 0 0 1 2.6 0v6-5a1.3 1.3 0 0 1 2.6 0v8c0 4-2 7-4 7z"/></svg></span><div style="min-width:0"><div class="slabel">Руки</div><div class="need-row"><span class="iname need">Тёплые перчатки</span><button type="button" class="add-btn">Добавить</button></div></div></div>
+        <div class="slot empty" tabindex="0"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l1 18h-5l-2-11-2 11H5z"/></svg></span><div style="min-width:0"><div class="slabel">Утепление ног · .empty</div><div class="iname">Выше −5° не нужны</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="gs">
+    <h2>Прогноз по часам · .hours</h2>
+    <div class="hours-wrap"><div class="hours" id="g-hours"></div></div>
+  </section>
+
+  <section class="gs">
+    <h2>Карточка описания · .card</h2>
+    <div class="card" role="dialog" aria-label="Пример карточки">
+      <div class="insp-item"><div class="insp-name need">Балаклава</div><div class="insp-meta">греет · защищает от ветра</div><div class="insp-hd"><b>↑</b> опустите с носа · <b>↓</b> поднимите на нос</div><div class="insp-note"><button type="button" class="lnk">Добавить</button> · <a href="#">Искать на Ozon</a></div><div class="insp-note">Если нет, можно заменить:</div><ul class="insp-alts"><li>Шапочка под шлем с ветрозащитой <button type="button" class="lnk">Добавить</button></li></ul></div>
+    </div>
+  </section>
+
+  <section class="gs">
+    <h2>Мои вещи: категории · details.inv-g</h2>
+    <div class="body-sum"><span>Мерки: рост 175 см · грудь 100 см · обувь 40</span><button type="button" class="lnk">Изменить</button></div>
+    <div>
+      <details class="inv-g" open><summary>Ветрозащита<span class="inv-c">2</span></summary>
+        <div class="inv-row"><div class="inv-txt"><div class="inv-n">Тёплая велокуртка</div><div class="inv-m">Софтшелл / тёплая велокуртка · Синтетический утеплитель</div></div><button type="button" class="ib">✎</button><button type="button" class="ib">✕</button></div>
+        <div class="inv-row"><div class="inv-txt"><div class="inv-n">Ветровка Rockbros</div><div class="inv-m">Ветровка · Нейлон</div></div><button type="button" class="ib">✎</button><button type="button" class="ib">✕</button></div>
+      </details>
+      <details class="inv-g"><summary>Голова<span class="inv-c">3</span></summary></details>
+    </div>
+  </section>
+
+  <section class="gs">
+    <h2>Таблица по температуре · .gchip, .gcard</h2>
+    <div class="gchips" role="group"><button type="button" class="gchip">+10…+15</button><button type="button" class="gchip now" aria-pressed="true">0…+10</button><button type="button" class="gchip">−5…0</button></div>
+    <dl class="gcard"><dt>Тело</dt><dd>термобельё, термоджерси и куртка от ветра</dd><dt>Руки</dt><dd>перчатки, которые не продувает</dd></dl>
+  </section>
+
+  <section class="gs">
+    <h2>Окно · .modal</h2>
+    <div class="modal-bg"><div class="modal" role="dialog" aria-label="Пример окна">
+      <h2>Мои мерки <span class="tip" tabindex="0" title="Подсказка в заголовке">i</span></h2>
+      <p style="margin:6px 0 12px;color:var(--ink-2)">Содержимое окна.</p>
+      <div class="inv-actions"><button type="button" class="btn pri">Готово</button><button type="button" class="btn">Отмена</button></div>
+    </div></div>
+  </section>
+
+  <section class="gs">
+    <h2>Всплывашки · .toast, .shared-bar</h2>
+    <div class="toast" role="status"><span>Ссылка скопирована</span><button type="button" class="ib" aria-label="Закрыть">✕</button></div>
+    <div class="toast" role="status"><span>Скопируйте ссылку:</span><input readonly value="https://vanarok.github.io/veloarsenal/#k=7ZGWVDH8P" aria-label="Ссылка"><button type="button" class="ib" aria-label="Закрыть">✕</button></div>
+    <div class="shared-bar" role="status"><span>Чужая сборка: 12 вещей, Бишкек, +3°</span><span class="shared-act"><button type="button" class="btn pri">Сохранить себе</button><button type="button" class="btn">Вернуться к моей</button></span></div>
+  </section>
+
+</div>
+<script>
+(function () {
+  "use strict";
+  // Переключатель темы — тот же, что в приложении, и та же сохранённая настройка
+  const sel = document.getElementById("themeSel");
+  try { sel.value = localStorage.getItem("veloarsenal.theme") || "auto"; } catch (e) { /* авто */ }
+  sel.addEventListener("change", () => {
+    if (sel.value === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = sel.value;
+    try { localStorage.setItem("veloarsenal.theme", sel.value); } catch (e) { /* только сейчас */ }
+    paint();
+  });
+  // Образцы цветов: значения читаются из текущей темы
+  const tokens = ["paper", "sheet", "ink", "ink-2", "muted", "rule", "rule-strong", "signal", "signal-ink", "rain", "layer-0", "layer-1", "layer-2", "layer-3"];
+  function paint() {
+    const cs = getComputedStyle(document.documentElement);
+    document.getElementById("swatches").innerHTML = tokens.map(t => '<div class="sw"><i style="background:var(--' + t + ')"></i>--' + t + '<code>' + cs.getPropertyValue("--" + t).trim() + '</code></div>').join("");
+  }
+  paint();
+  if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paint);
+  // Пример ленты прогноза
+  const hrs = [[14, 7, "2"], [15, 7, "2,5"], [16, 6, "2,5"], [17, 4, "2"], [18, 3, "1,5"], [19, 1, "1,5"], [20, 0, "1"], [21, -1, "1"]];
+  document.getElementById("g-hours").innerHTML = hrs.map(([h, t, w], i) => '<button type="button" class="hour' + (i === 3 ? " wet" : "") + '"><span class="h">' + h + ':00</span><span class="t">' + (t > 0 ? "+" : t < 0 ? "−" : "") + Math.abs(t) + '°</span><span class="w">' + w + '</span></button>').join("");
+})();
+</script>
+</body>
+</html>

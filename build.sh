@@ -6,6 +6,10 @@ OUT=build
 APP="$OUT/Велоарсенал.app"
 rm -rf "$OUT" && mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$OUT/icon.iconset"
 
+# Метка версии стилей в index.html: меняется ui.css — меняется ссылка, и сайт сам обновится
+v=$(md5 -q docs/ui.css | cut -c1-8)
+sed -i '' -E "s/ui\.css\?v=[a-z0-9]+/ui.css?v=$v/" docs/index.html docs/ui.html 2>/dev/null || true
+
 swiftc -O macos/main.swift -o "$APP/Contents/MacOS/Veloarsenal"
 
 for s in 16 32 128 256 512; do
@@ -25,6 +29,10 @@ body = data.get("body", {}) if isinstance(data, dict) else {}
 page = open(sys.argv[2], encoding="utf-8").read()
 js = lambda v: json.dumps(v, ensure_ascii=False).replace("</", "<\\/")
 tag = "<script>window.VA_DEFAULT_INVENTORY = " + js(items) + "; window.VA_DEFAULT_BODY = " + js(body) + ";</script>"
+import re
+# В приложении стили вшиваются прямо в страницу: файл с ?v= в адресе WKWebView может не открыть
+css = open("docs/ui.css", encoding="utf-8").read()
+page = re.sub(r'<link rel="stylesheet" href="ui\.css\?v=[a-z0-9]+">', lambda m: "<style>\n" + css + "</style>", page, count=1)
 open(sys.argv[3], "w", encoding="utf-8").write(page.replace("<!-- VA_DEFAULT_INVENTORY -->", tag, 1))
 PY
 else
