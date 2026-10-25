@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap">
 <script>try { var th = localStorage.getItem("veloarsenal.theme"); if (th && th !== "auto") document.documentElement.dataset.theme = th; } catch (e) {}</script>
-<link rel="stylesheet" href="ui.css?v=9fbec4bf">
+<link rel="stylesheet" href="ui.css?v=dfadb35a">
 <style>
 /* Только для витрины: обычная прокрутка страницы и раскладка образцов */
 html, body { height: auto; }
@@ -71,7 +71,7 @@ code { font-size: 13px; }
       <button type="button" class="add-btn quiet">Тихая · .add-btn.quiet</button>
       <button type="button" class="miss-btn">Не хватает: 3 вещи · .miss-btn</button>
       <button type="button" class="ib" aria-label="Изменить">✎</button><button type="button" class="ib" aria-label="Удалить">✕</button>
-      <span>Подсказка<span class="tip" tabindex="0" title="Всплывающая подсказка · .tip">i</span></span>
+      <span class="tip-host">Подсказка<span class="tip" tabindex="0" role="note" data-tip="Всплывающая подсказка · .tip[data-tip] внутри .tip-host">i</span></span>
     </div>
     <div class="row">
       <button type="button" class="tg flag" aria-pressed="true">Темно</button>
@@ -122,7 +122,7 @@ code { font-size: 13px; }
   <section class="gs">
     <h2>Карточка описания · .card</h2>
     <div class="card" role="dialog" aria-label="Пример карточки">
-      <div class="insp-item"><div class="insp-name need">Балаклава</div><div class="insp-meta">греет · защищает от ветра</div><div class="insp-hd"><b>↑</b> опустите с носа · <b>↓</b> поднимите на нос</div><div class="insp-note"><button type="button" class="lnk">Добавить</button> · <a href="#">Искать на Ozon</a></div><div class="insp-note">Если нет, можно заменить:</div><ul class="insp-alts"><li>Шапочка под шлем с ветрозащитой <button type="button" class="lnk">Добавить</button></li></ul></div>
+      <div class="insp-item"><div class="insp-name need tip-host">Балаклава<span class="tip" tabindex="0" role="note" data-tip="Совет по вещи · .tip[data-tip]">i</span></div><div class="insp-meta">греет · защищает от ветра</div><div class="insp-hd"><b>↑</b> опустите с носа · <b>↓</b> поднимите на нос</div><div class="insp-note"><button type="button" class="lnk">Добавить</button> · <a href="#">Искать на Ozon</a></div><div class="insp-note">Альтернативы:</div><ul class="insp-alts"><li>Снуд</li><li>Ветрозащитная шапочка <button type="button" class="lnk">Добавить</button></li></ul></div>
     </div>
   </section>
 
@@ -147,7 +147,7 @@ code { font-size: 13px; }
   <section class="gs">
     <h2>Окно · .modal</h2>
     <div class="modal-bg"><div class="modal" role="dialog" aria-label="Пример окна">
-      <h2>Мои мерки <span class="tip" tabindex="0" title="Подсказка в заголовке">i</span></h2>
+      <h2 class="tip-host">Мои мерки <span class="tip" tabindex="0" role="note" data-tip="Подсказка в заголовке">i</span></h2>
       <p style="margin:6px 0 12px;color:var(--ink-2)">Содержимое окна.</p>
       <div class="inv-actions"><button type="button" class="btn pri">Готово</button><button type="button" class="btn">Отмена</button></div>
     </div></div>

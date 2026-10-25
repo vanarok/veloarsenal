@@ -342,6 +342,10 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .io-msg { color: var(--ink-2); font-size: 15px; min-height: 1em; }
 .tip { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 4px; border: 1px solid var(--muted); border-radius: 50%; font: 600 11px/1 var(--font); text-transform: none; letter-spacing: 0; color: var(--muted); cursor: help; vertical-align: 1px; }
 .tip:hover, .tip:focus-visible { color: var(--ink); border-color: var(--ink); }
+/* Совет по наведению или касанию: всплывает под строкой с названием, на всю её ширину */
+.tip-host { position: relative; }
+.tip[data-tip]:hover::after, .tip[data-tip]:focus::after { content: attr(data-tip); position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 40; min-width: 200px; padding: 8px 10px; background: var(--ink); color: var(--paper); border-radius: 4px; box-shadow: 0 6px 18px rgb(0 0 0 / 0.2); font: 400 13px/1.4 var(--font); text-transform: none; letter-spacing: 0; white-space: normal; text-align: left; pointer-events: none; }
+.tip:focus { outline: none; color: var(--ink); border-color: var(--ink); }
 .src { font-size: 14px; color: var(--muted); margin: 10px 0 0; }
 
 /* Гайд */
