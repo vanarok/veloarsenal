@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap">
+<script>try { var th = localStorage.getItem("veloarsenal.theme"); if (th && th !== "auto") document.documentElement.dataset.theme = th; } catch (e) {}</script>
 <style>
 /* Маршрутный лист: светлая бумага, тёмные чернила, один сигнальный оранжевый — только то, что требует действия.
    Без свечений и градиентов; группировка — отступами и тонкими линиями, а не карточками. */
@@ -29,8 +30,9 @@
   --font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-cond: "IBM Plex Sans Condensed", "IBM Plex Sans", system-ui, sans-serif;
 }
+/* Темы: «Авто» берёт светлую или тёмную по системе; выбранная тема записана в data-theme у <html> */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]):not([data-theme="dnb"]) {
     --paper: #191a17;
     --sheet: #21221e;
     --ink: #ece8dd;
@@ -47,6 +49,48 @@
     --layer-3: #b3ae9f;
   }
 }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #191a17;
+  --sheet: #21221e;
+  --ink: #ece8dd;
+  --ink-2: #c9c4b6;
+  --muted: #a19d90;
+  --rule: #34352f;
+  --rule-strong: #4a4b43;
+  --signal: #f07a3a;
+  --signal-ink: #1b120c;
+  --rain: #7fb2d9;
+  --layer-0: #2a2b26;
+  --layer-1: #4a4a42;
+  --layer-2: #77756a;
+  --layer-3: #b3ae9f;
+}
+:root[data-theme="light"] { color-scheme: light; }
+/* Ночной DnB: глубокий синий, ледяной голубой текст, лаймовый акцент из ливреи, неоновое свечение */
+:root[data-theme="dnb"] {
+  color-scheme: dark;
+  --paper: #061633;
+  --sheet: #0b2350;
+  --ink: #eaf6ff;
+  --ink-2: #bcd9f6;
+  --muted: #85a8d0;
+  --rule: #17396c;
+  --rule-strong: #2b5a9c;
+  --signal: #d4f23c;
+  --signal-ink: #06122a;
+  --rain: #6fd6ff;
+  --layer-0: #0e2a58;
+  --layer-1: #1d4f96;
+  --layer-2: #3a8ce0;
+  --layer-3: #9ad9ff;
+}
+:root[data-theme="dnb"] body { background: radial-gradient(900px 520px at 85% -8%, rgb(80 220 255 / 0.28), transparent 70%), radial-gradient(700px 500px at -10% 110%, rgb(40 120 255 / 0.25), transparent 70%), linear-gradient(165deg, #040e24 0%, #08214d 55%, #0b3a86 100%) fixed; }
+:root[data-theme="dnb"] .brand, :root[data-theme="dnb"] #tempBig { color: #f2fbff; text-shadow: 0 0 14px rgb(90 220 255 / 0.75), 0 0 2px rgb(255 255 255 / 0.6); }
+:root[data-theme="dnb"] .slot.sel { box-shadow: inset 3px 0 0 #6fe4ff, 0 0 18px rgb(80 210 255 / 0.18); }
+:root[data-theme="dnb"] #figure .part { filter: drop-shadow(0 0 3px rgb(90 210 255 / 0.55)); }
+.theme-sel { font: 13px var(--font); color: var(--muted); background: transparent; border: 1px solid var(--rule); border-radius: 3px; padding: 2px 4px; cursor: pointer; }
+.theme-sel option { color: #1c1d1a; background: #fbf9f4; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 .m-only { display: none !important; }
@@ -380,6 +424,9 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   <section class="bar" aria-label="Условия поездки">
     <div class="brand-cell">
       <div class="brand">Велоарсенал</div>
+      <select class="theme-sel" id="themeSel" aria-label="Тема оформления" title="Тема оформления">
+        <option value="auto">Тема: авто</option><option value="light">Светлая</option><option value="dark">Тёмная</option><option value="dnb">Ночной DnB</option>
+      </select>
     </div>
     <div class="cond" id="cond" role="dialog" aria-label="Другая погода или скорость">
       <div class="m-only m-cond-h"><span>Другая погода или скорость</span><button type="button" class="ib" id="condClose" aria-label="Закрыть">✕</button></div>
@@ -1525,6 +1572,16 @@ html::-webkit-scrollbar, .main::-webkit-scrollbar, .col::-webkit-scrollbar, .cen
   $("sharedExit").addEventListener("click", () => { location.replace(location.pathname + location.search); });
   const shared = (location.hash.match(/^#k=([A-Za-z0-9]{4,20})$/) || [])[1];
   if (shared) openShared(shared);
+
+  // Тема оформления: сохраняется в этом браузере или приложении
+  let theme = "auto";
+  try { theme = localStorage.getItem("veloarsenal.theme") || "auto"; } catch (err) { /* по умолчанию */ }
+  $("themeSel").value = theme;
+  $("themeSel").addEventListener("change", (ev) => {
+    const v = ev.target.value;
+    if (v === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = v;
+    try { localStorage.setItem("veloarsenal.theme", v); } catch (err) { /* только сейчас */ }
+  });
 
   showView("main");
   if (!SLOTS.some(s => s.id === state.sel)) state.sel = "shell";
