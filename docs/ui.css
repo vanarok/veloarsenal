@@ -349,6 +349,14 @@ input[type=range] { width: 100%; accent-color: var(--ink); height: 18px; margin:
 .tip-host { position: relative; }
 .tip[data-tip]:hover::after, .tip[data-tip]:focus::after { content: attr(data-tip); position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 40; min-width: 200px; padding: 8px 10px; background: var(--ink); color: var(--paper); border-radius: 4px; box-shadow: 0 6px 18px rgb(0 0 0 / 0.2); font: 400 13px/1.4 var(--font); text-transform: none; letter-spacing: 0; white-space: normal; text-align: left; pointer-events: none; }
 .tip:focus { outline: none; color: var(--ink); border-color: var(--ink); }
+/* Подсказка из нескольких строк: вложенный .tip-box, каждая строка отдельным span */
+.tip-box { display: none; position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 40; min-width: 200px; padding: 8px 10px; background: var(--ink); color: var(--paper); border-radius: 4px; box-shadow: 0 6px 18px rgb(0 0 0 / 0.2); font: 400 13px/1.4 var(--font); text-align: left; cursor: auto; }
+.tip-box > span { display: block; }
+.tip-box > span + span { margin-top: 4px; }
+.tip:hover > .tip-box, .tip:focus > .tip-box { display: block; }
+/* Качество воздуха: цветная точка по уровню AQI */
+.aq-dot { display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 50%; vertical-align: 1px; background: var(--muted); }
+.aq-0 { background: #3fae49; } .aq-1 { background: #e5c100; } .aq-2 { background: #f08a24; } .aq-3 { background: #e0362c; } .aq-4 { background: #8f3f97; } .aq-5 { background: #7e0023; }
 .src { font-size: 14px; color: var(--muted); margin: 10px 0 0; }
 
 /* Гайд */

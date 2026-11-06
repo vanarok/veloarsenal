@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap">
 <script>try { var th = localStorage.getItem("veloarsenal.theme"); if (th && th !== "auto") document.documentElement.dataset.theme = th; } catch (e) {}</script>
-<link rel="stylesheet" href="ui.css?v=22ca0588">
+<link rel="stylesheet" href="ui.css?v=03cb2241">
 
 <div class="app">
   <section class="bar" aria-label="Условия поездки">
@@ -838,7 +838,7 @@
     place = { name: String(p.name || "Моё место").slice(0, 60), lat: Math.round(p.lat * 100) / 100, lon: Math.round(p.lon * 100) / 100 };
     if (!viewOnly) try { localStorage.setItem(PLACE_KEY, JSON.stringify(place)); } catch (err) { /* в памяти */ }
     $("cityPanel").hidden = true;
-    weather = null; renderWeather(); lastManual = 0; loadWeather();
+    weather = null; air = null; renderWeather(); lastManual = 0; loadWeather(); loadAir();
   }
   function toggleCity(open) {
     $("cityPanel").hidden = !open;
@@ -906,7 +906,7 @@
       '<div class="wx-l">' + city + '<span class="wt">' + fmt(Math.round(c.t)) + '</span>' +
       '<span>ощущ. <b>' + fmt(Math.round(c.feels)) + '</b></span></div>' +
       '<div class="wx-l"><span>ветер <b>' + ms(c.wind) + '</b>, порывы <b>' + Math.round(c.gust) + '</b> м/с</span>' +
-      '<span><b>' + (WMO[c.code] || "—") + '</b></span></div>' +
+      '<span><b>' + (WMO[c.code] || "—") + '</b></span></div>' + airLine() +
       '<button type="button" class="w-apply" id="wApply">Одеться на сейчас<span class="wx-upd">прогноз от ' + when.toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + (old ? " · устарел" : "") + '</span></button>';
     $("cityBtn").onclick = () => toggleCity($("cityPanel").hidden);
     $("wApply").onclick = () => { lastManual = 0; applyWeather(c.t, c.wind, c.code); };
@@ -935,6 +935,7 @@
     $("wNow").innerHTML =
       '<div class="wx-l">' + city + '<span class="wt sk">+00°</span><span class="sk">ощущ. +00°</span></div>' +
       '<div class="wx-l"><span class="sk">ветер 0,0, порывы 0 м/с</span><span class="sk">ясно</span></div>' +
+      '<div class="wx-l"><span class="sk">AQI 00 по датчикам · 00 по модели</span></div>' +
       '<button type="button" class="w-apply" disabled>Одеться на сейчас<span class="wx-upd">' + msg + '</span></button>';
     $("wHours").innerHTML = Array.from({ length: 12 }, () => '<div class="hour sk-h" aria-hidden="true"><span class="h">00:00</span><span class="t">+0°</span><span class="w">0,0</span></div>').join("");
     $("cityBtn").onclick = () => toggleCity($("cityPanel").hidden);
@@ -965,9 +966,75 @@
       retry = setTimeout(loadWeather, 60 * 1000);
     }
   }
+  // Качество воздуха из двух независимых источников: датчики Sensor.Community рядом и модель CAMS через Open-Meteo.
+  // Индекс AQI по шкале США (EPA 2024), считается по PM2.5 и PM10, берётся больший
+  let air = null;
+  const AQ_PM25 = [[0, 9, 0, 50], [9.1, 35.4, 51, 100], [35.5, 55.4, 101, 150], [55.5, 125.4, 151, 200], [125.5, 225.4, 201, 300], [225.5, 325.4, 301, 500]];
+  const AQ_PM10 = [[0, 54, 0, 50], [55, 154, 51, 100], [155, 254, 101, 150], [255, 354, 151, 200], [355, 424, 201, 300], [425, 604, 301, 500]];
+  const AQ_LV = [
+    [50, "хороший", ""],
+    [100, "умеренный", "Чувствительным к пыли лучше ехать спокойнее"],
+    [150, "вреден чувствительным", "Тяжёлую тренировку лучше перенести, едьте в спокойном темпе"],
+    [200, "вредный", "Лучше сократить поездку. Помогает маска FFP2"],
+    [300, "очень вредный", "Лучше не кататься. Если нужно ехать, наденьте маску FFP2"],
+    [Infinity, "опасный", "Не катайтесь, по возможности оставайтесь дома"]
+  ];
+  const aqiOf = (v, bp) => { if (v == null || isNaN(v)) return null; const x = Math.max(0, v); const r = bp.find(b => x <= b[1]) || bp[bp.length - 1]; return Math.round(r[2] + (Math.min(x, r[1]) - r[0]) * (r[3] - r[2]) / (r[1] - r[0])); };
+  const aqi = (pm25, pm10) => { const a = [aqiOf(pm25, AQ_PM25), aqiOf(pm10, AQ_PM10)].filter(v => v != null); return a.length ? Math.max(...a) : null; };
+  const aqLevel = (v) => AQ_LV.findIndex(l => v <= l[0]);
+  const median = (a) => { const b = [...a].sort((x, y) => x - y); const m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+  const pm = (v) => v == null ? "нет" : String(Math.round(v * 10) / 10).replace(".", ",");
+  async function loadAir() {
+    const forPlace = place;
+    // Для датчиков координаты округлены до сотых: этого хватает для поиска в радиусе 10 км
+    const lat = Math.round(place.lat * 100) / 100, lon = Math.round(place.lon * 100) / 100;
+    const [model, sensors] = await Promise.all([
+      fetch("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=" + place.lat + "&longitude=" + place.lon + "&current=pm2_5,pm10,us_aqi&timezone=auto", { cache: "no-store" })
+        .then(r => r.ok ? r.json() : null).then(j => j && j.current ? { aqi: j.current.us_aqi, pm25: j.current.pm2_5, pm10: j.current.pm10 } : null).catch(() => null),
+      fetch("https://data.sensor.community/airrohr/v1/filter/area=" + lat + "," + lon + ",10", { cache: "no-store" })
+        .then(r => r.ok ? r.json() : null).then(list => {
+          if (!Array.isArray(list)) return null;
+          const p25 = [], p10 = [];
+          for (const x of list) {
+            if (x.location && Number(x.location.indoor)) continue;
+            for (const v of x.sensordatavalues || []) {
+              const n = Number(v.value);
+              if (!(n >= 0 && n < 1000)) continue;
+              if (v.value_type === "P2") p25.push(n); else if (v.value_type === "P1") p10.push(n);
+            }
+          }
+          if (!p25.length) return null;
+          const pm25 = median(p25), pm10 = p10.length ? median(p10) : null;
+          return { aqi: aqi(pm25, pm10), pm25, pm10, n: p25.length };
+        }).catch(() => null)
+    ]);
+    if (forPlace !== place) return;
+    air = (model || sensors) ? { model, sensors } : null;
+    renderWeather();
+  }
+  function airLine() {
+    if (!air) return "";
+    const { model, sensors } = air;
+    const vals = [sensors && sensors.aqi, model && model.aqi].filter(v => v != null);
+    if (!vals.length) return "";
+    const lv = aqLevel(Math.max(...vals));
+    const parts = [];
+    if (sensors && sensors.aqi != null) parts.push("<b>" + sensors.aqi + "</b> по датчикам");
+    if (model && model.aqi != null) parts.push("<b>" + model.aqi + "</b> по модели");
+    const tip = [
+      sensors ? "Датчики Sensor.Community: " + sensors.n + " шт. в 10 км, медиана PM2.5 " + pm(sensors.pm25) + ", PM10 " + pm(sensors.pm10) + " мкг/м³" : "Датчиков рядом нет",
+      model ? "Модель CAMS (Open-Meteo): PM2.5 " + pm(model.pm25) + ", PM10 " + pm(model.pm10) + " мкг/м³, индекс за сутки" : "",
+      "Индекс AQI по шкале США: до 50 хороший, до 100 умеренный, выше 150 вредный",
+      AQ_LV[lv][2]
+    ].filter(Boolean);
+    return '<div class="wx-l tip-host aq"><span><i class="aq-dot aq-' + lv + '" aria-hidden="true"></i>AQI ' + parts.join(" · ") + ', <b>' + AQ_LV[lv][1] + '</b>' +
+      '<span class="tip" tabindex="0" role="note" aria-label="' + esc(tip.join(". ")) + '">i<span class="tip-box" aria-hidden="true">' + tip.map(t => '<span>' + esc(t) + '</span>').join("") + '</span></span></span></div>';
+  }
   renderWeather();
   loadWeather();
+  loadAir();
   setInterval(loadWeather, 15 * 60 * 1000);
+  setInterval(loadAir, 15 * 60 * 1000);
   window.addEventListener("focus", () => { if (!weather || Date.now() - new Date(weather.updatedAt).getTime() > 10 * 60 * 1000) loadWeather(); });
 
   $("temp").addEventListener("input", (ev) => { lastManual = Date.now(); state.t = Number(ev.target.value); render(); });
@@ -1152,7 +1219,7 @@
     ["t", "wind", "cruise", "vmax"].forEach(k => { if (isFinite(kit[k])) state[k] = Number(kit[k]); });
     state.rain = !!kit.rain; state.dark = !!kit.dark;
     lastManual = Date.now() + 1e12;
-    if (kit.place && isFinite(kit.place.lat) && isFinite(kit.place.lon)) { place = { name: String(kit.place.name || "").slice(0, 60), lat: kit.place.lat, lon: kit.place.lon }; weather = null; renderWeather(); loadWeather(); }
+    if (kit.place && isFinite(kit.place.lat) && isFinite(kit.place.lon)) { place = { name: String(kit.place.name || "").slice(0, 60), lat: kit.place.lat, lon: kit.place.lon }; weather = null; air = null; renderWeather(); loadWeather(); loadAir(); }
     $("sharedTxt").textContent = "Чужая сборка: " + inv.length + " " + plural(inv.length, "вещь", "вещи", "вещей") + ", " + place.name + ", " + fmt(state.t);
     $("sharedBar").hidden = false;
     renderInv(); render();
